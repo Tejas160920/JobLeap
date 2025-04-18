@@ -1,44 +1,24 @@
-// src/components/JobSection.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import JobCard from "./JobCard";
 import JobDetails from "./JobDetails";
 
-// 🧪 Mock data
-const jobs = [
-  {
-    id: 1,
-    title: "Frontend Developer",
-    company: "Google",
-    location: "Bangalore, India",
-    salary: "$120,000 / year",
-    type: "Full-time",
-    description:
-      "We're looking for a skilled frontend developer with React and Tailwind experience.",
-  },
-  {
-    id: 2,
-    title: "Backend Engineer",
-    company: "Amazon",
-    location: "Hyderabad, India",
-    salary: "$135,000 / year",
-    type: "Full-time",
-    description:
-      "Join our team to build scalable APIs using Node.js and MongoDB.",
-  },
-  {
-    id: 3,
-    title: "DevOps Engineer",
-    company: "Microsoft",
-    location: "Remote",
-    salary: "$110,000 / year",
-    type: "Contract",
-    description:
-      "Manage cloud infrastructure and CI/CD pipelines across environments.",
-  },
-];
-
 const JobSection = () => {
-  const [selectedJob, setSelectedJob] = useState(jobs[0]);
+  const [jobs, setJobs] = useState([]);
+  const [selectedJob, setSelectedJob] = useState(null);
+
+  useEffect(() => {
+    // Fetch jobs from backend
+    axios
+      .get("http://localhost:5000/api/jobs")
+      .then((res) => {
+        setJobs(res.data);
+        setSelectedJob(res.data[0]); // Show first job by default
+      })
+      .catch((err) => {
+        console.error("Error fetching jobs:", err);
+      });
+  }, []);
 
   return (
     <section className="max-w-7xl mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -46,9 +26,9 @@ const JobSection = () => {
       <div className="md:col-span-1 space-y-4">
         {jobs.map((job) => (
           <JobCard
-            key={job.id}
+            key={job._id}
             job={job}
-            isSelected={job.id === selectedJob.id}
+            isSelected={selectedJob?._id === job._id}
             onSelect={() => setSelectedJob(job)}
           />
         ))}
@@ -56,7 +36,7 @@ const JobSection = () => {
 
       {/* RIGHT: Job Description */}
       <div className="md:col-span-2">
-        <JobDetails job={selectedJob} />
+        {selectedJob && <JobDetails job={selectedJob} />}
       </div>
     </section>
   );
