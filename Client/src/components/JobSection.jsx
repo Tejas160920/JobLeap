@@ -1,42 +1,50 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+// src/components/JobSection.jsx
+import React, { useEffect, useState } from "react";
 import JobCard from "./JobCard";
 import JobDetails from "./JobDetails";
 
-const JobSection = () => {
+const JobSection = ({ filters }) => {
   const [jobs, setJobs] = useState([]);
   const [selectedJob, setSelectedJob] = useState(null);
 
   useEffect(() => {
-    // Fetch jobs from backend
-    axios
-      .get("http://localhost:5000/api/jobs")
-      .then((res) => {
-        setJobs(res.data);
-        setSelectedJob(res.data[0]); // Show first job by default
-      })
-      .catch((err) => {
-        console.error("Error fetching jobs:", err);
-      });
-  }, []);
+    const fetchJobs = async () => {
+      let query = "";
+
+      if (filters.title) {
+        query += `title=${encodeURIComponent(filters.title)}&`;
+      }
+      if (filters.location) {
+        query += `location=${encodeURIComponent(filters.location)}`;
+      }
+
+      const res = await fetch(`http://localhost:5000/api/jobs?${query}`);
+      const data = await res.json();
+      setJobs(data);
+      setSelectedJob(data[0] || null);
+    };
+
+    fetchJobs();
+  }, [filters]);
+
+  if (jobs.length === 0) {
+    return <p className="text-center mt-10 text-gray-500">No jobs found.</p>;
+  }
 
   return (
     <section className="max-w-7xl mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-3 gap-6">
-      {/* LEFT: Job Cards List */}
       <div className="md:col-span-1 space-y-4">
         {jobs.map((job) => (
           <JobCard
             key={job._id}
             job={job}
-            isSelected={selectedJob?._id === job._id}
+            isSelected={selectedJob && job._id === selectedJob._id}
             onSelect={() => setSelectedJob(job)}
           />
         ))}
       </div>
-
-      {/* RIGHT: Job Description */}
       <div className="md:col-span-2">
-        {selectedJob && <JobDetails job={selectedJob} />}
+        <JobDetails job={selectedJob} />
       </div>
     </section>
   );
