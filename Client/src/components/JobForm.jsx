@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import AccessDenied from "./AccessDenied";
 
 const JobForm = () => {
   const [formData, setFormData] = useState({
@@ -9,6 +10,19 @@ const JobForm = () => {
     type: "Full-time",
     description: "",
   });
+
+  const [isAuthorized, setIsAuthorized] = useState(null); // null = loading state
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("userRole");
+
+    if (token && role === "hiring") {
+      setIsAuthorized(true);
+    } else {
+      setIsAuthorized(false);
+    }
+  }, []);
 
   const handleChange = (e) => {
     setFormData((prev) => ({
@@ -25,6 +39,7 @@ const JobForm = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`, // ✅ Send token to backend
         },
         body: JSON.stringify(formData),
       });
@@ -47,6 +62,10 @@ const JobForm = () => {
       alert("Error posting job.");
     }
   };
+
+  // 👇 Show loading or redirect based on auth
+  if (isAuthorized === null) return null;
+  if (!isAuthorized) return <AccessDenied />;
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-10">

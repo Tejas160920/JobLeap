@@ -8,10 +8,8 @@ router.get("/jobs", jobController.getJobs);     // Get all jobs
 
 
 
-// Public route
-router.get("/", getJobs);
+router.get("/", jobController.getJobs);
+router.post("/", verifyToken, requireHiringRole, jobController.createJob);
 
-// Protected route (only hiring users)
-router.post("/", verifyToken, requireHiringRole, createJob);
 
 module.exports = router;

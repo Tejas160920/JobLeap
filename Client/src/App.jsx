@@ -1,4 +1,4 @@
-// src/App.jsx
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
@@ -10,6 +10,8 @@ import JobForm from './components/JobForm';
 import Signup from './components/Signup';
 
 function App() {
+  const [filters, setFilters] = useState({ title: "", location: "" });
+
   return (
     <Router>
       <div className="bg-white min-h-screen">
@@ -20,8 +22,8 @@ function App() {
               path="/"
               element={
                 <>
-                  <Hero />
-                  <JobSection />
+                  <Hero onSearch={setFilters} />
+                  <JobSection filters={filters} />
                 </>
               }
             />
