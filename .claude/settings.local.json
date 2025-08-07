@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker-compose:*)",
+      "Bash(npm start)",
+      "Bash(node server.js)",
+      "Bash(ping:*)"
+    ],
+    "deny": []
+  }
+}
