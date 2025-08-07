@@ -1,25 +1,278 @@
-// src/components/JobDetails.jsx
-import React from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { 
+  FaMapMarkerAlt, 
+  FaClock, 
+  FaDollarSign, 
+  FaBriefcase, 
+  FaBookmark, 
+  FaRegBookmark,
+  FaShare,
+  FaExternalLinkAlt,
+  FaBuilding,
+  FaCalendarAlt,
+  FaHeart,
+  FaRegHeart
+} from "react-icons/fa";
 
 const JobDetails = ({ job }) => {
-  if (!job) return null;
+  const navigate = useNavigate();
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+  const [showProfilePrompt, setShowProfilePrompt] = useState(false);
+  
+  if (!job) {
+    return (
+      <div className="bg-white rounded-xl p-8 shadow-lg border border-gray-200 h-96 flex items-center justify-center">
+        <div className="text-center text-gray-500">
+          <FaBriefcase className="mx-auto text-4xl mb-4" />
+          <p className="text-lg font-medium">Select a job to view details</p>
+          <p className="text-sm">Click on any job card to see full information</p>
+        </div>
+      </div>
+    );
+  }
+
+  const getTimeAgo = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now - date);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 1) return "1 day ago";
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 30) return `${Math.ceil(diffDays / 7)} weeks ago`;
+    return `${Math.ceil(diffDays / 30)} months ago`;
+  };
+
+  const handleApply = () => {
+    const token = localStorage.getItem("token");
+    const userEmail = localStorage.getItem("userEmail");
+    
+    if (!token) {
+      // User not logged in, redirect to signup
+      navigate("/signup");
+      return;
+    }
+
+    // Check if user has completed their profile (simplified check)
+    const hasProfile = localStorage.getItem("profileCompleted");
+    if (!hasProfile) {
+      setShowProfilePrompt(true);
+      return;
+    }
+
+    // In a real app, this would open an application form or redirect to company site
+    alert("Application feature coming soon!");
+  };
+
+  const handleBookmark = () => {
+    const token = localStorage.getItem("token");
+    
+    if (!token) {
+      navigate("/signup");
+      return;
+    }
+    
+    setIsBookmarked(!isBookmarked);
+  };
+
+  const handleLike = () => {
+    const token = localStorage.getItem("token");
+    
+    if (!token) {
+      navigate("/signup");
+      return;
+    }
+    
+    setIsLiked(!isLiked);
+  };
+
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: job.title,
+        text: `Check out this ${job.title} position at ${job.company}`,
+        url: window.location.href
+      });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      alert("Job link copied to clipboard!");
+    }
+  };
 
   return (
-    <div className="bg-white rounded-lg p-6 shadow">
-      <h2 className="text-2xl font-bold text-gray-800 mb-2">{job.title}</h2>
-      <p className="text-gray-700 font-medium">{job.company}</p>
-      <p className="text-gray-500 text-sm mb-4">{job.location}</p>
+    <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-6 border-b border-gray-200">
+        <div className="flex justify-between items-start mb-4">
+          <div className="flex-1">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">{job.title}</h1>
+            <div className="flex items-center text-xl font-semibold text-gray-700 mb-2">
+              <FaBuilding className="mr-2 text-blue-600" />
+              {job.company}
+            </div>
+            <div className="flex items-center text-gray-600">
+              <FaMapMarkerAlt className="mr-2" />
+              <span>{job.location}</span>
+              <span className="mx-3">•</span>
+              <FaCalendarAlt className="mr-2" />
+              <span>Posted {getTimeAgo(job.postedAt)}</span>
+            </div>
+          </div>
+          
+          <div className="flex space-x-2">
+            <button
+              onClick={handleLike}
+              className="p-3 rounded-full hover:bg-white transition-colors"
+            >
+              {isLiked ? (
+                <FaHeart className="text-red-500" />
+              ) : (
+                <FaRegHeart className="text-gray-400" />
+              )}
+            </button>
+            <button
+              onClick={handleBookmark}
+              className="p-3 rounded-full hover:bg-white transition-colors"
+            >
+              {isBookmarked ? (
+                <FaBookmark className="text-blue-600" />
+              ) : (
+                <FaRegBookmark className="text-gray-400" />
+              )}
+            </button>
+            <button
+              onClick={handleShare}
+              className="p-3 rounded-full hover:bg-white transition-colors"
+            >
+              <FaShare className="text-gray-400" />
+            </button>
+          </div>
+        </div>
 
-      <div className="flex gap-4 mb-4 text-sm">
-        <span className="bg-green-100 text-green-700 px-3 py-1 rounded">
-          {job.salary}
-        </span>
-        <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded">
-          {job.type}
-        </span>
+        {/* Job badges */}
+        <div className="flex flex-wrap gap-3 mb-6">
+          {job.salary && (
+            <div className="flex items-center bg-green-100 text-green-800 px-4 py-2 rounded-full font-medium">
+              <FaDollarSign className="mr-2" />
+              {job.salary}
+            </div>
+          )}
+          <div className="flex items-center bg-blue-100 text-blue-800 px-4 py-2 rounded-full font-medium">
+            <FaBriefcase className="mr-2" />
+            {job.jobType || job.type || "Full-time"}
+          </div>
+          <div className="flex items-center bg-purple-100 text-purple-800 px-4 py-2 rounded-full font-medium">
+            <FaClock className="mr-2" />
+            Remote Friendly
+          </div>
+        </div>
+
+        {/* Action buttons */}
+        <div className="flex space-x-4">
+          <button
+            onClick={handleApply}
+            className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300 btn-hover-lift flex items-center justify-center"
+          >
+            Apply Now
+            <FaExternalLinkAlt className="ml-2" />
+          </button>
+          <button className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:border-gray-400 hover:bg-gray-50 transition-colors">
+            Save for Later
+          </button>
+        </div>
       </div>
 
-      <p className="text-gray-700 leading-relaxed">{job.description}</p>
+      {/* Job Description */}
+      <div className="p-6">
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Job Description</h2>
+          <div className="prose max-w-none text-gray-700 leading-relaxed">
+            {job.description ? (
+              <div className="whitespace-pre-wrap">{job.description}</div>
+            ) : (
+              <div className="space-y-4">
+                <p>We are looking for a talented {job.title} to join our growing team at {job.company}.</p>
+                <p>This is an excellent opportunity to work with cutting-edge technologies and contribute to innovative projects that make a real impact.</p>
+                
+                <h3 className="text-lg font-semibold text-gray-900 mt-6 mb-3">What you'll do:</h3>
+                <ul className="list-disc list-inside space-y-2">
+                  <li>Collaborate with cross-functional teams to deliver high-quality solutions</li>
+                  <li>Contribute to the development and maintenance of our products</li>
+                  <li>Participate in code reviews and maintain coding standards</li>
+                  <li>Stay up-to-date with industry trends and best practices</li>
+                </ul>
+
+                <h3 className="text-lg font-semibold text-gray-900 mt-6 mb-3">What we're looking for:</h3>
+                <ul className="list-disc list-inside space-y-2">
+                  <li>Strong technical skills and problem-solving abilities</li>
+                  <li>Excellent communication and teamwork skills</li>
+                  <li>Passion for learning and professional growth</li>
+                  <li>Experience with relevant technologies and frameworks</li>
+                </ul>
+
+                <h3 className="text-lg font-semibold text-gray-900 mt-6 mb-3">Benefits:</h3>
+                <ul className="list-disc list-inside space-y-2">
+                  <li>Competitive salary and comprehensive benefits</li>
+                  <li>Flexible working arrangements</li>
+                  <li>Professional development opportunities</li>
+                  <li>Great company culture and team environment</li>
+                </ul>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Company info */}
+        <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-900 mb-3">About {job.company}</h3>
+          <p className="text-gray-700 mb-4">
+            {job.company} is a leading company committed to innovation and excellence. 
+            We offer a dynamic work environment where talented individuals can grow their careers 
+            and make meaningful contributions to our success.
+          </p>
+          <button className="text-blue-600 hover:text-blue-800 font-medium transition-colors">
+            View Company Profile →
+          </button>
+        </div>
+      </div>
+
+      {/* Profile Completion Popup */}
+      {showProfilePrompt && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-8 max-w-md mx-auto">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <FaBriefcase className="text-blue-600 text-2xl" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                Complete Your Profile
+              </h3>
+              <p className="text-gray-600 mb-6">
+                To get better job matches and apply for positions, please complete your profile first.
+              </p>
+              <div className="flex space-x-4">
+                <button
+                  onClick={() => {
+                    setShowProfilePrompt(false);
+                    navigate('/complete-profile');
+                  }}
+                  className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+                >
+                  Complete Profile
+                </button>
+                <button
+                  onClick={() => setShowProfilePrompt(false)}
+                  className="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+                >
+                  Later
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
