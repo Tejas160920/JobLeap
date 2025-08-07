@@ -8,9 +8,26 @@ import Salaries from './components/Salaries';
 import Login from './components/Login';
 import JobForm from './components/JobForm';
 import Signup from './components/Signup';
+import ProfileCompletion from './components/ProfileCompletion';
+import MyApplications from './components/MyApplications';
+import Settings from './components/Settings';
 
 function App() {
   const [filters, setFilters] = useState({ title: "", location: "" });
+  const [showJobs, setShowJobs] = useState(false);
+  const [viewAllJobs, setViewAllJobs] = useState(false);
+
+  const handleSearch = (searchFilters) => {
+    setFilters(searchFilters);
+    setShowJobs(true);
+    setViewAllJobs(false);
+  };
+
+  const handleViewAllJobs = () => {
+    setFilters({ title: "", location: "" });
+    setShowJobs(true);
+    setViewAllJobs(true);
+  };
 
   return (
     <Router>
@@ -22,8 +39,20 @@ function App() {
               path="/"
               element={
                 <>
-                  <Hero onSearch={setFilters} />
-                  <JobSection filters={filters} />
+                  <Hero 
+                    onSearch={handleSearch} 
+                    onViewAllJobs={handleViewAllJobs} 
+                    showCompactMode={showJobs || viewAllJobs}
+                  />
+                  {(showJobs || viewAllJobs) && (
+                    <div id="jobs-section">
+                      <JobSection 
+                        filters={filters} 
+                        showAll={viewAllJobs}
+                        onBackToHome={() => setShowJobs(false)}
+                      />
+                    </div>
+                  )}
                 </>
               }
             />
@@ -32,6 +61,9 @@ function App() {
             <Route path="/salaries" element={<Salaries />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/complete-profile" element={<ProfileCompletion />} />
+            <Route path="/my-applications" element={<MyApplications />} />
+            <Route path="/settings" element={<Settings />} />
           </Routes>
         </main>
       </div>

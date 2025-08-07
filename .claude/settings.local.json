@@ -4,7 +4,10 @@
       "Bash(docker-compose:*)",
       "Bash(npm start)",
       "Bash(node server.js)",
-      "Bash(ping:*)"
+      "Bash(ping:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm run build:*)",
+      "Bash(curl:*)"
     ],
     "deny": []
   }
