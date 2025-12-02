@@ -199,16 +199,25 @@ exports.debugApplications = async (req, res) => {
       .limit(50)
       .lean();
 
+    // Also check indexes
+    let indexes = [];
+    try {
+      indexes = await Application.collection.indexes();
+    } catch (e) {
+      indexes = [{ error: e.message }];
+    }
+
     res.json({
       success: true,
       count: applications.length,
+      indexes: indexes,
       applications: applications.map(app => ({
         _id: app._id,
         applicant: app.applicant,
         job: app.job,
         externalJobId: app.externalJobId,
         hasExternalJobData: !!app.externalJobData,
-        externalJobDataKeys: app.externalJobData ? Object.keys(app.externalJobData) : [],
+        externalJobData: app.externalJobData,
         status: app.status,
         appliedAt: app.appliedAt
       }))

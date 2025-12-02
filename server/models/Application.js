@@ -4,10 +4,8 @@ const applicationSchema = new mongoose.Schema({
   job: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Job',
-    required: function() {
-      // Job is required only if it's not an external job
-      return !this.externalJobId;
-    }
+    default: null
+    // Note: job is optional - external jobs use externalJobId instead
   },
   applicant: {
     type: mongoose.Schema.Types.ObjectId,
@@ -17,7 +15,7 @@ const applicationSchema = new mongoose.Schema({
   // For external jobs (RemoteOK, etc.)
   externalJobId: {
     type: String,
-    sparse: true
+    default: null
   },
   externalJobData: {
     title: String,
@@ -79,8 +77,13 @@ applicationSchema.index({ externalJobId: 1, applicant: 1 });
 applicationSchema.index({ applicant: 1, status: 1 });
 applicationSchema.index({ job: 1, status: 1 });
 
-// Pre-save middleware to update statusHistory
+// Pre-save middleware to update statusHistory and validate job fields
 applicationSchema.pre('save', function(next) {
+  // Ensure at least one job identifier is present
+  if (!this.job && !this.externalJobId) {
+    return next(new Error('Either job or externalJobId must be provided'));
+  }
+
   if (this.isModified('status')) {
     this.statusHistory.push({
       status: this.status,
