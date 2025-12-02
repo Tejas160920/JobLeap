@@ -6,8 +6,14 @@ const { verifyToken } = require("../middleware/authMiddleware");
 // Fix indexes route (no auth required, run once)
 router.get("/fix-indexes", applicationController.fixIndexes);
 
+// Debug endpoint (no auth required)
+router.get("/debug", applicationController.debugApplications);
+
 // All routes below require authentication
 router.use(verifyToken);
+
+// Clear user's applications (for testing)
+router.delete("/clear-mine", applicationController.clearMyApplications);
 
 // Get user's applications
 router.get("/", applicationController.getMyApplications);
