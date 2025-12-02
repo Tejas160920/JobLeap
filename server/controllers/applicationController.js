@@ -232,11 +232,48 @@ exports.debugApplications = async (req, res) => {
       indexes = [{ error: e.message }];
     }
 
+    // Also format the applications like getMyApplications would
+    const formattedApplications = applications.map(app => {
+      if (app.job) {
+        return {
+          _id: app._id,
+          jobId: app.job,
+          jobTitle: 'Local Job (not populated)',
+          company: 'N/A',
+          status: app.status,
+          appliedAt: app.appliedAt,
+          isExternal: false,
+          debug: 'has job'
+        };
+      }
+      if (app.externalJobId) {
+        return {
+          _id: app._id,
+          jobId: app.externalJobId,
+          jobTitle: app.externalJobData?.title || 'Unknown Job',
+          company: app.externalJobData?.company || 'Unknown Company',
+          location: app.externalJobData?.location || 'Remote',
+          salary: app.externalJobData?.salary || '',
+          jobType: app.externalJobData?.jobType || 'Remote',
+          url: app.externalJobData?.url,
+          status: app.status,
+          appliedAt: app.appliedAt,
+          isExternal: true,
+          debug: 'has externalJobId'
+        };
+      }
+      return {
+        _id: app._id,
+        debug: 'no job or externalJobId',
+        raw: app
+      };
+    });
+
     res.json({
       success: true,
       count: applications.length,
       indexes: indexes,
-      applications: applications.map(app => ({
+      rawApplications: applications.map(app => ({
         _id: app._id,
         applicant: app.applicant,
         job: app.job,
@@ -245,7 +282,8 @@ exports.debugApplications = async (req, res) => {
         externalJobData: app.externalJobData,
         status: app.status,
         appliedAt: app.appliedAt
-      }))
+      })),
+      formattedApplications
     });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
