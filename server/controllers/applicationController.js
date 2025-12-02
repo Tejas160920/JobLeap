@@ -1,9 +1,12 @@
 const Application = require("../models/Application");
 const Job = require("../models/job");
+const connectDB = require("../config/db");
 
 // Get user's applications
 exports.getMyApplications = async (req, res) => {
   try {
+    // Ensure DB is connected (important for serverless)
+    await connectDB();
     const applications = await Application.find({ applicant: req.user.id })
       .populate('job', 'title company location salary jobType')
       .sort({ appliedAt: -1 });
@@ -57,6 +60,9 @@ exports.getMyApplications = async (req, res) => {
 // Apply for a job
 exports.applyForJob = async (req, res) => {
   try {
+    // Ensure DB is connected (important for serverless)
+    await connectDB();
+
     const { jobId, externalJobId, externalJobData, coverLetter } = req.body;
 
     // Check if already applied
@@ -114,6 +120,9 @@ exports.applyForJob = async (req, res) => {
 // Withdraw application
 exports.withdrawApplication = async (req, res) => {
   try {
+    // Ensure DB is connected (important for serverless)
+    await connectDB();
+
     const { applicationId } = req.params;
 
     const application = await Application.findOne({
@@ -161,6 +170,9 @@ exports.withdrawApplication = async (req, res) => {
 // Get single application details
 exports.getApplicationDetails = async (req, res) => {
   try {
+    // Ensure DB is connected (important for serverless)
+    await connectDB();
+
     const { applicationId } = req.params;
 
     const application = await Application.findOne({
