@@ -24,6 +24,9 @@ const MyApplications = () => {
   const [withdrawingId, setWithdrawingId] = useState(null);
 
   useEffect(() => {
+    // Scroll to top when component mounts
+    window.scrollTo(0, 0);
+
     const token = localStorage.getItem("token");
     if (!token) {
       navigate("/login");

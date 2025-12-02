@@ -136,6 +136,7 @@ const JobDetails = ({ job }) => {
       });
 
       const data = await res.json();
+      console.log('Application response:', data); // Debug log
 
       // For external jobs (RemoteOK), save first then open the job URL
       if (job.url) {
@@ -143,6 +144,9 @@ const JobDetails = ({ job }) => {
           alert("Application saved! Opening job page. Check 'My Applications' to track your applications.");
         } else if (data.message?.includes('already applied')) {
           alert("You have already applied to this job. Opening job page anyway.");
+        } else {
+          // Show error message
+          alert(`Failed to save application: ${data.message || 'Unknown error'}. Opening job page anyway.`);
         }
         window.open(job.url, '_blank', 'noopener,noreferrer');
         return;

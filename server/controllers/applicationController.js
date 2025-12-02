@@ -65,6 +65,17 @@ exports.applyForJob = async (req, res) => {
 
     const { jobId, externalJobId, externalJobData, coverLetter } = req.body;
 
+    console.log('Apply request body:', { jobId, externalJobId, hasExternalData: !!externalJobData });
+    console.log('User ID:', req.user?.id);
+
+    // Validate that we have either jobId or externalJobId
+    if (!jobId && !externalJobId) {
+      return res.status(400).json({
+        success: false,
+        message: "Job ID or External Job ID is required"
+      });
+    }
+
     // Check if already applied
     let existingApplication;
     if (jobId) {
@@ -100,8 +111,12 @@ exports.applyForJob = async (req, res) => {
       applicationData.externalJobData = externalJobData;
     }
 
+    console.log('Creating application with data:', applicationData);
+
     const application = new Application(applicationData);
     await application.save();
+
+    console.log('Application saved successfully:', application._id);
 
     res.status(201).json({
       success: true,
@@ -109,10 +124,11 @@ exports.applyForJob = async (req, res) => {
       application
     });
   } catch (err) {
-    console.error("Error applying for job:", err);
+    console.error("Error applying for job:", err.message, err.stack);
     res.status(500).json({
       success: false,
-      message: "Failed to submit application"
+      message: "Failed to submit application",
+      error: err.message
     });
   }
 };
