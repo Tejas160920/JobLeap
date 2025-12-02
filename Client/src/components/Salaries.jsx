@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { 
-  FaSearch, 
-  FaMapMarkerAlt, 
-  FaChartLine, 
-  FaArrowUp, 
+import { useNavigate } from "react-router-dom";
+import {
+  FaSearch,
+  FaMapMarkerAlt,
+  FaChartLine,
+  FaArrowUp,
   FaArrowDown,
   FaDollarSign,
   FaBriefcase,
@@ -146,10 +147,16 @@ const categories = [
 ];
 
 const Salaries = () => {
+  const navigate = useNavigate();
   const [searchTitle, setSearchTitle] = useState("");
   const [searchLocation, setSearchLocation] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortBy, setSortBy] = useState("average");
+  const [selectedSalary, setSelectedSalary] = useState(null);
+
+  const handleSearchJobs = (jobTitle) => {
+    navigate('/', { state: { companyFilter: jobTitle } });
+  };
 
   const filteredSalaries = salaries
     .filter(job => {
@@ -216,7 +223,10 @@ const Salaries = () => {
                       className="w-full pl-12 pr-4 py-4 text-lg border-0 focus:ring-0 outline-none placeholder-gray-500 rounded-xl bg-transparent"
                     />
                   </div>
-                  <button className="bg-gradient-to-r from-green-600 to-blue-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300 btn-hover-lift flex items-center justify-center min-w-[140px]">
+                  <button
+                    onClick={() => setSearchTitle(searchTitle)}
+                    className="bg-gradient-to-r from-green-600 to-blue-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300 btn-hover-lift flex items-center justify-center min-w-[140px]"
+                  >
                     <FaSearch className="mr-2" />
                     Search Salaries
                   </button>
@@ -372,8 +382,11 @@ const Salaries = () => {
                       <FaInfoCircle className="text-gray-400" />
                       <span>Based on {job.companies} reports</span>
                     </div>
-                    <button className="text-blue-600 hover:text-blue-800 font-medium text-sm transition-colors">
-                      View Details →
+                    <button
+                      onClick={() => handleSearchJobs(job.title)}
+                      className="text-blue-600 hover:text-blue-800 font-medium text-sm transition-colors"
+                    >
+                      Find Jobs →
                     </button>
                   </div>
                 </div>
@@ -412,11 +425,17 @@ const Salaries = () => {
             Browse thousands of job opportunities from companies offering competitive salaries
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-white text-blue-600 px-8 py-4 rounded-xl font-semibold text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+            <button
+              onClick={() => navigate('/')}
+              className="bg-white text-blue-600 px-8 py-4 rounded-xl font-semibold text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+            >
               Browse Jobs
             </button>
-            <button className="border-2 border-white text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white hover:text-blue-600 transition-all duration-300">
-              Upload Resume
+            <button
+              onClick={() => navigate('/resume-builder')}
+              className="border-2 border-white text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white hover:text-blue-600 transition-all duration-300"
+            >
+              Build Resume
             </button>
           </div>
         </div>

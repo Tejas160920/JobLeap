@@ -1,16 +1,38 @@
 version: "3.9"
 
 services:
+  mongodb:
+    image: mongo:7
+    container_name: jobleap-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=jobleap
+
   backend:
     build: ./server
+    container_name: jobleap-backend
+    restart: unless-stopped
     ports:
       - "5000:5000"
     env_file:
       - ./server/.env
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/jobleap
+    depends_on:
+      - mongodb
 
   frontend:
-    build: ./client
+    build: ./Client
+    container_name: jobleap-frontend
+    restart: unless-stopped
     ports:
       - "3000:80"
     depends_on:
       - backend
+
+volumes:
+  mongodb_data:

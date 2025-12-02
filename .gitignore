@@ -1,0 +1,59 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Environment variables (IMPORTANT - contains secrets!)
+.env
+.env.local
+.env.production
+.env.*.local
+Client/.env
+server/.env
+
+# Build outputs
+dist/
+build/
+.next/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Testing
+coverage/
+
+# Secrets and credentials
+*.pem
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+!vercel.json
+!manifest.json
+client_secret*.json
+
+# Vercel
+.vercel
+
+# Claude AI (remove any AI traces)
+.claude/
+.claude
+
+# Screenshots and temp files
+*.png
+*.jpg
+nul
+setup.js
+test-auth.js
+OAUTH_SETUP.md

@@ -1,15 +1,24 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaGoogle, FaApple, FaEye, FaEyeSlash, FaEnvelope, FaLock, FaBriefcase, FaUser, FaCheck } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { API_BASE_URL } from "../config/api";
 
 const Signup = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     confirmPassword: "",
     role: "seeking",
   });
+
+  useEffect(() => {
+    const roleFromUrl = searchParams.get('role');
+    if (roleFromUrl && (roleFromUrl === 'seeking' || roleFromUrl === 'hiring')) {
+      setFormData(prev => ({ ...prev, role: roleFromUrl }));
+    }
+  }, [searchParams]);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -52,7 +61,7 @@ const Signup = () => {
     setIsLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5000/api/auth/signup", {
+      const res = await fetch(`${API_BASE_URL}/auth/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -66,23 +75,36 @@ const Signup = () => {
 
       const data = await res.json();
 
-      if (res.ok) {
+      if (data.success) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("userRole", data.user.role);
         localStorage.setItem("userEmail", data.user.email);
-        navigate("/");
+        localStorage.setItem("profileCompleted", data.user.profileCompleted);
+        
+        // Redirect to profile completion for job seekers
+        if (data.user.role === 'seeking') {
+          navigate("/complete-profile");
+        } else {
+          navigate("/");
+        }
       } else {
         setError(data.message || "Signup failed");
       }
     } catch (err) {
-      setError("Something went wrong. Please try again.");
+      setError("Network error. Please check your connection and try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleSocialSignup = (provider) => {
-    alert(`${provider} signup coming soon!`);
+    if (provider === 'Google') {
+      // Redirect to Google OAuth
+      window.location.href = `${API_BASE_URL}/auth/google`;
+    } else if (provider === 'Apple') {
+      // Redirect to Apple OAuth (if configured)
+      window.location.href = `${API_BASE_URL}/auth/apple`;
+    }
   };
 
   const getPasswordStrengthText = () => {
@@ -132,13 +154,6 @@ const Signup = () => {
             >
               <FaGoogle className="mr-3 text-red-500" />
               Continue with Google
-            </button>
-            <button
-              onClick={() => handleSocialSignup("Apple")}
-              className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 hover:shadow-md transition-all duration-300 transform hover:scale-105"
-            >
-              <FaApple className="mr-3 text-gray-800" />
-              Continue with Apple
             </button>
           </div>
 

@@ -1,26 +1,55 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-  FaMapMarkerAlt, 
-  FaClock, 
-  FaDollarSign, 
-  FaBriefcase, 
-  FaBookmark, 
+import {
+  FaMapMarkerAlt,
+  FaClock,
+  FaDollarSign,
+  FaBriefcase,
+  FaBookmark,
   FaRegBookmark,
   FaShare,
   FaExternalLinkAlt,
   FaBuilding,
   FaCalendarAlt,
   FaHeart,
-  FaRegHeart
+  FaRegHeart,
+  FaTags
 } from "react-icons/fa";
+import { API_BASE_URL } from "../config/api";
 
 const JobDetails = ({ job }) => {
   const navigate = useNavigate();
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [showProfilePrompt, setShowProfilePrompt] = useState(false);
-  
+  const [isApplying, setIsApplying] = useState(false);
+
+  // Check if job is bookmarked on load
+  useEffect(() => {
+    const checkBookmark = async () => {
+      const token = localStorage.getItem("token");
+      if (!token || !job) return;
+
+      try {
+        const jobId = job._id?.startsWith('remoteok_') ? null : job._id;
+        const externalJobId = job._id?.startsWith('remoteok_') ? job._id : null;
+
+        const query = jobId ? `jobId=${jobId}` : `externalJobId=${externalJobId}`;
+        const res = await fetch(`${API_BASE_URL}/bookmarks/check?${query}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          setIsBookmarked(data.isBookmarked);
+        }
+      } catch (err) {
+        console.error("Error checking bookmark:", err);
+      }
+    };
+
+    checkBookmark();
+  }, [job]);
+
   if (!job) {
     return (
       <div className="bg-white rounded-xl p-8 shadow-lg border border-gray-200 h-96 flex items-center justify-center">
@@ -38,43 +67,174 @@ const JobDetails = ({ job }) => {
     const now = new Date();
     const diffTime = Math.abs(now - date);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 1) return "1 day ago";
     if (diffDays < 7) return `${diffDays} days ago`;
     if (diffDays < 30) return `${Math.ceil(diffDays / 7)} weeks ago`;
     return `${Math.ceil(diffDays / 30)} months ago`;
   };
 
-  const handleApply = () => {
-    const token = localStorage.getItem("token");
-    const userEmail = localStorage.getItem("userEmail");
-    
-    if (!token) {
-      // User not logged in, redirect to signup
-      navigate("/signup");
-      return;
-    }
+  // Clean and sanitize HTML description
+  const cleanDescription = (html) => {
+    if (!html) return null;
 
-    // Check if user has completed their profile (simplified check)
-    const hasProfile = localStorage.getItem("profileCompleted");
-    if (!hasProfile) {
-      setShowProfilePrompt(true);
-      return;
-    }
+    // Remove the "Please mention the word" spam text
+    let cleaned = html.replace(/Please mention the word \*\*\w+\*\* and tag.*?human\./gi, '');
+    cleaned = cleaned.replace(/<br\s*\/?>\s*<br\s*\/?>\s*Please mention.*$/gi, '');
 
-    // In a real app, this would open an application form or redirect to company site
-    alert("Application feature coming soon!");
+    // Fix common encoding issues
+    cleaned = cleaned.replace(/â/g, "'");
+    cleaned = cleaned.replace(/â/g, '"');
+    cleaned = cleaned.replace(/â/g, '"');
+    cleaned = cleaned.replace(/â/g, "–");
+    cleaned = cleaned.replace(/â¢/g, "•");
+    cleaned = cleaned.replace(/&nbsp;/g, ' ');
+    cleaned = cleaned.replace(/&#x27;/g, "'");
+    cleaned = cleaned.replace(/&amp;/g, '&');
+
+    return cleaned;
   };
 
-  const handleBookmark = () => {
+  const handleApply = async () => {
     const token = localStorage.getItem("token");
-    
+
     if (!token) {
       navigate("/signup");
       return;
     }
-    
-    setIsBookmarked(!isBookmarked);
+
+    setIsApplying(true);
+
+    try {
+      // Track the application in the database
+      const isExternal = job._id?.startsWith('remoteok_');
+
+      const applicationData = isExternal ? {
+        externalJobId: job._id,
+        externalJobData: {
+          title: job.title,
+          company: job.company,
+          location: job.location,
+          salary: job.salary,
+          jobType: job.jobType,
+          url: job.url,
+          logo: job.logo,
+          postedAt: job.postedAt,
+          source: job.source || 'RemoteOK'
+        }
+      } : {
+        jobId: job._id
+      };
+
+      const res = await fetch(`${API_BASE_URL}/applications`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(applicationData)
+      });
+
+      const data = await res.json();
+
+      // For external jobs (RemoteOK), open the job URL
+      if (job.url) {
+        window.open(job.url, '_blank', 'noopener,noreferrer');
+        return;
+      }
+
+      // For local jobs, check profile completion
+      const hasProfile = localStorage.getItem("profileCompleted") === "true";
+      if (!hasProfile) {
+        setShowProfilePrompt(true);
+        return;
+      }
+
+      // For local jobs with applicationUrl
+      if (job.applicationUrl) {
+        window.open(job.applicationUrl, '_blank', 'noopener,noreferrer');
+        return;
+      }
+
+      // For local jobs with applicationEmail
+      if (job.applicationEmail) {
+        window.location.href = `mailto:${job.applicationEmail}?subject=Application for ${job.title}`;
+        return;
+      }
+
+      // Show success message
+      if (data.success) {
+        alert("Application tracked! Check 'My Applications' to see your application status.");
+      } else if (data.message?.includes('already applied')) {
+        alert("You have already applied to this job.");
+      }
+    } catch (err) {
+      console.error("Error tracking application:", err);
+      // Still open the job URL even if tracking fails
+      if (job.url) {
+        window.open(job.url, '_blank', 'noopener,noreferrer');
+      }
+    } finally {
+      setIsApplying(false);
+    }
+  };
+
+  const handleBookmark = async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      navigate("/signup");
+      return;
+    }
+
+    try {
+      if (isBookmarked) {
+        // Remove bookmark
+        const jobId = job._id?.startsWith('remoteok_') ? null : job._id;
+        const externalJobId = job._id?.startsWith('remoteok_') ? job._id : null;
+
+        const endpoint = jobId
+          ? `${API_BASE_URL}/bookmarks/${jobId}`
+          : `${API_BASE_URL}/bookmarks/external/${externalJobId}`;
+
+        await fetch(endpoint, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      } else {
+        // Add bookmark
+        const isExternal = job._id?.startsWith('remoteok_');
+
+        await fetch(`${API_BASE_URL}/bookmarks`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify(isExternal ? {
+            externalJobId: job._id,
+            externalJobData: {
+              title: job.title,
+              company: job.company,
+              location: job.location,
+              salary: job.salary,
+              jobType: job.jobType,
+              description: job.description,
+              url: job.url,
+              logo: job.logo,
+              postedAt: job.postedAt,
+              source: job.source
+            }
+          } : {
+            jobId: job._id
+          })
+        });
+      }
+
+      setIsBookmarked(!isBookmarked);
+    } catch (err) {
+      console.error("Error toggling bookmark:", err);
+    }
   };
 
   const handleLike = () => {
@@ -173,29 +333,77 @@ const JobDetails = ({ job }) => {
         <div className="flex space-x-4">
           <button
             onClick={handleApply}
-            className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300 btn-hover-lift flex items-center justify-center"
+            disabled={isApplying}
+            className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300 btn-hover-lift flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
           >
-            Apply Now
-            <FaExternalLinkAlt className="ml-2" />
+            {isApplying ? (
+              <>
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div>
+                Applying...
+              </>
+            ) : (
+              <>
+                Apply Now
+                <FaExternalLinkAlt className="ml-2" />
+              </>
+            )}
           </button>
-          <button className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:border-gray-400 hover:bg-gray-50 transition-colors">
-            Save for Later
+          <button
+            onClick={handleBookmark}
+            className={`px-6 py-3 border-2 rounded-lg font-semibold transition-colors flex items-center ${
+              isBookmarked
+                ? 'border-blue-500 bg-blue-50 text-blue-700'
+                : 'border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50'
+            }`}
+          >
+            {isBookmarked ? <FaBookmark className="mr-2" /> : <FaRegBookmark className="mr-2" />}
+            {isBookmarked ? 'Saved' : 'Save for Later'}
           </button>
         </div>
       </div>
 
       {/* Job Description */}
       <div className="p-6">
+        {/* Tags/Skills */}
+        {job.tags && job.tags.length > 0 && (
+          <div className="mb-6">
+            <div className="flex items-center mb-3">
+              <FaTags className="text-gray-500 mr-2" />
+              <h3 className="text-lg font-semibold text-gray-900">Skills & Tags</h3>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {job.tags.map((tag, index) => (
+                <span
+                  key={index}
+                  className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium hover:bg-gray-200 transition-colors"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Job Description</h2>
-          <div className="prose max-w-none text-gray-700 leading-relaxed">
+          <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed
+            prose-headings:text-gray-900 prose-headings:font-semibold
+            prose-p:mb-4 prose-p:text-gray-700
+            prose-ul:list-disc prose-ul:pl-6 prose-ul:space-y-2
+            prose-ol:list-decimal prose-ol:pl-6 prose-ol:space-y-2
+            prose-li:text-gray-700
+            prose-strong:text-gray-900
+            prose-a:text-blue-600 prose-a:hover:underline">
             {job.description ? (
-              <div className="whitespace-pre-wrap">{job.description}</div>
+              <div
+                dangerouslySetInnerHTML={{ __html: cleanDescription(job.description) }}
+                className="job-description"
+              />
             ) : (
               <div className="space-y-4">
                 <p>We are looking for a talented {job.title} to join our growing team at {job.company}.</p>
                 <p>This is an excellent opportunity to work with cutting-edge technologies and contribute to innovative projects that make a real impact.</p>
-                
+
                 <h3 className="text-lg font-semibold text-gray-900 mt-6 mb-3">What you'll do:</h3>
                 <ul className="list-disc list-inside space-y-2">
                   <li>Collaborate with cross-functional teams to deliver high-quality solutions</li>
@@ -228,11 +436,14 @@ const JobDetails = ({ job }) => {
         <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900 mb-3">About {job.company}</h3>
           <p className="text-gray-700 mb-4">
-            {job.company} is a leading company committed to innovation and excellence. 
-            We offer a dynamic work environment where talented individuals can grow their careers 
+            {job.company} is a leading company committed to innovation and excellence.
+            We offer a dynamic work environment where talented individuals can grow their careers
             and make meaningful contributions to our success.
           </p>
-          <button className="text-blue-600 hover:text-blue-800 font-medium transition-colors">
+          <button
+            onClick={() => navigate('/company-reviews', { state: { companyFilter: job.company } })}
+            className="text-blue-600 hover:text-blue-800 font-medium transition-colors"
+          >
             View Company Profile →
           </button>
         </div>
