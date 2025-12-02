@@ -136,18 +136,9 @@ const JobDetails = ({ job }) => {
       });
 
       const data = await res.json();
-      console.log('Application response:', data); // Debug log
 
-      // For external jobs (RemoteOK), save first then open the job URL
+      // For external jobs (RemoteOK), save and open the job URL
       if (job.url) {
-        if (data.success) {
-          alert("Application saved! Opening job page. Check 'My Applications' to track your applications.");
-        } else if (data.message?.includes('already applied')) {
-          alert("You have already applied to this job. Opening job page anyway.");
-        } else {
-          // Show error message
-          alert(`Failed to save application: ${data.message || 'Unknown error'}. Opening job page anyway.`);
-        }
         window.open(job.url, '_blank', 'noopener,noreferrer');
         return;
       }
@@ -161,31 +152,17 @@ const JobDetails = ({ job }) => {
 
       // For local jobs with applicationUrl
       if (job.applicationUrl) {
-        if (data.success) {
-          alert("Application saved! Opening application page.");
-        }
         window.open(job.applicationUrl, '_blank', 'noopener,noreferrer');
         return;
       }
 
       // For local jobs with applicationEmail
       if (job.applicationEmail) {
-        if (data.success) {
-          alert("Application saved! Opening email client.");
-        }
         window.location.href = `mailto:${job.applicationEmail}?subject=Application for ${job.title}`;
         return;
       }
-
-      // Show success message for other cases
-      if (data.success) {
-        alert("Application submitted! Check 'My Applications' to see your application status.");
-      } else if (data.message?.includes('already applied')) {
-        alert("You have already applied to this job.");
-      }
     } catch (err) {
       console.error("Error tracking application:", err);
-      alert("Failed to save application. Please try again.");
       // Still open the job URL even if tracking fails
       if (job.url) {
         window.open(job.url, '_blank', 'noopener,noreferrer');
