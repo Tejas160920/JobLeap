@@ -1,8 +1,15 @@
 const passport = require('passport');
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const User = require('../models/User');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
+
+// Only require Google Strategy if we have credentials
+let GoogleStrategy = null;
+try {
+  GoogleStrategy = require('passport-google-oauth20').Strategy;
+} catch (err) {
+  console.log('passport-google-oauth20 not available');
+}
 
 // Generate a secure random password hash for OAuth users
 const generateOAuthPasswordHash = async () => {
@@ -10,8 +17,8 @@ const generateOAuthPasswordHash = async () => {
   return await bcrypt.hash(randomPassword, 12);
 };
 
-// Only configure Google OAuth if credentials are available
-if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+// Only configure Google OAuth if credentials and strategy are available
+if (GoogleStrategy && process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
   passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
@@ -54,7 +61,7 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     }
   }));
 } else {
-  console.log('Google OAuth not configured - missing GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET');
+  console.log('Google OAuth not configured - missing strategy or credentials');
 }
 
 // Serialize user for session

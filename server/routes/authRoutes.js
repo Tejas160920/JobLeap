@@ -37,32 +37,27 @@ router.get("/settings", verifyToken, getSettings);
 router.put("/settings", verifyToken, updateSettings);
 router.delete("/account", verifyToken, deleteAccount);
 
-// Google OAuth routes
-router.get("/google", 
-  passport.authenticate("google", { scope: ["profile", "email"] })
-);
-
-router.get("/google/callback", 
-  passport.authenticate("google", { 
-    failureRedirect: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?error=google_auth_failed`,
-    session: false
-  }),
-  oauthSuccess
-);
-
-// Apple OAuth routes (if configured)
-if (process.env.APPLE_CLIENT_ID) {
-  router.get("/apple", 
-    passport.authenticate("apple", { scope: ["name", "email"] })
+// Google OAuth routes (only if configured)
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+  router.get("/google",
+    passport.authenticate("google", { scope: ["profile", "email"] })
   );
 
-  router.post("/apple/callback", 
-    passport.authenticate("apple", { 
-      failureRedirect: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?error=apple_auth_failed`,
+  router.get("/google/callback",
+    passport.authenticate("google", {
+      failureRedirect: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?error=google_auth_failed`,
       session: false
     }),
     oauthSuccess
   );
+} else {
+  // Provide fallback routes that return appropriate error
+  router.get("/google", (req, res) => {
+    res.status(503).json({ success: false, message: "Google OAuth not configured" });
+  });
+  router.get("/google/callback", (req, res) => {
+    res.status(503).json({ success: false, message: "Google OAuth not configured" });
+  });
 }
 
 module.exports = router;
