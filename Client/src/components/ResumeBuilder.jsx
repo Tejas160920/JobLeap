@@ -19,6 +19,10 @@ const ResumeBuilder = () => {
   const [selectedTemplate, setSelectedTemplate] = useState(1);
   const totalSteps = 4;
 
+  // Validation state
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
+
   // Initialize state first
   const [resumeData, setResumeData] = useState({
     personalInfo: {
@@ -165,9 +169,159 @@ const ResumeBuilder = () => {
     }));
   };
 
+  // Validation functions
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePhone = (phone) => {
+    const phoneRegex = /^[\d\s\-\+\(\)]{10,20}$/;
+    return phoneRegex.test(phone.replace(/\s/g, ''));
+  };
+
+  const validateURL = (url) => {
+    if (!url) return true; // Optional field
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const validateStep2 = () => {
+    const newErrors = {};
+    const { personalInfo } = resumeData;
+
+    // Full Name validation
+    if (!personalInfo.fullName.trim()) {
+      newErrors.fullName = 'Full name is required';
+    } else if (personalInfo.fullName.trim().length < 2) {
+      newErrors.fullName = 'Full name must be at least 2 characters';
+    } else if (personalInfo.fullName.trim().length > 100) {
+      newErrors.fullName = 'Full name must be less than 100 characters';
+    }
+
+    // Email validation
+    if (!personalInfo.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!validateEmail(personalInfo.email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+
+    // Phone validation
+    if (!personalInfo.phone.trim()) {
+      newErrors.phone = 'Phone number is required';
+    } else if (!validatePhone(personalInfo.phone)) {
+      newErrors.phone = 'Please enter a valid phone number';
+    }
+
+    // Location validation
+    if (!personalInfo.location.trim()) {
+      newErrors.location = 'Location is required';
+    } else if (personalInfo.location.trim().length < 2) {
+      newErrors.location = 'Location must be at least 2 characters';
+    }
+
+    // Website validation (optional)
+    if (personalInfo.website && !validateURL(personalInfo.website)) {
+      newErrors.website = 'Please enter a valid URL (e.g., https://example.com)';
+    }
+
+    // LinkedIn validation (optional)
+    if (personalInfo.linkedin && !validateURL(personalInfo.linkedin)) {
+      newErrors.linkedin = 'Please enter a valid LinkedIn URL';
+    }
+
+    // Summary validation (optional but with max length)
+    if (personalInfo.summary && personalInfo.summary.length > 1000) {
+      newErrors.summary = 'Summary must be less than 1000 characters';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateStep3 = () => {
+    const newErrors = {};
+
+    resumeData.experience.forEach((exp, index) => {
+      // Job Title validation
+      if (!exp.jobTitle.trim()) {
+        newErrors[`experience_${index}_jobTitle`] = 'Job title is required';
+      } else if (exp.jobTitle.trim().length < 2) {
+        newErrors[`experience_${index}_jobTitle`] = 'Job title must be at least 2 characters';
+      }
+
+      // Company validation
+      if (!exp.company.trim()) {
+        newErrors[`experience_${index}_company`] = 'Company name is required';
+      } else if (exp.company.trim().length < 2) {
+        newErrors[`experience_${index}_company`] = 'Company name must be at least 2 characters';
+      }
+
+      // Date validation
+      if (exp.startDate && exp.endDate && !exp.current) {
+        if (new Date(exp.endDate) < new Date(exp.startDate)) {
+          newErrors[`experience_${index}_endDate`] = 'End date must be after start date';
+        }
+      }
+
+      // Description max length
+      if (exp.description && exp.description.length > 2000) {
+        newErrors[`experience_${index}_description`] = 'Description must be less than 2000 characters';
+      }
+    });
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateStep4 = () => {
+    const newErrors = {};
+
+    resumeData.education.forEach((edu, index) => {
+      // Degree validation
+      if (!edu.degree.trim()) {
+        newErrors[`education_${index}_degree`] = 'Degree is required';
+      } else if (edu.degree.trim().length < 2) {
+        newErrors[`education_${index}_degree`] = 'Degree must be at least 2 characters';
+      }
+
+      // Institution validation
+      if (!edu.institution.trim()) {
+        newErrors[`education_${index}_institution`] = 'Institution is required';
+      } else if (edu.institution.trim().length < 2) {
+        newErrors[`education_${index}_institution`] = 'Institution must be at least 2 characters';
+      }
+
+      // GPA validation (optional)
+      if (edu.gpa && !/^\d+\.?\d*\/\d+\.?\d*$|^\d+\.?\d*$/.test(edu.gpa.trim())) {
+        newErrors[`education_${index}_gpa`] = 'GPA format should be like 3.8 or 3.8/4.0';
+      }
+    });
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleBlur = (field) => {
+    setTouched(prev => ({ ...prev, [field]: true }));
+  };
+
+  const getFieldError = (field) => {
+    return touched[field] && errors[field];
+  };
+
   const downloadResume = () => {
-    if (!resumeData.personalInfo.fullName || !resumeData.personalInfo.email) {
-      alert('Please fill in at least your name and email before downloading');
+    // Validate all required fields before download
+    const step2Valid = validateStep2();
+    const step3Valid = validateStep3();
+    const step4Valid = validateStep4();
+
+    if (!step2Valid || !step3Valid || !step4Valid) {
+      alert('Please fill in all required fields before downloading. Check each step for errors.');
       return;
     }
 
@@ -269,8 +423,13 @@ const ResumeBuilder = () => {
   };
 
   const generatePDF = () => {
-    if (!resumeData.personalInfo.fullName || !resumeData.personalInfo.email) {
-      alert('Please fill in at least your name and email before generating PDF');
+    // Validate all required fields before generating PDF
+    const step2Valid = validateStep2();
+    const step3Valid = validateStep3();
+    const step4Valid = validateStep4();
+
+    if (!step2Valid || !step3Valid || !step4Valid) {
+      alert('Please fill in all required fields before generating PDF. Check each step for errors.');
       return;
     }
 
@@ -373,8 +532,13 @@ const ResumeBuilder = () => {
   };
 
   const previewResume = () => {
-    if (!resumeData.personalInfo.fullName || !resumeData.personalInfo.email) {
-      alert('Please fill in at least your name and email before previewing');
+    // Validate all required fields before preview
+    const step2Valid = validateStep2();
+    const step3Valid = validateStep3();
+    const step4Valid = validateStep4();
+
+    if (!step2Valid || !step3Valid || !step4Valid) {
+      alert('Please fill in all required fields before previewing. Check each step for errors.');
       return;
     }
 
@@ -464,7 +628,42 @@ const ResumeBuilder = () => {
   };
 
   const nextStep = () => {
-    setCurrentStep(prev => Math.min(prev + 1, totalSteps));
+    let isValid = true;
+
+    // Validate current step before proceeding
+    if (currentStep === 2) {
+      isValid = validateStep2();
+      if (!isValid) {
+        // Mark all fields as touched to show errors
+        setTouched({
+          fullName: true,
+          email: true,
+          phone: true,
+          location: true,
+          website: true,
+          linkedin: true,
+          summary: true
+        });
+      }
+    } else if (currentStep === 3) {
+      isValid = validateStep3();
+      if (!isValid) {
+        // Mark all experience fields as touched
+        const touchedFields = {};
+        resumeData.experience.forEach((_, index) => {
+          touchedFields[`experience_${index}_jobTitle`] = true;
+          touchedFields[`experience_${index}_company`] = true;
+          touchedFields[`experience_${index}_endDate`] = true;
+          touchedFields[`experience_${index}_description`] = true;
+        });
+        setTouched(prev => ({ ...prev, ...touchedFields }));
+      }
+    }
+
+    if (isValid) {
+      setCurrentStep(prev => Math.min(prev + 1, totalSteps));
+      setErrors({});
+    }
   };
 
   const prevStep = () => {
@@ -542,76 +741,123 @@ const ResumeBuilder = () => {
             type="text"
             value={resumeData.personalInfo.fullName}
             onChange={(e) => handleInputChange('personalInfo', 'fullName', e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+            onBlur={() => handleBlur('fullName')}
+            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+              getFieldError('fullName') ? 'border-red-500 bg-red-50' : 'border-gray-300'
+            }`}
             placeholder="John Doe"
           />
+          {getFieldError('fullName') && (
+            <p className="mt-1 text-sm text-red-600">{errors.fullName}</p>
+          )}
         </div>
-        
+
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-2">Email *</label>
           <input
             type="email"
             value={resumeData.personalInfo.email}
             onChange={(e) => handleInputChange('personalInfo', 'email', e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+            onBlur={() => handleBlur('email')}
+            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+              getFieldError('email') ? 'border-red-500 bg-red-50' : 'border-gray-300'
+            }`}
             placeholder="john@example.com"
           />
+          {getFieldError('email') && (
+            <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+          )}
         </div>
-        
+
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-2">Phone *</label>
           <input
             type="tel"
             value={resumeData.personalInfo.phone}
             onChange={(e) => handleInputChange('personalInfo', 'phone', e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+            onBlur={() => handleBlur('phone')}
+            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+              getFieldError('phone') ? 'border-red-500 bg-red-50' : 'border-gray-300'
+            }`}
             placeholder="+1 (555) 123-4567"
           />
+          {getFieldError('phone') && (
+            <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+          )}
         </div>
-        
+
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-2">Location *</label>
           <input
             type="text"
             value={resumeData.personalInfo.location}
             onChange={(e) => handleInputChange('personalInfo', 'location', e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+            onBlur={() => handleBlur('location')}
+            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+              getFieldError('location') ? 'border-red-500 bg-red-50' : 'border-gray-300'
+            }`}
             placeholder="New York, NY"
           />
+          {getFieldError('location') && (
+            <p className="mt-1 text-sm text-red-600">{errors.location}</p>
+          )}
         </div>
-        
+
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-2">Website</label>
           <input
             type="url"
             value={resumeData.personalInfo.website}
             onChange={(e) => handleInputChange('personalInfo', 'website', e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+            onBlur={() => handleBlur('website')}
+            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+              getFieldError('website') ? 'border-red-500 bg-red-50' : 'border-gray-300'
+            }`}
             placeholder="https://yourwebsite.com"
           />
+          {getFieldError('website') && (
+            <p className="mt-1 text-sm text-red-600">{errors.website}</p>
+          )}
         </div>
-        
+
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-2">LinkedIn</label>
           <input
             type="url"
             value={resumeData.personalInfo.linkedin}
             onChange={(e) => handleInputChange('personalInfo', 'linkedin', e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+            onBlur={() => handleBlur('linkedin')}
+            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+              getFieldError('linkedin') ? 'border-red-500 bg-red-50' : 'border-gray-300'
+            }`}
             placeholder="https://linkedin.com/in/yourprofile"
           />
+          {getFieldError('linkedin') && (
+            <p className="mt-1 text-sm text-red-600">{errors.linkedin}</p>
+          )}
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">Professional Summary</label>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">
+          Professional Summary
+          <span className="font-normal text-gray-500 ml-2">
+            ({resumeData.personalInfo.summary.length}/1000)
+          </span>
+        </label>
         <textarea
           value={resumeData.personalInfo.summary}
           onChange={(e) => handleInputChange('personalInfo', 'summary', e.target.value)}
+          onBlur={() => handleBlur('summary')}
           rows="4"
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-vertical"
+          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-vertical ${
+            getFieldError('summary') ? 'border-red-500 bg-red-50' : 'border-gray-300'
+          }`}
           placeholder="A brief overview of your professional background, key skills, and career objectives..."
         />
+        {getFieldError('summary') && (
+          <p className="mt-1 text-sm text-red-600">{errors.summary}</p>
+        )}
       </div>
     </div>
   );
@@ -634,9 +880,9 @@ const ResumeBuilder = () => {
               <FaMinus />
             </button>
           )}
-          
+
           <h3 className="font-semibold text-gray-900 mb-4">Experience #{index + 1}</h3>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Job Title *</label>
@@ -644,22 +890,34 @@ const ResumeBuilder = () => {
                 type="text"
                 value={exp.jobTitle}
                 onChange={(e) => handleInputChange('experience', 'jobTitle', e.target.value, index)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                onBlur={() => handleBlur(`experience_${index}_jobTitle`)}
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+                  getFieldError(`experience_${index}_jobTitle`) ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                }`}
                 placeholder="Software Engineer"
               />
+              {getFieldError(`experience_${index}_jobTitle`) && (
+                <p className="mt-1 text-sm text-red-600">{errors[`experience_${index}_jobTitle`]}</p>
+              )}
             </div>
-            
+
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Company *</label>
               <input
                 type="text"
                 value={exp.company}
                 onChange={(e) => handleInputChange('experience', 'company', e.target.value, index)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                onBlur={() => handleBlur(`experience_${index}_company`)}
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+                  getFieldError(`experience_${index}_company`) ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                }`}
                 placeholder="Tech Corp"
               />
+              {getFieldError(`experience_${index}_company`) && (
+                <p className="mt-1 text-sm text-red-600">{errors[`experience_${index}_company`]}</p>
+              )}
             </div>
-            
+
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Location</label>
               <input
@@ -670,7 +928,7 @@ const ResumeBuilder = () => {
                 placeholder="San Francisco, CA"
               />
             </div>
-            
+
             <div className="flex items-center space-x-2">
               <input
                 type="checkbox"
@@ -681,7 +939,7 @@ const ResumeBuilder = () => {
               <label className="text-sm font-medium text-gray-700">Currently working here</label>
             </div>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Start Date</label>
@@ -692,7 +950,7 @@ const ResumeBuilder = () => {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
               />
             </div>
-            
+
             {!exp.current && (
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">End Date</label>
@@ -700,25 +958,42 @@ const ResumeBuilder = () => {
                   type="month"
                   value={exp.endDate}
                   onChange={(e) => handleInputChange('experience', 'endDate', e.target.value, index)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  onBlur={() => handleBlur(`experience_${index}_endDate`)}
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+                    getFieldError(`experience_${index}_endDate`) ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                  }`}
                 />
+                {getFieldError(`experience_${index}_endDate`) && (
+                  <p className="mt-1 text-sm text-red-600">{errors[`experience_${index}_endDate`]}</p>
+                )}
               </div>
             )}
           </div>
-          
+
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Job Description</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Job Description
+              <span className="font-normal text-gray-500 ml-2">
+                ({exp.description.length}/2000)
+              </span>
+            </label>
             <textarea
               value={exp.description}
               onChange={(e) => handleInputChange('experience', 'description', e.target.value, index)}
+              onBlur={() => handleBlur(`experience_${index}_description`)}
               rows="4"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-vertical"
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-vertical ${
+                getFieldError(`experience_${index}_description`) ? 'border-red-500 bg-red-50' : 'border-gray-300'
+              }`}
               placeholder="• Developed and maintained web applications using React and Node.js&#10;• Collaborated with cross-functional teams to deliver high-quality software solutions&#10;• Improved application performance by 30% through code optimization"
             />
+            {getFieldError(`experience_${index}_description`) && (
+              <p className="mt-1 text-sm text-red-600">{errors[`experience_${index}_description`]}</p>
+            )}
           </div>
         </div>
       ))}
-      
+
       <button
         onClick={() => addSection('experience')}
         className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 font-medium"
@@ -750,7 +1025,7 @@ const ResumeBuilder = () => {
                 <FaMinus />
               </button>
             )}
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Degree *</label>
@@ -758,22 +1033,34 @@ const ResumeBuilder = () => {
                   type="text"
                   value={edu.degree}
                   onChange={(e) => handleInputChange('education', 'degree', e.target.value, index)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  onBlur={() => handleBlur(`education_${index}_degree`)}
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+                    getFieldError(`education_${index}_degree`) ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                  }`}
                   placeholder="Bachelor of Science in Computer Science"
                 />
+                {getFieldError(`education_${index}_degree`) && (
+                  <p className="mt-1 text-sm text-red-600">{errors[`education_${index}_degree`]}</p>
+                )}
               </div>
-              
+
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Institution *</label>
                 <input
                   type="text"
                   value={edu.institution}
                   onChange={(e) => handleInputChange('education', 'institution', e.target.value, index)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  onBlur={() => handleBlur(`education_${index}_institution`)}
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+                    getFieldError(`education_${index}_institution`) ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                  }`}
                   placeholder="University of California, Berkeley"
                 />
+                {getFieldError(`education_${index}_institution`) && (
+                  <p className="mt-1 text-sm text-red-600">{errors[`education_${index}_institution`]}</p>
+                )}
               </div>
-              
+
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Graduation Date</label>
                 <input
@@ -783,21 +1070,27 @@ const ResumeBuilder = () => {
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">GPA (Optional)</label>
                 <input
                   type="text"
                   value={edu.gpa}
                   onChange={(e) => handleInputChange('education', 'gpa', e.target.value, index)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  onBlur={() => handleBlur(`education_${index}_gpa`)}
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+                    getFieldError(`education_${index}_gpa`) ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                  }`}
                   placeholder="3.8/4.0"
                 />
+                {getFieldError(`education_${index}_gpa`) && (
+                  <p className="mt-1 text-sm text-red-600">{errors[`education_${index}_gpa`]}</p>
+                )}
               </div>
             </div>
           </div>
         ))}
-        
+
         <button
           onClick={() => addSection('education')}
           className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 font-medium mb-8"
