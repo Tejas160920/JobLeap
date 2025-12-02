@@ -152,10 +152,7 @@ exports.getJobs = async (req, res) => {
     res.status(200).json(allJobs);
   } catch (err) {
     console.error("Error fetching jobs:", err.message, err.stack);
-    res.status(500).json({
-      error: "Failed to fetch jobs",
-      details: err.message // Temporarily show error in production for debugging
-    });
+    res.status(500).json({ error: "Failed to fetch jobs" });
   }
 };
 
