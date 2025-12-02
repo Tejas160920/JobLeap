@@ -28,8 +28,7 @@ const Settings = () => {
     emailNotifications: true,
     jobAlerts: true,
     marketingEmails: false,
-    profileVisibility: 'public',
-    twoFactorAuth: false
+    profileVisibility: 'public'
   });
 
   useEffect(() => {
@@ -276,21 +275,6 @@ const Settings = () => {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                <div>
-                  <h3 className="font-semibold text-gray-900">Two-Factor Authentication</h3>
-                  <p className="text-sm text-gray-600">Add an extra layer of security to your account</p>
-                </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="sr-only peer"
-                    checked={settings.twoFactorAuth}
-                    onChange={(e) => handleSettingChange('twoFactorAuth', e.target.checked)}
-                  />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                </label>
-              </div>
             </div>
           </div>
 
