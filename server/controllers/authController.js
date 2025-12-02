@@ -3,11 +3,12 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
 const JWT_SECRET = process.env.JWT_SECRET;
+const isVercel = process.env.VERCEL === '1' || process.env.VERCEL_ENV !== undefined;
 
 if (!JWT_SECRET) {
   console.error('CRITICAL: JWT_SECRET environment variable is not set!');
   // Don't exit on Vercel - just throw error
-  if (process.env.VERCEL !== '1') {
+  if (!isVercel) {
     process.exit(1);
   }
 }

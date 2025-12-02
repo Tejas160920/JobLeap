@@ -9,6 +9,9 @@ const connectDB = require("./config/db");
 // Load environment variables
 dotenv.config();
 
+// Check if running on Vercel
+const isVercel = process.env.VERCEL === '1' || process.env.VERCEL_ENV !== undefined;
+
 // Verify critical environment variables (don't exit on Vercel)
 const requiredEnvVars = ['MONGO_URI', 'JWT_SECRET'];
 const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
@@ -17,7 +20,7 @@ if (missingEnvVars.length > 0) {
   console.error(`CRITICAL: Missing environment variables: ${missingEnvVars.join(', ')}`);
   console.error('Please set environment variables in Vercel dashboard');
   // Don't exit on Vercel - just log the error
-  if (process.env.VERCEL !== '1') {
+  if (!isVercel) {
     process.exit(1);
   }
 }
@@ -160,7 +163,7 @@ app.use('*', (req, res) => {
 
 // For Vercel serverless, export the app
 // For local development, listen on PORT
-if (process.env.VERCEL !== '1') {
+if (!isVercel) {
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

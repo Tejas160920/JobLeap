@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 let isConnected = false;
+const isVercel = process.env.VERCEL === '1' || process.env.VERCEL_ENV !== undefined;
 
 const connectDB = async () => {
   if (isConnected) {
@@ -25,7 +26,7 @@ const connectDB = async () => {
   } catch (error) {
     console.error("MongoDB connection failed:", error.message);
     // Don't exit on Vercel - throw error instead
-    if (process.env.VERCEL !== '1') {
+    if (!isVercel) {
       process.exit(1);
     }
     throw error;
