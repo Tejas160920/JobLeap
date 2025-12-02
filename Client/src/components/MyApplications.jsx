@@ -165,85 +165,85 @@ const MyApplications = () => {
             </button>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-4">
             {applications.map((application) => (
               <div
                 key={application._id}
                 className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-all duration-300"
               >
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between mb-4">
-                      <div>
-                        <h3 className="text-xl font-bold text-gray-900 mb-2">
-                          {application.jobTitle}
-                          {application.isExternal && (
-                            <span className="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">External</span>
-                          )}
-                        </h3>
-                        <div className="flex items-center space-x-4 text-gray-600 mb-2">
-                          <div className="flex items-center space-x-1">
-                            <FaBuilding className="text-sm" />
-                            <span>{application.company}</span>
-                          </div>
-                          <div className="flex items-center space-x-1">
-                            <FaMapMarkerAlt className="text-sm" />
-                            <span>{application.location}</span>
-                          </div>
-                        </div>
-                        <div className="flex items-center space-x-4 text-sm text-gray-500">
-                          <div className="flex items-center space-x-1">
-                            <FaClock />
-                            <span>Applied {formatDate(application.appliedAt)}</span>
-                          </div>
-                          {application.salary && (
-                            <div className="flex items-center space-x-1">
-                              <FaDollarSign />
-                              <span>{application.salary}</span>
-                            </div>
-                          )}
-                        </div>
+                {/* Header with title and status badge */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap mb-2">
+                      <h3 className="text-xl font-bold text-gray-900">
+                        {application.jobTitle}
+                      </h3>
+                      {application.isExternal && (
+                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">External</span>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-gray-600 mb-2">
+                      <div className="flex items-center space-x-1">
+                        <FaBuilding className="text-sm flex-shrink-0" />
+                        <span>{application.company}</span>
                       </div>
-                      <div className="md:ml-4">
-                        {getStatusBadge(application.status)}
+                      <div className="flex items-center space-x-1">
+                        <FaMapMarkerAlt className="text-sm flex-shrink-0" />
+                        <span>{application.location}</span>
                       </div>
                     </div>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500">
+                      <div className="flex items-center space-x-1">
+                        <FaClock className="flex-shrink-0" />
+                        <span>Applied {formatDate(application.appliedAt)}</span>
+                      </div>
+                      {application.salary && (
+                        <div className="flex items-center space-x-1">
+                          <FaDollarSign className="flex-shrink-0" />
+                          <span>{application.salary}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
+                  <div className="flex-shrink-0 ml-4">
+                    {getStatusBadge(application.status)}
+                  </div>
+                </div>
 
-                  <div className="flex items-center space-x-3 mt-4 md:mt-0 md:ml-6">
-                    <button
-                      onClick={() => handleViewDetails(application)}
-                      className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                {/* Action buttons */}
+                <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-gray-100">
+                  <button
+                    onClick={() => handleViewDetails(application)}
+                    className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <FaEye />
+                    <span>View Details</span>
+                  </button>
+                  {application.isExternal && application.url && (
+                    <a
+                      href={application.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center space-x-2 px-4 py-2 border border-blue-300 rounded-lg text-blue-700 hover:bg-blue-50 transition-colors"
                     >
-                      <FaEye />
-                      <span>View Details</span>
+                      <FaExternalLinkAlt />
+                      <span>View Job</span>
+                    </a>
+                  )}
+                  {application.status === 'pending' && (
+                    <button
+                      onClick={() => handleWithdraw(application._id)}
+                      disabled={withdrawingId === application._id}
+                      className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+                    >
+                      {withdrawingId === application._id ? (
+                        <FaSpinner className="animate-spin" />
+                      ) : (
+                        <FaTimes />
+                      )}
+                      <span>Withdraw</span>
                     </button>
-                    {application.isExternal && application.url && (
-                      <a
-                        href={application.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center space-x-2 px-4 py-2 border border-blue-300 rounded-lg text-blue-700 hover:bg-blue-50 transition-colors"
-                      >
-                        <FaExternalLinkAlt />
-                        <span>View Job</span>
-                      </a>
-                    )}
-                    {application.status === 'pending' && (
-                      <button
-                        onClick={() => handleWithdraw(application._id)}
-                        disabled={withdrawingId === application._id}
-                        className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
-                      >
-                        {withdrawingId === application._id ? (
-                          <FaSpinner className="animate-spin" />
-                        ) : (
-                          <FaTimes />
-                        )}
-                        <span>Withdraw</span>
-                      </button>
-                    )}
-                  </div>
+                  )}
                 </div>
               </div>
             ))}
