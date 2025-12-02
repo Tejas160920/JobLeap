@@ -189,6 +189,51 @@ exports.fixIndexes = async (req, res) => {
   }
 };
 
+// Debug endpoint to see raw applications
+exports.debugApplications = async (req, res) => {
+  try {
+    await connectDB();
+
+    // Get all applications (limited for safety)
+    const applications = await Application.find({})
+      .limit(50)
+      .lean();
+
+    res.json({
+      success: true,
+      count: applications.length,
+      applications: applications.map(app => ({
+        _id: app._id,
+        applicant: app.applicant,
+        job: app.job,
+        externalJobId: app.externalJobId,
+        hasExternalJobData: !!app.externalJobData,
+        externalJobDataKeys: app.externalJobData ? Object.keys(app.externalJobData) : [],
+        status: app.status,
+        appliedAt: app.appliedAt
+      }))
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
+
+// Clear all applications for a user (debug endpoint)
+exports.clearMyApplications = async (req, res) => {
+  try {
+    await connectDB();
+
+    const result = await Application.deleteMany({ applicant: req.user.id });
+
+    res.json({
+      success: true,
+      message: `Deleted ${result.deletedCount} applications`
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
+
 // Withdraw application
 exports.withdrawApplication = async (req, res) => {
   try {
