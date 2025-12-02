@@ -34,7 +34,7 @@ const SignupModal = ({ isOpen, onClose }) => {
             Welcome to JobLeap!
           </h2>
           <p className="text-gray-600 mb-8">
-            Join thousands of professionals finding their dream jobs
+            Start your journey to finding your dream job
           </p>
 
           <div className="space-y-4">

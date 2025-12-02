@@ -156,10 +156,10 @@ const Hero = ({ onSearch, onViewAllJobs, showCompactMode, onCompanyClick }) => {
               </span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-600 mb-4 max-w-3xl mx-auto leading-relaxed">
-              Discover thousands of job opportunities from top companies worldwide
+              Discover job opportunities from top companies worldwide
             </p>
             <p className="text-lg text-gray-500 mb-12 max-w-2xl mx-auto">
-              Join millions of job seekers and find the perfect role that matches your skills and ambitions
+              Find the perfect role that matches your skills and ambitions
             </p>
           </div>
 
@@ -378,7 +378,7 @@ const Hero = ({ onSearch, onViewAllJobs, showCompactMode, onCompanyClick }) => {
                     Ready to find your dream job?
                   </h2>
                   <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-                    Browse thousands of opportunities from top companies worldwide
+                    Browse opportunities from top companies worldwide
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
                     <button 

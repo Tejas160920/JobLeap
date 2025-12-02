@@ -58,9 +58,6 @@ const Navbar = () => {
             <Link to="/company-reviews" className={navLinkClass("/company-reviews")}>
               Companies
             </Link>
-            <Link to="/salaries" className={navLinkClass("/salaries")}>
-              Salaries
-            </Link>
             <Link to="/career-advice" className={navLinkClass("/career-advice")}>
               Career Advice
             </Link>
@@ -199,13 +196,6 @@ const Navbar = () => {
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Companies
-              </Link>
-              <Link
-                to="/salaries"
-                className={`block ${navLinkClass("/salaries")}`}
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Salaries
               </Link>
               <Link
                 to="/career-advice"
