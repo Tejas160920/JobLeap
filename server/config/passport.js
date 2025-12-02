@@ -19,10 +19,15 @@ const generateOAuthPasswordHash = async () => {
 
 // Only configure Google OAuth if credentials and strategy are available
 if (GoogleStrategy && process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+  // Use full URL for production, relative path for local
+  const callbackURL = process.env.VERCEL
+    ? "https://job-leap-wokg.vercel.app/api/auth/google/callback"
+    : "/api/auth/google/callback";
+
   passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "/api/auth/google/callback"
+    callbackURL: callbackURL
   }, async (accessToken, refreshToken, profile, done) => {
     try {
       let existingUser = await User.findOne({
