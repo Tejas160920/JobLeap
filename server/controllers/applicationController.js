@@ -7,12 +7,24 @@ exports.getMyApplications = async (req, res) => {
   try {
     // Ensure DB is connected (important for serverless)
     await connectDB();
+
+    console.log('Fetching applications for user:', req.user.id);
+
     const applications = await Application.find({ applicant: req.user.id })
       .populate('job', 'title company location salary jobType')
       .sort({ appliedAt: -1 });
 
+    console.log('Found applications:', applications.length);
+    console.log('Raw applications:', JSON.stringify(applications.map(a => ({
+      _id: a._id,
+      hasJob: !!a.job,
+      externalJobId: a.externalJobId,
+      hasExternalData: !!a.externalJobData
+    }))));
+
     // Format applications to include both local and external job data
     const formattedApplications = applications.map(app => {
+      // For local jobs with populated job data
       if (app.job) {
         return {
           _id: app._id,
@@ -26,23 +38,29 @@ exports.getMyApplications = async (req, res) => {
           appliedAt: app.appliedAt,
           isExternal: false
         };
-      } else if (app.externalJobData) {
+      }
+      // For external jobs (RemoteOK, etc.)
+      if (app.externalJobId) {
         return {
           _id: app._id,
           jobId: app.externalJobId,
-          jobTitle: app.externalJobData.title,
-          company: app.externalJobData.company,
-          location: app.externalJobData.location,
-          salary: app.externalJobData.salary || '',
-          jobType: 'Remote',
-          url: app.externalJobData.url,
+          jobTitle: app.externalJobData?.title || 'Unknown Job',
+          company: app.externalJobData?.company || 'Unknown Company',
+          location: app.externalJobData?.location || 'Remote',
+          salary: app.externalJobData?.salary || '',
+          jobType: app.externalJobData?.jobType || 'Remote',
+          url: app.externalJobData?.url,
           status: app.status,
           appliedAt: app.appliedAt,
           isExternal: true
         };
       }
+      // Fallback for any other cases
+      console.log('Application without job or externalJobId:', app._id);
       return null;
     }).filter(Boolean);
+
+    console.log('Formatted applications:', formattedApplications.length);
 
     res.status(200).json({
       success: true,
@@ -52,7 +70,8 @@ exports.getMyApplications = async (req, res) => {
     console.error("Error fetching applications:", err);
     res.status(500).json({
       success: false,
-      message: "Failed to fetch applications"
+      message: "Failed to fetch applications",
+      error: err.message
     });
   }
 };
@@ -83,17 +102,23 @@ exports.applyForJob = async (req, res) => {
         job: jobId,
         applicant: req.user.id
       });
+      console.log('Checking for existing application with jobId:', jobId, 'Found:', !!existingApplication);
     } else if (externalJobId) {
       existingApplication = await Application.findOne({
-        externalJobId,
+        externalJobId: externalJobId,
         applicant: req.user.id
       });
+      console.log('Checking for existing application with externalJobId:', externalJobId, 'Found:', !!existingApplication);
+      if (existingApplication) {
+        console.log('Existing application ID:', existingApplication._id);
+      }
     }
 
     if (existingApplication) {
       return res.status(400).json({
         success: false,
-        message: "You have already applied to this job"
+        message: "You have already applied to this job",
+        applicationId: existingApplication._id
       });
     }
 
