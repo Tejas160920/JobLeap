@@ -72,9 +72,10 @@ const applicationSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Compound index to prevent duplicate applications
-applicationSchema.index({ job: 1, applicant: 1 }, { unique: true, sparse: true });
-applicationSchema.index({ externalJobId: 1, applicant: 1 }, { unique: true, sparse: true });
+// Indexes for performance and preventing duplicates
+// Note: Removed unique sparse indexes as they can cause issues with null values
+applicationSchema.index({ job: 1, applicant: 1 });
+applicationSchema.index({ externalJobId: 1, applicant: 1 });
 applicationSchema.index({ applicant: 1, status: 1 });
 applicationSchema.index({ job: 1, status: 1 });
 

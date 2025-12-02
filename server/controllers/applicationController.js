@@ -125,11 +125,42 @@ exports.applyForJob = async (req, res) => {
     });
   } catch (err) {
     console.error("Error applying for job:", err.message, err.stack);
+
+    // Check for duplicate key error
+    if (err.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: "You have already applied to this job"
+      });
+    }
+
     res.status(500).json({
       success: false,
       message: "Failed to submit application",
-      error: err.message
+      error: err.message,
+      details: err.errors ? Object.keys(err.errors).map(k => err.errors[k].message) : undefined
     });
+  }
+};
+
+// Helper to drop old indexes (run once)
+exports.fixIndexes = async (req, res) => {
+  try {
+    await connectDB();
+    const Application = require("../models/Application");
+
+    // Try to drop the old unique indexes
+    try {
+      await Application.collection.dropIndex("job_1_applicant_1");
+    } catch (e) { /* Index might not exist */ }
+
+    try {
+      await Application.collection.dropIndex("externalJobId_1_applicant_1");
+    } catch (e) { /* Index might not exist */ }
+
+    res.json({ success: true, message: "Indexes fixed" });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
   }
 };
 
