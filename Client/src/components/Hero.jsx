@@ -17,7 +17,7 @@ import {
   FaFire
 } from "react-icons/fa";
 
-const Hero = ({ onSearch, onViewAllJobs, showCompactMode }) => {
+const Hero = ({ onSearch, onViewAllJobs, showCompactMode, onCompanyClick }) => {
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -25,6 +25,39 @@ const Hero = ({ onSearch, onViewAllJobs, showCompactMode }) => {
   const [currentTrendingIndex, setCurrentTrendingIndex] = useState(0);
   const [jobType, setJobType] = useState("");
   const [salaryRange, setSalaryRange] = useState("");
+
+  // Helper functions for dynamic classes (fix for Tailwind)
+  const getQuickFilterClasses = (color) => {
+    const baseClasses = "px-4 py-2 bg-white border-2 rounded-full transition-all duration-300 hover:shadow-md transform hover:scale-105 flex items-center space-x-2 font-medium";
+    
+    switch (color) {
+      case 'blue':
+        return `${baseClasses} border-blue-200 text-blue-700 hover:border-blue-400 hover:bg-blue-50`;
+      case 'green':
+        return `${baseClasses} border-green-200 text-green-700 hover:border-green-400 hover:bg-green-50`;
+      case 'purple':
+        return `${baseClasses} border-purple-200 text-purple-700 hover:border-purple-400 hover:bg-purple-50`;
+      case 'orange':
+        return `${baseClasses} border-orange-200 text-orange-700 hover:border-orange-400 hover:bg-orange-50`;
+      default:
+        return `${baseClasses} border-gray-200 text-gray-700 hover:border-gray-400 hover:bg-gray-50`;
+    }
+  };
+
+  const getIconColorClass = (color) => {
+    switch (color) {
+      case 'blue':
+        return 'text-blue-600';
+      case 'green':
+        return 'text-green-600';
+      case 'purple':
+        return 'text-purple-600';
+      case 'orange':
+        return 'text-orange-600';
+      default:
+        return 'text-gray-600';
+    }
+  };
 
   const popularSearches = [
     "Software Engineer", "Data Scientist", "Product Manager", "Designer", "Marketing", "Sales Manager"
@@ -45,18 +78,18 @@ const Hero = ({ onSearch, onViewAllJobs, showCompactMode }) => {
   ];
 
   const featuredCompanies = [
-    { name: "Google", logo: "https://logo.clearbit.com/google.com", openJobs: 1234 },
-    { name: "Microsoft", logo: "https://logo.clearbit.com/microsoft.com", openJobs: 867 },
-    { name: "Apple", logo: "https://logo.clearbit.com/apple.com", openJobs: 543 },
-    { name: "Netflix", logo: "https://logo.clearbit.com/netflix.com", openJobs: 321 },
-    { name: "Meta", logo: "https://logo.clearbit.com/meta.com", openJobs: 456 },
-    { name: "Amazon", logo: "https://logo.clearbit.com/amazon.com", openJobs: 789 }
-  ];
-
-  const successStories = [
-    { name: "Sarah Chen", role: "Software Engineer", company: "Google", avatar: "👩‍💻" },
-    { name: "Mike Johnson", role: "Product Manager", company: "Netflix", avatar: "👨‍💼" },
-    { name: "Lisa Zhang", role: "Designer", company: "Apple", avatar: "👩‍🎨" }
+    { name: "Google", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/2560px-Google_2015_logo.svg.png" },
+    { name: "Microsoft", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Microsoft_logo.svg/2048px-Microsoft_logo.svg.png" },
+    { name: "Apple", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Apple_logo_black.svg/1667px-Apple_logo_black.svg.png" },
+    { name: "Amazon", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/2560px-Amazon_logo.svg.png" },
+    { name: "Meta", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Meta_Platforms_Inc._logo.svg/2560px-Meta_Platforms_Inc._logo.svg.png" },
+    { name: "Tesla", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Tesla_T_symbol.svg/1200px-Tesla_T_symbol.svg.png" },
+    { name: "Salesforce", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Salesforce.com_logo.svg/2560px-Salesforce.com_logo.svg.png" },
+    { name: "LinkedIn", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/LinkedIn_logo_initials.png/480px-LinkedIn_logo_initials.png" },
+    { name: "Uber", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Uber_logo_2018.svg/2560px-Uber_logo_2018.svg.png" },
+    { name: "Airbnb", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Airbnb_Logo_B%C3%A9lo.svg/2560px-Airbnb_Logo_B%C3%A9lo.svg.png" },
+    { name: "Spotify", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Spotify_logo_without_text.svg/2048px-Spotify_logo_without_text.svg.png" },
+    { name: "Stripe", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Stripe_Logo%2C_revised_2016.svg/2560px-Stripe_Logo%2C_revised_2016.svg.png" }
   ];
 
   useEffect(() => {
@@ -111,7 +144,7 @@ const Hero = ({ onSearch, onViewAllJobs, showCompactMode }) => {
       <div className="absolute top-40 right-32 w-6 h-6 bg-purple-400 rounded-full animate-bounce delay-700"></div>
       <div className="absolute bottom-32 right-20 w-5 h-5 bg-green-400 rounded-full animate-bounce delay-1000"></div>
       
-      <div className={`relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${showCompactMode ? 'py-8 lg:py-12' : 'py-16 lg:py-24'}`}>
+      <div className={`relative max-w-7xl mx-auto px-6 ${showCompactMode ? 'pt-20 pb-8 lg:pt-24 lg:pb-12' : 'pt-24 pb-20 lg:pt-32 lg:pb-28'}`}>
         <div className="text-center">
           {/* Main headline with typing animation effect */}
           <div className="fade-in">
@@ -236,9 +269,9 @@ const Hero = ({ onSearch, onViewAllJobs, showCompactMode }) => {
                         setJobType('full-time');
                       }
                     }}
-                    className={`px-4 py-2 bg-white border-2 border-${filter.color}-200 text-${filter.color}-700 rounded-full hover:border-${filter.color}-400 hover:bg-${filter.color}-50 transition-all duration-300 hover:shadow-md transform hover:scale-105 flex items-center space-x-2 font-medium`}
+                    className={getQuickFilterClasses(filter.color)}
                   >
-                    <span className={`text-${filter.color}-600`}>{filter.icon}</span>
+                    <span className={getIconColorClass(filter.color)}>{filter.icon}</span>
                     <span>{filter.label}</span>
                   </button>
                 ))}
@@ -267,27 +300,35 @@ const Hero = ({ onSearch, onViewAllJobs, showCompactMode }) => {
 
           {!showCompactMode && (
             <>
-              {/* Enhanced Stats */}
+              {/* Platform Features */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto mb-16 fade-in">
                 <div className="text-center group">
-                  <div className="text-3xl md:text-4xl font-bold text-blue-600 mb-2 group-hover:scale-110 transition-transform duration-300">1M+</div>
-                  <div className="text-gray-600 font-medium">Active Jobs</div>
-                  <div className="text-xs text-gray-500 mt-1">Updated daily</div>
+                  <div className="text-3xl md:text-4xl font-bold text-blue-600 mb-2 group-hover:scale-110 transition-transform duration-300">
+                    <FaGlobe className="mx-auto" />
+                  </div>
+                  <div className="text-gray-600 font-medium">Remote Jobs</div>
+                  <div className="text-xs text-gray-500 mt-1">Work from anywhere</div>
                 </div>
                 <div className="text-center group">
-                  <div className="text-3xl md:text-4xl font-bold text-purple-600 mb-2 group-hover:scale-110 transition-transform duration-300">50K+</div>
-                  <div className="text-gray-600 font-medium">Companies</div>
-                  <div className="text-xs text-gray-500 mt-1">Verified employers</div>
+                  <div className="text-3xl md:text-4xl font-bold text-purple-600 mb-2 group-hover:scale-110 transition-transform duration-300">
+                    <FaBuilding className="mx-auto" />
+                  </div>
+                  <div className="text-gray-600 font-medium">Top Companies</div>
+                  <div className="text-xs text-gray-500 mt-1">Industry leaders</div>
                 </div>
                 <div className="text-center group">
-                  <div className="text-3xl md:text-4xl font-bold text-green-600 mb-2 group-hover:scale-110 transition-transform duration-300">2M+</div>
-                  <div className="text-gray-600 font-medium">Job Seekers</div>
-                  <div className="text-xs text-gray-500 mt-1">Active users</div>
+                  <div className="text-3xl md:text-4xl font-bold text-green-600 mb-2 group-hover:scale-110 transition-transform duration-300">
+                    <FaChartLine className="mx-auto" />
+                  </div>
+                  <div className="text-gray-600 font-medium">Career Growth</div>
+                  <div className="text-xs text-gray-500 mt-1">Level up your career</div>
                 </div>
                 <div className="text-center group">
-                  <div className="text-3xl md:text-4xl font-bold text-orange-600 mb-2 group-hover:scale-110 transition-transform duration-300">95%</div>
-                  <div className="text-gray-600 font-medium">Success Rate</div>
-                  <div className="text-xs text-gray-500 mt-1">Job matches</div>
+                  <div className="text-3xl md:text-4xl font-bold text-orange-600 mb-2 group-hover:scale-110 transition-transform duration-300">
+                    <FaClock className="mx-auto" />
+                  </div>
+                  <div className="text-gray-600 font-medium">Daily Updates</div>
+                  <div className="text-xs text-gray-500 mt-1">Fresh opportunities</div>
                 </div>
               </div>
 
@@ -306,51 +347,27 @@ const Hero = ({ onSearch, onViewAllJobs, showCompactMode }) => {
               {/* Featured Companies */}
               <div className="mb-16">
                 <h2 className="text-2xl font-bold text-gray-900 mb-8">Hiring now</h2>
-                <div className="grid grid-cols-3 md:grid-cols-6 gap-6">
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                   {featuredCompanies.map((company, index) => (
                     <div
                       key={index}
-                      className="group bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-all duration-300 card-hover cursor-pointer"
+                      onClick={() => onCompanyClick && onCompanyClick(company.name)}
+                      className="group bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-all duration-300 card-hover cursor-pointer transform hover:scale-105"
+                      title={`Search jobs at ${company.name}`}
                     >
-                      <div className="w-12 h-12 mx-auto mb-3 rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center">
+                      <div className="w-12 h-12 mx-auto mb-3 rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center p-1">
                         <img
                           src={company.logo}
                           alt={company.name}
-                          className="w-8 h-8 object-contain"
+                          className="w-full h-full object-contain"
+                          style={{ maxWidth: '100%', maxHeight: '100%' }}
                         />
                       </div>
-                      <h3 className="font-semibold text-gray-900 text-sm mb-1 group-hover:text-blue-600 transition-colors">
+                      <h3 className="font-semibold text-gray-900 text-sm group-hover:text-blue-600 transition-colors">
                         {company.name}
                       </h3>
-                      <p className="text-xs text-gray-600">
-                        {company.openJobs.toLocaleString()} jobs
-                      </p>
                     </div>
                   ))}
-                </div>
-              </div>
-
-              {/* Success Stories */}
-              <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-8 border border-gray-200">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Success Stories</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {successStories.map((story, index) => (
-                    <div
-                      key={index}
-                      className="text-center p-4 rounded-xl hover:bg-white/80 transition-all duration-300"
-                    >
-                      <div className="text-4xl mb-3">{story.avatar}</div>
-                      <h3 className="font-semibold text-gray-900 mb-1">{story.name}</h3>
-                      <p className="text-sm text-gray-600 mb-2">{story.role}</p>
-                      <p className="text-xs text-blue-600 font-medium">@ {story.company}</p>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-6 text-center">
-                  <button className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium transition-colors">
-                    View more success stories
-                    <FaChevronRight className="ml-2" />
-                  </button>
                 </div>
               </div>
 
@@ -371,8 +388,11 @@ const Hero = ({ onSearch, onViewAllJobs, showCompactMode }) => {
                       <FaBriefcase className="mr-2" />
                       Browse All Jobs
                     </button>
-                    <button className="border-2 border-white text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white hover:text-blue-600 transition-all duration-300">
-                      Upload Resume
+                    <button 
+                      onClick={() => window.location.href = '/resume-builder'}
+                      className="border-2 border-white text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white hover:text-blue-600 transition-all duration-300"
+                    >
+                      Build Resume
                     </button>
                   </div>
                 </div>

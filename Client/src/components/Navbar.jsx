@@ -50,10 +50,16 @@ const Navbar = () => {
               Find Jobs
             </Link>
             <Link to="/company-reviews" className={navLinkClass("/company-reviews")}>
-              Company Reviews
+              Companies
             </Link>
             <Link to="/salaries" className={navLinkClass("/salaries")}>
               Salaries
+            </Link>
+            <Link to="/career-advice" className={navLinkClass("/career-advice")}>
+              Career Advice
+            </Link>
+            <Link to="/resume-builder" className={navLinkClass("/resume-builder")}>
+              Resume Builder
             </Link>
           </div>
 
@@ -186,7 +192,7 @@ const Navbar = () => {
                 className={`block ${navLinkClass("/company-reviews")}`}
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                Company Reviews
+                Companies
               </Link>
               <Link
                 to="/salaries"
@@ -194,6 +200,20 @@ const Navbar = () => {
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Salaries
+              </Link>
+              <Link
+                to="/career-advice"
+                className={`block ${navLinkClass("/career-advice")}`}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Career Advice
+              </Link>
+              <Link
+                to="/resume-builder"
+                className={`block ${navLinkClass("/resume-builder")}`}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Resume Builder
               </Link>
               
               {userRole === "hiring" && (

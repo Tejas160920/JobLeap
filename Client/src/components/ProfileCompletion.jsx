@@ -23,7 +23,8 @@ const ProfileCompletion = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [isEditing, setIsEditing] = useState(false);
-  const totalSteps = 4;
+  const [profileCompleted, setProfileCompleted] = useState(false);
+  const totalSteps = 6; // Now we have 6 steps: personal, professional, skills, resume/links, preferences, summary
 
   const [formData, setFormData] = useState({
     // Personal Info
@@ -187,6 +188,15 @@ const ProfileCompletion = () => {
     e.preventDefault();
     if (!validateStep(currentStep)) return;
     
+    // Only save and redirect on step 5 (before summary)
+    if (currentStep < 5) {
+      nextStep();
+      return;
+    }
+    
+    // Handle step 5 submission - save to database and go to summary
+    if (currentStep === 5) {
+    
     setIsLoading(true);
     
     try {
@@ -194,14 +204,52 @@ const ProfileCompletion = () => {
       localStorage.setItem("profileCompleted", "true");
       localStorage.setItem("userProfile", JSON.stringify(formData));
       
-      // In a real app, you would send this data to your backend
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
+      // Get user token for backend call
+      const token = localStorage.getItem("token");
       
-      navigate("/");
+      if (token) {
+        // Try to save to backend
+        try {
+          const response = await fetch('http://localhost:5000/api/auth/profile', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(formData)
+          });
+          
+          if (response.ok) {
+            console.log('Profile saved to database successfully');
+          }
+        } catch (backendError) {
+          console.log('Backend not available, using local storage only');
+        }
+      }
+      
+      // Determine if new or existing profile
+      const isNewProfile = !isEditing;
+      const successMessage = isNewProfile 
+        ? "Profile created successfully! Welcome to JobLeap!" 
+        : "Profile updated successfully!";
+      
+      // Show profile summary instead of immediate redirect
+      setProfileCompleted(true);
+      setCurrentStep(6); // Go to summary step
+      setTimeout(() => alert(successMessage), 500); // Show message after UI updates
+      
     } catch (error) {
+      console.error("Error saving profile:", error);
       alert("Error saving profile. Please try again.");
     } finally {
       setIsLoading(false);
+    }
+    return; // Exit after step 4 processing
+    }
+    
+    // If we somehow reach here (step 6), just redirect to home
+    if (currentStep === 6) {
+      navigate("/", { replace: true });
     }
   };
 
@@ -445,8 +493,107 @@ const ProfileCompletion = () => {
   const renderStep4 = () => (
     <div className="space-y-6">
       <div className="text-center mb-8">
+        <FaUpload className="text-4xl text-blue-600 mx-auto mb-4" />
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Resume & Links</h2>
+        <p className="text-gray-600">Upload your resume and add professional links</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">LinkedIn Profile</label>
+          <div className="relative">
+            <FaLinkedin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-600" />
+            <input
+              type="url"
+              name="linkedin"
+              value={formData.linkedin}
+              onChange={handleInputChange}
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              placeholder="https://linkedin.com/in/yourname"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">GitHub Profile</label>
+          <div className="relative">
+            <FaGithub className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-700" />
+            <input
+              type="url"
+              name="github"
+              value={formData.github}
+              onChange={handleInputChange}
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              placeholder="https://github.com/yourname"
+            />
+          </div>
+        </div>
+
+        <div className="md:col-span-2">
+          <label className="block text-sm font-semibold text-gray-700 mb-3">Resume/CV Upload</label>
+          {!formData.resume && !formData.resumeFileName ? (
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+              <input
+                type="file"
+                id="resume-upload"
+                accept=".pdf,.doc,.docx"
+                onChange={handleResumeUpload}
+                className="hidden"
+              />
+              <label
+                htmlFor="resume-upload"
+                className="cursor-pointer flex flex-col items-center space-y-2"
+              >
+                <FaUpload className="text-3xl text-gray-400" />
+                <div>
+                  <span className="text-blue-600 font-medium">Click to upload resume</span>
+                  <span className="text-gray-600"> or drag and drop</span>
+                </div>
+                <span className="text-sm text-gray-500">PDF, DOC, DOCX up to 5MB</span>
+              </label>
+            </div>
+          ) : (
+            <div className="bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                  <FaFilePdf className="text-red-600" />
+                </div>
+                <div>
+                  <p className="font-medium text-gray-900">{formData.resumeFileName}</p>
+                  <p className="text-sm text-gray-500">
+                    {formData.resume ? `${(formData.resume.size / 1024 / 1024).toFixed(2)} MB` : 'Uploaded'}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  className="p-2 text-gray-400 hover:text-blue-600 transition-colors"
+                  title="Preview"
+                >
+                  <FaEye />
+                </button>
+                <button
+                  type="button"
+                  onClick={handleResumeRemove}
+                  className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+                  title="Remove"
+                >
+                  <FaTrash />
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderStep5 = () => (
+    <div className="space-y-6">
+      <div className="text-center mb-8">
         <FaGraduationCap className="text-4xl text-blue-600 mx-auto mb-4" />
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Preferences & Links</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Job Preferences</h2>
         <p className="text-gray-600">Help us find the right opportunities for you</p>
       </div>
 
@@ -511,92 +658,6 @@ const ProfileCompletion = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">LinkedIn Profile</label>
-          <div className="relative">
-            <FaLinkedin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-600" />
-            <input
-              type="url"
-              name="linkedin"
-              value={formData.linkedin}
-              onChange={handleInputChange}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-              placeholder="https://linkedin.com/in/yourname"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">GitHub Profile</label>
-          <div className="relative">
-            <FaGithub className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-700" />
-            <input
-              type="url"
-              name="github"
-              value={formData.github}
-              onChange={handleInputChange}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-              placeholder="https://github.com/yourname"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-3">Resume/CV Upload</label>
-          {!formData.resume && !formData.resumeFileName ? (
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
-              <input
-                type="file"
-                id="resume-upload"
-                accept=".pdf,.doc,.docx"
-                onChange={handleResumeUpload}
-                className="hidden"
-              />
-              <label
-                htmlFor="resume-upload"
-                className="cursor-pointer flex flex-col items-center space-y-2"
-              >
-                <FaUpload className="text-3xl text-gray-400" />
-                <div>
-                  <span className="text-blue-600 font-medium">Click to upload resume</span>
-                  <span className="text-gray-600"> or drag and drop</span>
-                </div>
-                <span className="text-sm text-gray-500">PDF, DOC, DOCX up to 5MB</span>
-              </label>
-            </div>
-          ) : (
-            <div className="bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-                  <FaFilePdf className="text-red-600" />
-                </div>
-                <div>
-                  <p className="font-medium text-gray-900">{formData.resumeFileName}</p>
-                  <p className="text-sm text-gray-500">
-                    {formData.resume ? `${(formData.resume.size / 1024 / 1024).toFixed(2)} MB` : 'Uploaded'}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <button
-                  type="button"
-                  className="p-2 text-gray-400 hover:text-blue-600 transition-colors"
-                  title="Preview"
-                >
-                  <FaEye />
-                </button>
-                <button
-                  type="button"
-                  onClick={handleResumeRemove}
-                  className="p-2 text-gray-400 hover:text-red-600 transition-colors"
-                  title="Remove"
-                >
-                  <FaTrash />
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );
@@ -663,8 +724,91 @@ const ProfileCompletion = () => {
             {currentStep === 2 && renderStep2()}
             {currentStep === 3 && renderStep3()}
             {currentStep === 4 && renderStep4()}
+            {currentStep === 5 && renderStep5()}
+            {currentStep === 6 && (
+              <div className="text-center space-y-8">
+                <div>
+                  <FaCheck className="text-6xl text-green-500 mx-auto mb-6" />
+                  <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                    Profile {isEditing ? 'Updated' : 'Created'} Successfully!
+                  </h2>
+                  <p className="text-lg text-gray-600 mb-8">
+                    Your profile has been saved to the database. Here's a summary of your information:
+                  </p>
+                </div>
+
+                <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8 text-left max-w-2xl mx-auto">
+                  <h3 className="text-xl font-bold text-gray-900 mb-4">Profile Summary</h3>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <span className="font-semibold text-gray-700">Name: </span>
+                      <span className="text-gray-900">{formData.fullName || 'Not provided'}</span>
+                    </div>
+                    
+                    <div>
+                      <span className="font-semibold text-gray-700">Phone: </span>
+                      <span className="text-gray-900">{formData.phone || 'Not provided'}</span>
+                    </div>
+                    
+                    <div>
+                      <span className="font-semibold text-gray-700">Location: </span>
+                      <span className="text-gray-900">{formData.location || 'Not provided'}</span>
+                    </div>
+                    
+                    <div>
+                      <span className="font-semibold text-gray-700">Professional Title: </span>
+                      <span className="text-gray-900">{formData.title || 'Not provided'}</span>
+                    </div>
+                    
+                    <div>
+                      <span className="font-semibold text-gray-700">Experience Level: </span>
+                      <span className="text-gray-900">{formData.experience || 'Not provided'}</span>
+                    </div>
+                    
+                    <div>
+                      <span className="font-semibold text-gray-700">Skills: </span>
+                      <span className="text-gray-900">
+                        {formData.skills.length > 0 ? formData.skills.join(', ') : 'Not provided'}
+                      </span>
+                    </div>
+                    
+                    <div>
+                      <span className="font-semibold text-gray-700">Expected Salary: </span>
+                      <span className="text-gray-900">{formData.expectedSalary || 'Not provided'}</span>
+                    </div>
+                    
+                    {formData.resumeFileName && (
+                      <div>
+                        <span className="font-semibold text-gray-700">Resume: </span>
+                        <span className="text-gray-900">{formData.resumeFileName}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <button
+                    type="button"
+                    onClick={() => navigate("/", { replace: true })}
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+                  >
+                    Go to Dashboard
+                  </button>
+                  
+                  <button
+                    type="button"
+                    onClick={() => navigate("/resume-builder")}
+                    className="bg-white border border-gray-300 text-gray-700 px-8 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-all duration-300"
+                  >
+                    Create Resume
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Navigation */}
+            {currentStep !== 6 && (
             <div className="flex justify-between items-center mt-12 pt-8 border-t border-gray-200">
               <button
                 type="button"
@@ -680,7 +824,7 @@ const ProfileCompletion = () => {
                 Step {currentStep} of {totalSteps}
               </div>
 
-              {currentStep < totalSteps ? (
+              {currentStep < 5 ? ( // Show Next button only for steps 1-4
                 <button
                   type="button"
                   onClick={nextStep}
@@ -688,7 +832,7 @@ const ProfileCompletion = () => {
                 >
                   Next Step
                 </button>
-              ) : (
+              ) : currentStep === 5 ? (
                 <button
                   type="submit"
                   disabled={isLoading}
@@ -703,8 +847,10 @@ const ProfileCompletion = () => {
                     isEditing ? 'Update Profile' : 'Complete Profile'
                   )}
                 </button>
-              )}
+              ) : null // No button on step 6 (summary)
+              }
             </div>
+            )}
           </form>
         </div>
       </div>

@@ -1,80 +1,103 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-  FaBriefcase, 
-  FaMapMarkerAlt, 
-  FaClock, 
+import {
+  FaBriefcase,
+  FaMapMarkerAlt,
+  FaClock,
   FaDollarSign,
   FaSpinner,
-  FaCheck,
   FaTimes,
   FaEye,
   FaBuilding,
-  FaArrowLeft
+  FaArrowLeft,
+  FaExternalLinkAlt
 } from "react-icons/fa";
+import { API_BASE_URL } from "../config/api";
+import { ApplicationCardSkeleton, ListSkeleton } from "./LoadingSkeleton";
 
 const MyApplications = () => {
   const navigate = useNavigate();
   const [applications, setApplications] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedApplication, setSelectedApplication] = useState(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [withdrawingId, setWithdrawingId] = useState(null);
 
   useEffect(() => {
-    // Check if user is logged in
     const token = localStorage.getItem("token");
     if (!token) {
       navigate("/login");
       return;
     }
 
-    // Simulate loading applications
-    setTimeout(() => {
-      // Mock application data - in real app this would come from API
-      setApplications([
-        {
-          id: 1,
-          jobTitle: "Frontend Developer",
-          company: "TechCorp Inc.",
-          location: "San Francisco, CA",
-          appliedDate: "2024-01-15",
-          status: "pending",
-          salary: "$80,000 - $120,000"
-        },
-        {
-          id: 2,
-          jobTitle: "Backend Developer",
-          company: "StartupXYZ",
-          location: "Remote",
-          appliedDate: "2024-01-10",
-          status: "interviewed",
-          salary: "$90,000 - $130,000"
-        },
-        {
-          id: 3,
-          jobTitle: "Full Stack Developer",
-          company: "MegaCorp",
-          location: "New York, NY",
-          appliedDate: "2024-01-05",
-          status: "rejected",
-          salary: "$100,000 - $140,000"
-        }
-      ]);
-      setIsLoading(false);
-    }, 1000);
+    fetchApplications();
   }, [navigate]);
 
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case 'pending':
-        return <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium">Pending</span>;
-      case 'interviewed':
-        return <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">Interviewed</span>;
-      case 'accepted':
-        return <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">Accepted</span>;
-      case 'rejected':
-        return <span className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium">Rejected</span>;
-      default:
-        return <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs font-medium">{status}</span>;
+  const fetchApplications = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_BASE_URL}/applications`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setApplications(data.applications);
+      }
+    } catch (err) {
+      console.error("Error fetching applications:", err);
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  const handleViewDetails = (application) => {
+    setSelectedApplication(application);
+    setShowDetailsModal(true);
+  };
+
+  const handleWithdraw = async (applicationId) => {
+    if (!window.confirm("Are you sure you want to withdraw this application?")) {
+      return;
+    }
+
+    setWithdrawingId(applicationId);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_BASE_URL}/applications/${applicationId}/withdraw`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setApplications(apps =>
+          apps.map(app =>
+            app._id === applicationId ? { ...app, status: 'withdrawn' } : app
+          )
+        );
+      } else {
+        alert(data.message || "Failed to withdraw application");
+      }
+    } catch (err) {
+      console.error("Error withdrawing application:", err);
+      alert("Failed to withdraw application");
+    } finally {
+      setWithdrawingId(null);
+    }
+  };
+
+  const getStatusBadge = (status) => {
+    const badges = {
+      pending: <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-medium">Pending</span>,
+      reviewed: <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium">Reviewed</span>,
+      interview: <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs font-medium">Interview</span>,
+      offered: <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium">Offered</span>,
+      accepted: <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium">Accepted</span>,
+      rejected: <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-medium">Rejected</span>,
+      withdrawn: <span className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-xs font-medium">Withdrawn</span>
+    };
+    return badges[status] || <span className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-xs font-medium">{status}</span>;
   };
 
   const formatDate = (dateString) => {
@@ -87,17 +110,21 @@ const MyApplications = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
-        <div className="text-center">
-          <FaSpinner className="animate-spin text-4xl text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600 text-lg">Loading your applications...</p>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8 px-4 pt-24">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-12">
+            <div className="h-6 w-32 bg-gray-200 rounded animate-pulse mb-6" />
+            <div className="h-12 w-80 bg-gray-200 rounded animate-pulse mb-4" />
+            <div className="h-6 w-64 bg-gray-200 rounded animate-pulse" />
+          </div>
+          <ListSkeleton count={3} CardComponent={ApplicationCardSkeleton} />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8 px-4 pt-24">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-12">
@@ -108,7 +135,7 @@ const MyApplications = () => {
             <FaArrowLeft />
             <span>Back to Home</span>
           </button>
-          
+
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             My{" "}
             <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
@@ -138,7 +165,7 @@ const MyApplications = () => {
           <div className="space-y-6">
             {applications.map((application) => (
               <div
-                key={application.id}
+                key={application._id}
                 className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-all duration-300"
               >
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between">
@@ -147,6 +174,9 @@ const MyApplications = () => {
                       <div>
                         <h3 className="text-xl font-bold text-gray-900 mb-2">
                           {application.jobTitle}
+                          {application.isExternal && (
+                            <span className="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">External</span>
+                          )}
                         </h3>
                         <div className="flex items-center space-x-4 text-gray-600 mb-2">
                           <div className="flex items-center space-x-1">
@@ -161,12 +191,14 @@ const MyApplications = () => {
                         <div className="flex items-center space-x-4 text-sm text-gray-500">
                           <div className="flex items-center space-x-1">
                             <FaClock />
-                            <span>Applied {formatDate(application.appliedDate)}</span>
+                            <span>Applied {formatDate(application.appliedAt)}</span>
                           </div>
-                          <div className="flex items-center space-x-1">
-                            <FaDollarSign />
-                            <span>{application.salary}</span>
-                          </div>
+                          {application.salary && (
+                            <div className="flex items-center space-x-1">
+                              <FaDollarSign />
+                              <span>{application.salary}</span>
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div className="md:ml-4">
@@ -174,15 +206,37 @@ const MyApplications = () => {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center space-x-3 mt-4 md:mt-0 md:ml-6">
-                    <button className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                    <button
+                      onClick={() => handleViewDetails(application)}
+                      className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
                       <FaEye />
                       <span>View Details</span>
                     </button>
+                    {application.isExternal && application.url && (
+                      <a
+                        href={application.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center space-x-2 px-4 py-2 border border-blue-300 rounded-lg text-blue-700 hover:bg-blue-50 transition-colors"
+                      >
+                        <FaExternalLinkAlt />
+                        <span>View Job</span>
+                      </a>
+                    )}
                     {application.status === 'pending' && (
-                      <button className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
-                        <FaTimes />
+                      <button
+                        onClick={() => handleWithdraw(application._id)}
+                        disabled={withdrawingId === application._id}
+                        className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+                      >
+                        {withdrawingId === application._id ? (
+                          <FaSpinner className="animate-spin" />
+                        ) : (
+                          <FaTimes />
+                        )}
                         <span>Withdraw</span>
                       </button>
                     )}
@@ -193,6 +247,69 @@ const MyApplications = () => {
           </div>
         )}
       </div>
+
+      {/* Details Modal */}
+      {showDetailsModal && selectedApplication && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-8 max-w-lg w-full max-h-[80vh] overflow-y-auto">
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">
+              {selectedApplication.jobTitle}
+            </h3>
+
+            <div className="space-y-4">
+              <div className="flex items-center text-gray-600">
+                <FaBuilding className="mr-3" />
+                <span>{selectedApplication.company}</span>
+              </div>
+              <div className="flex items-center text-gray-600">
+                <FaMapMarkerAlt className="mr-3" />
+                <span>{selectedApplication.location}</span>
+              </div>
+              {selectedApplication.salary && (
+                <div className="flex items-center text-gray-600">
+                  <FaDollarSign className="mr-3" />
+                  <span>{selectedApplication.salary}</span>
+                </div>
+              )}
+              <div className="flex items-center text-gray-600">
+                <FaClock className="mr-3" />
+                <span>Applied on {formatDate(selectedApplication.appliedAt)}</span>
+              </div>
+
+              <div className="pt-4 border-t">
+                <p className="text-sm text-gray-500 mb-2">Status</p>
+                {getStatusBadge(selectedApplication.status)}
+              </div>
+
+              {selectedApplication.isExternal && (
+                <div className="pt-4 border-t">
+                  <p className="text-sm text-gray-500 mb-2">Job Type</p>
+                  <span className="text-gray-700">{selectedApplication.jobType || 'Remote'}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex space-x-4 mt-8">
+              {selectedApplication.isExternal && selectedApplication.url && (
+                <a
+                  href={selectedApplication.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors text-center"
+                >
+                  View Original Job
+                </a>
+              )}
+              <button
+                onClick={() => setShowDetailsModal(false)}
+                className="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

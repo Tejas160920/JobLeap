@@ -1,14 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaGoogle, FaApple, FaEye, FaEyeSlash, FaEnvelope, FaLock, FaBriefcase } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { API_BASE_URL, API_URL } from "../config/api";
 
 const Login = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    // Check for OAuth errors
+    const oauthError = searchParams.get('error');
+    if (oauthError) {
+      if (oauthError === 'google_auth_failed') {
+        setError('Google authentication failed. Please try again.');
+      } else if (oauthError === 'apple_auth_failed') {
+        setError('Apple authentication failed. Please try again.');
+      } else if (oauthError === 'oauth_failed') {
+        setError('Social authentication failed. Please try again.');
+      }
+    }
+  }, [searchParams]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -16,7 +32,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5000/api/auth/login", {
+      const res = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -26,23 +42,36 @@ const Login = () => {
 
       const data = await res.json();
 
-      if (res.ok) {
+      if (data.success) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("userRole", data.user.role);
         localStorage.setItem("userEmail", data.user.email);
-        navigate("/");
+        localStorage.setItem("profileCompleted", data.user.profileCompleted);
+        
+        // Redirect based on profile completion
+        if (!data.user.profileCompleted && data.user.role === 'seeking') {
+          navigate("/complete-profile");
+        } else {
+          navigate("/");
+        }
       } else {
         setError(data.message || "Login failed");
       }
     } catch (err) {
-      setError("Something went wrong. Please try again.");
+      setError("Network error. Please check your connection and try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleSocialLogin = (provider) => {
-    alert(`${provider} login coming soon!`);
+    if (provider === 'Google') {
+      // Redirect to Google OAuth
+      window.location.href = `${API_BASE_URL}/auth/google`;
+    } else if (provider === 'Apple') {
+      // Redirect to Apple OAuth (if configured)
+      window.location.href = `${API_BASE_URL}/auth/apple`;
+    }
   };
 
   return (
@@ -77,13 +106,6 @@ const Login = () => {
             >
               <FaGoogle className="mr-3 text-red-500" />
               Continue with Google
-            </button>
-            <button
-              onClick={() => handleSocialLogin("Apple")}
-              className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 hover:shadow-md transition-all duration-300 transform hover:scale-105"
-            >
-              <FaApple className="mr-3 text-gray-800" />
-              Continue with Apple
             </button>
           </div>
 

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import JobCard from "./JobCard";
 import JobDetails from "./JobDetails";
 import { FaSearch, FaFilter, FaSort, FaSpinner, FaArrowLeft, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { API_BASE_URL } from '../config/api';
 
 const JobSection = ({ filters, showAll, onBackToHome }) => {
   const [jobs, setJobs] = useState([]);
@@ -16,18 +17,15 @@ const JobSection = ({ filters, showAll, onBackToHome }) => {
     const fetchJobs = async () => {
       setIsLoading(true);
       try {
-        let query = "";
+        // Build query string
+        const params = new URLSearchParams();
+        if (filters.title) params.append('title', filters.title);
+        if (filters.location) params.append('location', filters.location);
 
-        if (filters.title) {
-          query += `title=${encodeURIComponent(filters.title)}&`;
-        }
-        if (filters.location) {
-          query += `location=${encodeURIComponent(filters.location)}`;
-        }
+        // Fetch from real API (local DB + RemoteOK)
+        const response = await fetch(`${API_BASE_URL}/jobs?${params.toString()}`);
+        const data = await response.json();
 
-        const res = await fetch(`http://localhost:5000/api/jobs?${query}`);
-        const data = await res.json();
-        
         // Sort jobs based on selected criteria
         let sortedData = [...data];
         if (sortBy === "recent") {
@@ -35,7 +33,7 @@ const JobSection = ({ filters, showAll, onBackToHome }) => {
         } else if (sortBy === "title") {
           sortedData.sort((a, b) => a.title.localeCompare(b.title));
         }
-        
+
         setJobs(sortedData);
         setCurrentPage(1);
         setSelectedJob(sortedData[0] || null);
