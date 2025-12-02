@@ -1,4 +1,5 @@
 const Job = require("../models/job");
+const connectDB = require("../config/db");
 
 // Cache for RemoteOK jobs (refresh every 30 minutes)
 let remoteOKCache = {
@@ -63,6 +64,9 @@ const fetchRemoteOKJobs = async () => {
 // Create a new job
 exports.createJob = async (req, res) => {
   try {
+    // Ensure DB is connected (important for serverless)
+    await connectDB();
+
     const jobData = {
       ...req.body,
       postedBy: req.user.id,
@@ -90,6 +94,9 @@ exports.createJob = async (req, res) => {
 // Get all jobs with optional filtering by title and location
 exports.getJobs = async (req, res) => {
   try {
+    // Ensure DB is connected (important for serverless)
+    await connectDB();
+
     const { title, location, source } = req.query;
 
     // Fetch from both sources in parallel
@@ -144,8 +151,11 @@ exports.getJobs = async (req, res) => {
 
     res.status(200).json(allJobs);
   } catch (err) {
-    console.error("Error fetching jobs:", err);
-    res.status(500).json({ error: "Failed to fetch jobs" });
+    console.error("Error fetching jobs:", err.message, err.stack);
+    res.status(500).json({
+      error: "Failed to fetch jobs",
+      details: process.env.NODE_ENV !== 'production' ? err.message : undefined
+    });
   }
 };
 
