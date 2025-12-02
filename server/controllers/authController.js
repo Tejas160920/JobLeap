@@ -6,7 +6,10 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 if (!JWT_SECRET) {
   console.error('CRITICAL: JWT_SECRET environment variable is not set!');
-  process.exit(1);
+  // Don't exit on Vercel - just throw error
+  if (process.env.VERCEL !== '1') {
+    process.exit(1);
+  }
 }
 
 // Helper function to generate JWT token
