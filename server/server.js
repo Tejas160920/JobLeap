@@ -79,9 +79,9 @@ const allowedOrigins = [
   'http://127.0.0.1:5174',
   'http://127.0.0.1:5175',
   process.env.FRONTEND_URL,
-  // Add your production domain here when deploying
-  // 'https://jobleap.com',
-  // 'https://www.jobleap.com',
+  // Production domains
+  'https://job-leap.vercel.app',
+  'https://job-leap-wokg.vercel.app',
 ].filter(Boolean);
 
 const corsOptions = {
