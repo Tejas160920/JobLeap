@@ -7,16 +7,19 @@ const passport = require("passport");
 const connectDB = require("./config/db");
 
 // Load environment variables
-dotenv.config(); 
+dotenv.config();
 
-// Verify critical environment variables
+// Verify critical environment variables (don't exit on Vercel)
 const requiredEnvVars = ['MONGO_URI', 'JWT_SECRET'];
 const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
 
 if (missingEnvVars.length > 0) {
   console.error(`CRITICAL: Missing environment variables: ${missingEnvVars.join(', ')}`);
-  console.error('Please create a .env file based on .env.example');
-  process.exit(1);
+  console.error('Please set environment variables in Vercel dashboard');
+  // Don't exit on Vercel - just log the error
+  if (process.env.VERCEL !== '1') {
+    process.exit(1);
+  }
 }
 
 const app = express();
@@ -155,9 +158,16 @@ app.use('*', (req, res) => {
   });
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`🔒 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🌐 CORS enabled for: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
-});
+// For Vercel serverless, export the app
+// For local development, listen on PORT
+if (process.env.VERCEL !== '1') {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`CORS enabled for: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
+  });
+}
+
+// Export for Vercel
+module.exports = app;
