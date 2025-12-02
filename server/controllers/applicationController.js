@@ -174,16 +174,41 @@ exports.fixIndexes = async (req, res) => {
     await connectDB();
     const Application = require("../models/Application");
 
-    // Try to drop the old unique indexes
-    try {
-      await Application.collection.dropIndex("job_1_applicant_1");
-    } catch (e) { /* Index might not exist */ }
+    const droppedIndexes = [];
+    const errors = [];
 
-    try {
-      await Application.collection.dropIndex("externalJobId_1_applicant_1");
-    } catch (e) { /* Index might not exist */ }
+    // Get current indexes
+    const currentIndexes = await Application.collection.indexes();
 
-    res.json({ success: true, message: "Indexes fixed" });
+    // Try to drop ALL indexes except _id
+    for (const idx of currentIndexes) {
+      if (idx.name !== '_id_') {
+        try {
+          await Application.collection.dropIndex(idx.name);
+          droppedIndexes.push(idx.name);
+        } catch (e) {
+          errors.push({ index: idx.name, error: e.message });
+        }
+      }
+    }
+
+    // Re-sync indexes (recreates them from schema)
+    try {
+      await Application.syncIndexes();
+    } catch (e) {
+      errors.push({ action: 'syncIndexes', error: e.message });
+    }
+
+    // Get new indexes
+    const newIndexes = await Application.collection.indexes();
+
+    res.json({
+      success: true,
+      message: "Indexes fixed",
+      droppedIndexes,
+      newIndexes: newIndexes.map(i => ({ name: i.name, key: i.key, unique: i.unique })),
+      errors: errors.length > 0 ? errors : undefined
+    });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
