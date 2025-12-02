@@ -97,14 +97,6 @@ const Footer = () => {
               </li>
               <li>
                 <button
-                  onClick={() => handleNavigation('/salaries')}
-                  className="hover:text-white transition-colors text-left"
-                >
-                  Salary Guide
-                </button>
-              </li>
-              <li>
-                <button
                   onClick={() => handleNavigation('/career-advice')}
                   className="hover:text-white transition-colors text-left"
                 >

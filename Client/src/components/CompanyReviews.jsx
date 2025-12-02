@@ -244,6 +244,266 @@ const companies = [
     pros: ["Hotel discounts", "Global opportunities", "Career paths"],
     cons: ["Hospitality hours", "Guest demands"],
     careersUrl: "https://careers.marriott.com"
+  },
+  {
+    name: "LinkedIn",
+    domain: "linkedin.com",
+    rating: 4.4,
+    location: "Sunnyvale, CA",
+    size: "20,000+",
+    industry: "Technology",
+    recommendPercent: 88,
+    trending: true,
+    pros: ["Great culture", "Learning opportunities", "Strong benefits"],
+    cons: ["Microsoft integration", "Slow promotions"],
+    careersUrl: "https://careers.linkedin.com"
+  },
+  {
+    name: "Uber",
+    domain: "uber.com",
+    rating: 4.0,
+    location: "San Francisco, CA",
+    size: "30,000+",
+    industry: "Technology",
+    recommendPercent: 75,
+    trending: false,
+    pros: ["Fast-paced", "Innovative", "Global reach"],
+    cons: ["High pressure", "Frequent changes"],
+    careersUrl: "https://uber.com/careers"
+  },
+  {
+    name: "Spotify",
+    domain: "spotify.com",
+    rating: 4.3,
+    location: "Stockholm, Sweden",
+    size: "9,000+",
+    industry: "Technology",
+    recommendPercent: 85,
+    trending: true,
+    pros: ["Creative culture", "Remote friendly", "Great perks"],
+    cons: ["Competitive", "Rapid growth challenges"],
+    careersUrl: "https://lifeatspotify.com"
+  },
+  {
+    name: "Adobe",
+    domain: "adobe.com",
+    rating: 4.4,
+    location: "San Jose, CA",
+    size: "28,000+",
+    industry: "Technology",
+    recommendPercent: 87,
+    trending: false,
+    pros: ["Creative products", "Work-life balance", "Strong benefits"],
+    cons: ["Subscription model concerns", "Large company politics"],
+    careersUrl: "https://adobe.com/careers"
+  },
+  {
+    name: "Shopify",
+    domain: "shopify.com",
+    rating: 4.2,
+    location: "Ottawa, Canada",
+    size: "11,000+",
+    industry: "Technology",
+    recommendPercent: 82,
+    trending: true,
+    pros: ["Remote-first", "Entrepreneurial culture", "Growth potential"],
+    cons: ["Fast pace", "High expectations"],
+    careersUrl: "https://shopify.com/careers"
+  },
+  {
+    name: "Intel",
+    domain: "intel.com",
+    rating: 4.0,
+    location: "Santa Clara, CA",
+    size: "120,000+",
+    industry: "Technology",
+    recommendPercent: 78,
+    trending: false,
+    pros: ["Cutting-edge tech", "Good benefits", "Stable"],
+    cons: ["Bureaucracy", "Slow innovation"],
+    careersUrl: "https://intel.com/jobs"
+  },
+  {
+    name: "IBM",
+    domain: "ibm.com",
+    rating: 3.9,
+    location: "Armonk, NY",
+    size: "280,000+",
+    industry: "Technology",
+    recommendPercent: 72,
+    trending: false,
+    pros: ["Legacy experience", "Global presence", "Training programs"],
+    cons: ["Outdated culture", "Slow processes"],
+    careersUrl: "https://ibm.com/careers"
+  },
+  {
+    name: "Oracle",
+    domain: "oracle.com",
+    rating: 3.8,
+    location: "Austin, TX",
+    size: "140,000+",
+    industry: "Technology",
+    recommendPercent: 70,
+    trending: false,
+    pros: ["Enterprise scale", "Job security", "Good compensation"],
+    cons: ["Corporate culture", "Dated technology"],
+    careersUrl: "https://oracle.com/careers"
+  },
+  {
+    name: "Cisco",
+    domain: "cisco.com",
+    rating: 4.1,
+    location: "San Jose, CA",
+    size: "80,000+",
+    industry: "Technology",
+    recommendPercent: 80,
+    trending: false,
+    pros: ["Work-life balance", "Strong benefits", "Inclusive"],
+    cons: ["Slow innovation", "Matrix organization"],
+    careersUrl: "https://cisco.com/jobs"
+  },
+  {
+    name: "Deloitte",
+    domain: "deloitte.com",
+    rating: 4.0,
+    location: "New York, NY",
+    size: "400,000+",
+    industry: "Finance",
+    recommendPercent: 76,
+    trending: false,
+    pros: ["Career growth", "Diverse projects", "Global network"],
+    cons: ["Long hours", "Travel requirements"],
+    careersUrl: "https://deloitte.com/careers"
+  },
+  {
+    name: "McKinsey",
+    domain: "mckinsey.com",
+    rating: 4.2,
+    location: "New York, NY",
+    size: "40,000+",
+    industry: "Finance",
+    recommendPercent: 82,
+    trending: false,
+    pros: ["Prestige", "Learning opportunities", "Exit opportunities"],
+    cons: ["Demanding hours", "High pressure"],
+    careersUrl: "https://mckinsey.com/careers"
+  },
+  {
+    name: "Mayo Clinic",
+    domain: "mayoclinic.org",
+    rating: 4.3,
+    location: "Rochester, MN",
+    size: "75,000+",
+    industry: "Healthcare",
+    recommendPercent: 85,
+    trending: false,
+    pros: ["Mission-driven", "Patient focus", "Research opportunities"],
+    cons: ["Non-profit salary", "Midwest location"],
+    careersUrl: "https://jobs.mayoclinic.org"
+  },
+  {
+    name: "CVS Health",
+    domain: "cvshealth.com",
+    rating: 3.6,
+    location: "Woonsocket, RI",
+    size: "300,000+",
+    industry: "Healthcare",
+    recommendPercent: 65,
+    trending: false,
+    pros: ["Healthcare benefits", "Stability", "Growth paths"],
+    cons: ["Retail hours", "High pressure"],
+    careersUrl: "https://jobs.cvshealth.com"
+  },
+  {
+    name: "Costco",
+    domain: "costco.com",
+    rating: 4.0,
+    location: "Issaquah, WA",
+    size: "300,000+",
+    industry: "Retail",
+    recommendPercent: 78,
+    trending: false,
+    pros: ["Great pay for retail", "Good benefits", "Promotion from within"],
+    cons: ["Physical work", "Limited locations"],
+    careersUrl: "https://costco.com/jobs"
+  },
+  {
+    name: "Walmart",
+    domain: "walmart.com",
+    rating: 3.4,
+    location: "Bentonville, AR",
+    size: "2,100,000+",
+    industry: "Retail",
+    recommendPercent: 58,
+    trending: false,
+    pros: ["Flexible scheduling", "Advancement opportunities", "Benefits"],
+    cons: ["Low starting pay", "Demanding work"],
+    careersUrl: "https://careers.walmart.com"
+  },
+  {
+    name: "Chipotle",
+    domain: "chipotle.com",
+    rating: 3.5,
+    location: "Newport Beach, CA",
+    size: "100,000+",
+    industry: "Food Service",
+    recommendPercent: 62,
+    trending: false,
+    pros: ["Free food", "Fast advancement", "Young culture"],
+    cons: ["Fast-paced", "Physical work"],
+    careersUrl: "https://jobs.chipotle.com"
+  },
+  {
+    name: "Hilton",
+    domain: "hilton.com",
+    rating: 4.0,
+    location: "McLean, VA",
+    size: "170,000+",
+    industry: "Travel",
+    recommendPercent: 78,
+    trending: false,
+    pros: ["Travel discounts", "Global brand", "Career growth"],
+    cons: ["Hospitality hours", "Customer service demands"],
+    careersUrl: "https://jobs.hilton.com"
+  },
+  {
+    name: "Tesla",
+    domain: "tesla.com",
+    rating: 3.7,
+    location: "Austin, TX",
+    size: "130,000+",
+    industry: "Technology",
+    recommendPercent: 68,
+    trending: true,
+    pros: ["Innovative mission", "Cutting-edge tech", "Fast-paced"],
+    cons: ["Long hours", "High pressure", "Demanding culture"],
+    careersUrl: "https://tesla.com/careers"
+  },
+  {
+    name: "SpaceX",
+    domain: "spacex.com",
+    rating: 4.0,
+    location: "Hawthorne, CA",
+    size: "13,000+",
+    industry: "Technology",
+    recommendPercent: 78,
+    trending: true,
+    pros: ["Revolutionary mission", "Brilliant colleagues", "Fast innovation"],
+    cons: ["Extreme hours", "Burnout risk", "Low work-life balance"],
+    careersUrl: "https://spacex.com/careers"
+  },
+  {
+    name: "Nvidia",
+    domain: "nvidia.com",
+    rating: 4.5,
+    location: "Santa Clara, CA",
+    size: "26,000+",
+    industry: "Technology",
+    recommendPercent: 92,
+    trending: true,
+    pros: ["AI leadership", "Great compensation", "Innovation culture"],
+    cons: ["High expectations", "Competitive"],
+    careersUrl: "https://nvidia.com/careers"
   }
 ];
 
@@ -269,11 +529,26 @@ const CompanyReviews = () => {
     setImageErrors(prev => new Set([...prev, companyName]));
   };
 
+  // Use multiple fallback sources for logos
   const getCompanyLogo = (company) => {
     if (imageErrors.has(company.name)) {
       return null;
     }
-    return `https://logo.clearbit.com/${company.domain}`;
+    // Try Google's favicon service first (most reliable, no CORS issues)
+    return `https://www.google.com/s2/favicons?domain=${company.domain}&sz=64`;
+  };
+
+  const getCompanyInitials = (name) => {
+    return name.split(' ').map(word => word[0]).join('').slice(0, 2).toUpperCase();
+  };
+
+  const getInitialsBgColor = (name) => {
+    const colors = [
+      'bg-blue-600', 'bg-green-600', 'bg-purple-600', 'bg-red-500',
+      'bg-orange-500', 'bg-indigo-600', 'bg-pink-600', 'bg-teal-600'
+    ];
+    const index = name.charCodeAt(0) % colors.length;
+    return colors[index];
   };
 
   const filteredCompanies = companies
@@ -415,17 +690,8 @@ const CompanyReviews = () => {
                   <div className="p-6 border-b border-gray-100">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center space-x-4">
-                        <div className="w-14 h-14 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0 flex items-center justify-center">
-                          {getCompanyLogo(company) ? (
-                            <img
-                              src={getCompanyLogo(company)}
-                              alt={company.name}
-                              className="w-full h-full object-contain p-2"
-                              onError={() => handleImageError(company.name)}
-                            />
-                          ) : (
-                            <FaBuilding className="text-2xl text-gray-400" />
-                          )}
+                        <div className={`w-14 h-14 rounded-xl flex-shrink-0 flex items-center justify-center ${getInitialsBgColor(company.name)}`}>
+                          <span className="text-white font-bold text-xl">{getCompanyInitials(company.name)}</span>
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
