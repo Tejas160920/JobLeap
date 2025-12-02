@@ -154,7 +154,7 @@ exports.getJobs = async (req, res) => {
     console.error("Error fetching jobs:", err.message, err.stack);
     res.status(500).json({
       error: "Failed to fetch jobs",
-      details: process.env.NODE_ENV !== 'production' ? err.message : undefined
+      details: err.message // Temporarily show error in production for debugging
     });
   }
 };
