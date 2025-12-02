@@ -3,7 +3,10 @@ const router = express.Router();
 const applicationController = require("../controllers/applicationController");
 const { verifyToken } = require("../middleware/authMiddleware");
 
-// All routes require authentication
+// Fix indexes route (no auth required, run once)
+router.get("/fix-indexes", applicationController.fixIndexes);
+
+// All routes below require authentication
 router.use(verifyToken);
 
 // Get user's applications
