@@ -75,9 +75,9 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* For Job Seekers */}
+          {/* Explore */}
           <div>
-            <h3 className="text-white font-semibold mb-4">For Job Seekers</h3>
+            <h3 className="text-white font-semibold mb-4">Explore</h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <button
@@ -105,14 +105,6 @@ const Footer = () => {
               </li>
               <li>
                 <button
-                  onClick={() => handleNavigation('/resume-builder')}
-                  className="hover:text-white transition-colors text-left"
-                >
-                  Resume Builder
-                </button>
-              </li>
-              <li>
-                <button
                   onClick={() => handleNavigation('/career-advice')}
                   className="hover:text-white transition-colors text-left"
                 >
@@ -122,16 +114,16 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* For Employers */}
+          {/* Resources */}
           <div>
-            <h3 className="text-white font-semibold mb-4">For Employers</h3>
+            <h3 className="text-white font-semibold mb-4">Resources</h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <button
-                  onClick={() => handleNavigation('/add-job')}
+                  onClick={() => handleNavigation('/resume-builder')}
                   className="hover:text-white transition-colors text-left"
                 >
-                  Post a Job
+                  Resume Builder
                 </button>
               </li>
               <li>
@@ -148,6 +140,14 @@ const Footer = () => {
                   className="hover:text-white transition-colors text-left"
                 >
                   Account Settings
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => handleNavigation('/add-job')}
+                  className="hover:text-white transition-colors text-left"
+                >
+                  Post a Job
                 </button>
               </li>
             </ul>
