@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-  FaUser, 
-  FaBriefcase, 
-  FaGraduationCap, 
-  FaMapMarkerAlt, 
-  FaPhone, 
+import {
+  FaUser,
+  FaBriefcase,
+  FaGraduationCap,
+  FaMapMarkerAlt,
+  FaPhone,
   FaLinkedin,
   FaGithub,
   FaUpload,
@@ -17,6 +17,7 @@ import {
   FaTrash,
   FaEye
 } from "react-icons/fa";
+import { API_BASE_URL } from "../config/api";
 
 const ProfileCompletion = () => {
   const navigate = useNavigate();
@@ -210,17 +211,19 @@ const ProfileCompletion = () => {
       if (token) {
         // Try to save to backend
         try {
-          const response = await fetch('http://localhost:5000/api/auth/profile', {
+          const response = await fetch(`${API_BASE_URL}/auth/profile`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify(formData)
+            body: JSON.stringify({ profile: formData })
           });
-          
+
           if (response.ok) {
             console.log('Profile saved to database successfully');
+            // Dispatch auth change event to update navbar
+            window.dispatchEvent(new Event('authChange'));
           }
         } catch (backendError) {
           console.log('Backend not available, using local storage only');

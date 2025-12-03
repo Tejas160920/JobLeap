@@ -80,7 +80,10 @@ const Signup = () => {
         localStorage.setItem("userRole", data.user.role);
         localStorage.setItem("userEmail", data.user.email);
         localStorage.setItem("profileCompleted", data.user.profileCompleted);
-        
+
+        // Dispatch event to update Navbar
+        window.dispatchEvent(new Event('authChange'));
+
         // Redirect to profile completion for job seekers
         if (data.user.role === 'seeking') {
           navigate("/complete-profile");
