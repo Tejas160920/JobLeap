@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaUserCircle, FaBars, FaTimes, FaBriefcase, FaUser, FaSignOutAlt, FaEdit, FaCog, FaFileAlt } from "react-icons/fa";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
@@ -7,11 +7,40 @@ const Navbar = () => {
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [authState, setAuthState] = useState({
+    token: localStorage.getItem("token"),
+    userRole: localStorage.getItem("userRole"),
+    userEmail: localStorage.getItem("userEmail"),
+    profileCompleted: localStorage.getItem("profileCompleted")
+  });
 
-  const userRole = localStorage.getItem("userRole");
-  const userEmail = localStorage.getItem("userEmail");
-  const token = localStorage.getItem("token");
-  const profileCompleted = localStorage.getItem("profileCompleted");
+  // Re-check auth state on route changes and storage events
+  useEffect(() => {
+    const checkAuth = () => {
+      setAuthState({
+        token: localStorage.getItem("token"),
+        userRole: localStorage.getItem("userRole"),
+        userEmail: localStorage.getItem("userEmail"),
+        profileCompleted: localStorage.getItem("profileCompleted")
+      });
+    };
+
+    // Check on route change
+    checkAuth();
+
+    // Listen for storage changes (from other tabs)
+    window.addEventListener('storage', checkAuth);
+
+    // Custom event for same-tab updates
+    window.addEventListener('authChange', checkAuth);
+
+    return () => {
+      window.removeEventListener('storage', checkAuth);
+      window.removeEventListener('authChange', checkAuth);
+    };
+  }, [location.pathname]);
+
+  const { token, userRole, userEmail, profileCompleted } = authState;
 
   const isActive = (path) => location.pathname === path;
 
@@ -32,6 +61,8 @@ const Navbar = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userRole");
     localStorage.removeItem("userEmail");
+    localStorage.removeItem("profileCompleted");
+    window.dispatchEvent(new Event('authChange'));
     navigate("/");
     setIsUserMenuOpen(false);
   };

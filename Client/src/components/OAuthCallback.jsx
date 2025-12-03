@@ -29,20 +29,25 @@ const OAuthCallback = () => {
         localStorage.setItem('userEmail', userData.email);
         localStorage.setItem('profileCompleted', userData.profileCompleted);
 
+        // Dispatch event to update Navbar
+        window.dispatchEvent(new Event('authChange'));
+
         setStatus('success');
         setMessage('Authentication successful! Redirecting...');
 
         // Set welcome flag for new users
         localStorage.setItem('hasSeenWelcome', 'true');
 
-        // Redirect based on profile completion
+        // Redirect - only show profile form for first-time users (profileCompleted is false)
+        // For returning users (profileCompleted is true or "true"), go straight to home
         setTimeout(() => {
-          if (!userData.profileCompleted && userData.role === 'seeking') {
+          const isProfileComplete = userData.profileCompleted === true || userData.profileCompleted === 'true';
+          if (!isProfileComplete && userData.role === 'seeking') {
             navigate('/complete-profile');
           } else {
             navigate('/');
           }
-        }, 2000);
+        }, 1500);
 
       } catch (error) {
         console.error('OAuth callback error:', error);
