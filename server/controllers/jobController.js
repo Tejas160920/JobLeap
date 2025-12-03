@@ -30,22 +30,35 @@ const fetchJoinRiseJobs = async () => {
     }
 
     const data = await response.json();
-    const jobsArray = data.data || data.jobs || data || [];
+    const jobsArray = data.result?.jobs || data.data || data.jobs || data || [];
 
-    const jobs = (Array.isArray(jobsArray) ? jobsArray : []).map(job => ({
-      _id: `joinrise_${job.id || job._id || Math.random().toString(36).substr(2, 9)}`,
-      title: job.title || job.jobTitle || 'Untitled Position',
-      company: job.company || job.companyName || job.employer || 'Unknown Company',
-      location: job.location || job.jobLoc || job.city || 'Remote',
-      salary: job.salary || job.salaryRange || '',
-      jobType: job.type || job.jobType || job.employmentType || 'Full-time',
-      description: job.description || job.jobDescription || '',
-      tags: job.skills || job.tags || [],
-      logo: job.logo || job.companyLogo || '',
-      url: job.applyUrl || job.url || job.applicationUrl || '',
-      postedAt: job.createdAt || job.postedAt || job.datePosted ? new Date(job.createdAt || job.postedAt || job.datePosted) : new Date(),
-      source: 'joinrise'
-    }));
+    const jobs = (Array.isArray(jobsArray) ? jobsArray : []).map(job => {
+      // Extract company name from owner object or direct field
+      const companyName = job.owner?.companyName || job.company || job.companyName || 'Unknown Company';
+
+      // Extract salary from descriptionBreakdown if available
+      let salary = '';
+      if (job.descriptionBreakdown?.salaryRangeMinYearly && job.descriptionBreakdown?.salaryRangeMaxYearly) {
+        salary = `$${job.descriptionBreakdown.salaryRangeMinYearly.toLocaleString()} - $${job.descriptionBreakdown.salaryRangeMaxYearly.toLocaleString()}`;
+      } else if (job.salary) {
+        salary = job.salary;
+      }
+
+      return {
+        _id: `joinrise_${job._id || job.id || Math.random().toString(36).substr(2, 9)}`,
+        title: job.title || job.jobTitle || 'Untitled Position',
+        company: companyName,
+        location: job.locationAddress || job.location || 'Remote',
+        salary: salary,
+        jobType: job.type || job.jobType || job.descriptionBreakdown?.employmentType || 'Full-time',
+        description: job.description || job.jobDescription || '',
+        tags: job.skills_suggest || job.descriptionBreakdown?.keywords || job.skills || job.tags || [],
+        logo: job.owner?.photo || job.logo || '',
+        url: job.url || job.applyUrl || '',
+        postedAt: job.createdAt ? new Date(job.createdAt) : new Date(),
+        source: 'joinrise'
+      };
+    });
 
     // Update cache
     jobCache.joinrise = { jobs, lastFetch: now };
