@@ -137,11 +137,13 @@ const authRoutes = require("./routes/authRoutes");
 const jobRoutes = require("./routes/jobRoutes");
 const bookmarkRoutes = require("./routes/bookmarkRoutes");
 const applicationRoutes = require("./routes/applicationRoutes");
+const atsRoutes = require("./routes/atsRoutes");
 
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api", jobRoutes);
 app.use("/api/bookmarks", bookmarkRoutes);
 app.use("/api/applications", applicationRoutes);
+app.use("/api/ats", atsRoutes);
 
 // Global error handler
 app.use((err, req, res, next) => {

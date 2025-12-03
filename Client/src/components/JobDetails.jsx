@@ -13,9 +13,11 @@ import {
   FaCalendarAlt,
   FaHeart,
   FaRegHeart,
-  FaTags
+  FaTags,
+  FaSearch
 } from "react-icons/fa";
 import { API_BASE_URL } from "../config/api";
+import ATSCheckModal from "./ATSCheckModal";
 
 const JobDetails = ({ job }) => {
   const navigate = useNavigate();
@@ -23,6 +25,7 @@ const JobDetails = ({ job }) => {
   const [isLiked, setIsLiked] = useState(false);
   const [showProfilePrompt, setShowProfilePrompt] = useState(false);
   const [isApplying, setIsApplying] = useState(false);
+  const [showATSModal, setShowATSModal] = useState(false);
 
   // Check if job is bookmarked on load
   useEffect(() => {
@@ -95,7 +98,8 @@ const JobDetails = ({ job }) => {
     return cleaned;
   };
 
-  const handleApply = async () => {
+  // Function to handle direct apply (called after ATS check or when skipping)
+  const proceedToApply = async () => {
     const token = localStorage.getItem("token");
 
     if (!token) {
@@ -170,6 +174,19 @@ const JobDetails = ({ job }) => {
     } finally {
       setIsApplying(false);
     }
+  };
+
+  // Show ATS modal when user clicks Apply
+  const handleApply = () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      navigate("/signup");
+      return;
+    }
+
+    // Show ATS check modal
+    setShowATSModal(true);
   };
 
   const handleBookmark = async () => {
@@ -477,6 +494,14 @@ const JobDetails = ({ job }) => {
           </div>
         </div>
       )}
+
+      {/* ATS Check Modal */}
+      <ATSCheckModal
+        isOpen={showATSModal}
+        onClose={() => setShowATSModal(false)}
+        job={job}
+        onProceedToApply={proceedToApply}
+      />
     </div>
   );
 };
