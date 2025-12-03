@@ -24,6 +24,7 @@ const Settings = () => {
   const [deletePassword, setDeletePassword] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState("");
+  const [isOAuthUser, setIsOAuthUser] = useState(false);
   const [settings, setSettings] = useState({
     emailNotifications: true,
     jobAlerts: true,
@@ -38,25 +39,36 @@ const Settings = () => {
       return;
     }
 
-    // Fetch current settings from API
-    const fetchSettings = async () => {
+    // Fetch current settings and user profile from API
+    const fetchData = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/auth/settings`, {
+        // Fetch settings
+        const settingsRes = await fetch(`${API_BASE_URL}/auth/settings`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        const data = await res.json();
+        const settingsData = await settingsRes.json();
 
-        if (data.success && data.settings) {
-          setSettings(data.settings);
+        if (settingsData.success && settingsData.settings) {
+          setSettings(settingsData.settings);
+        }
+
+        // Fetch profile to check if OAuth user
+        const profileRes = await fetch(`${API_BASE_URL}/auth/profile`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const profileData = await profileRes.json();
+
+        if (profileData.success && profileData.user) {
+          setIsOAuthUser(profileData.user.isOAuthUser || false);
         }
       } catch (err) {
-        console.error("Error fetching settings:", err);
+        console.error("Error fetching data:", err);
       } finally {
         setIsFetching(false);
       }
     };
 
-    fetchSettings();
+    fetchData();
   }, [navigate]);
 
   const handleSettingChange = (setting, value) => {
@@ -370,21 +382,32 @@ const Settings = () => {
               </p>
             </div>
 
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Enter your password to confirm
-              </label>
-              <input
-                type="password"
-                value={deletePassword}
-                onChange={(e) => setDeletePassword(e.target.value)}
-                placeholder="Your password"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none"
-              />
-              {deleteError && (
-                <p className="mt-2 text-sm text-red-600">{deleteError}</p>
-              )}
-            </div>
+            {!isOAuthUser && (
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Enter your password to confirm
+                </label>
+                <input
+                  type="password"
+                  value={deletePassword}
+                  onChange={(e) => setDeletePassword(e.target.value)}
+                  placeholder="Your password"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none"
+                />
+              </div>
+            )}
+
+            {isOAuthUser && (
+              <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-sm text-yellow-800">
+                  You signed up with Google. Click "Delete Account" to confirm deletion.
+                </p>
+              </div>
+            )}
+
+            {deleteError && (
+              <p className="mb-4 text-sm text-red-600 text-center">{deleteError}</p>
+            )}
 
             <div className="flex space-x-4">
               <button
@@ -399,7 +422,7 @@ const Settings = () => {
               </button>
               <button
                 onClick={handleDeleteAccount}
-                disabled={isDeleting || !deletePassword}
+                disabled={isDeleting || (!isOAuthUser && !deletePassword)}
                 className="flex-1 bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isDeleting ? (
