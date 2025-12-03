@@ -34,7 +34,8 @@ const formatUserResponse = (user) => {
     role: user.role,
     profileCompleted: user.profileCompleted,
     emailVerified: user.emailVerified,
-    needsRoleSelection: user.needsRoleSelection || false
+    needsRoleSelection: user.needsRoleSelection || false,
+    isOAuthUser: !!(user.googleId || user.appleId)
   };
 };
 
