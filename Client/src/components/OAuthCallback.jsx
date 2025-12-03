@@ -29,6 +29,13 @@ const OAuthCallback = () => {
         localStorage.setItem('userEmail', userData.email);
         localStorage.setItem('profileCompleted', userData.profileCompleted);
 
+        // Check if new OAuth user needs role selection
+        if (userData.needsRoleSelection) {
+          localStorage.setItem('needsRoleSelection', 'true');
+        } else {
+          localStorage.removeItem('needsRoleSelection');
+        }
+
         // Dispatch event to update Navbar
         window.dispatchEvent(new Event('authChange'));
 
@@ -38,9 +45,15 @@ const OAuthCallback = () => {
         // Set welcome flag for new users
         localStorage.setItem('hasSeenWelcome', 'true');
 
-        // Redirect - only show profile form for first-time users (profileCompleted is false)
-        // For returning users (profileCompleted is true or "true"), go straight to home
+        // Redirect based on user state
         setTimeout(() => {
+          // New OAuth user - needs to select role first
+          if (userData.needsRoleSelection) {
+            navigate('/select-role');
+            return;
+          }
+
+          // Existing user - check profile completion
           const isProfileComplete = userData.profileCompleted === true || userData.profileCompleted === 'true';
           if (!isProfileComplete && userData.role === 'seeking') {
             navigate('/complete-profile');

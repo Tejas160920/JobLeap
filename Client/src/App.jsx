@@ -14,6 +14,7 @@ import CareerAdvice from './components/CareerAdvice';
 import ResumeBuilder from './components/ResumeBuilder';
 import SignupModal from './components/SignupModal';
 import OAuthCallback from './components/OAuthCallback';
+import RoleSelection from './components/RoleSelection';
 import TermsOfService from './components/TermsOfService';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import ForgotPassword from './components/ForgotPassword';
@@ -121,6 +122,7 @@ function AppContent() {
           <Route path="/my-applications" element={<MyApplications />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/auth/callback" element={<OAuthCallback />} />
+          <Route path="/select-role" element={<RoleSelection />} />
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />

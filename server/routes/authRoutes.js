@@ -6,6 +6,7 @@ const {
   login,
   updateProfile,
   getProfile,
+  updateRole,
   oauthSuccess,
   forgotPassword,
   resetPassword,
@@ -23,6 +24,7 @@ router.post("/signup", validateSignup, signup);
 router.post("/login", validateLogin, login);
 router.put("/profile", verifyToken, validateProfileUpdate, updateProfile);
 router.get("/profile", verifyToken, getProfile);
+router.put("/role", verifyToken, updateRole);
 
 // Password reset routes
 router.post("/forgot-password", forgotPassword);
