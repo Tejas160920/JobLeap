@@ -582,14 +582,19 @@ exports.deleteAccount = async (req, res) => {
       }
     }
 
-    // Soft delete - mark as inactive instead of actually deleting
-    user.isActive = false;
-    user.email = `deleted_${Date.now()}_${user.email}`;
-    await user.save();
+    // Hard delete - completely remove from database
+    await User.findByIdAndDelete(userId);
 
-    // Optionally: Clean up related data
-    // await Bookmark.deleteMany({ user: userId });
-    // await Application.deleteMany({ applicant: userId });
+    // Clean up related data
+    const Bookmark = require('../models/Bookmark');
+    const Application = require('../models/Application');
+
+    try {
+      await Bookmark.deleteMany({ user: userId });
+      await Application.deleteMany({ applicant: userId });
+    } catch (cleanupErr) {
+      console.log('Cleanup of related data skipped:', cleanupErr.message);
+    }
 
     res.status(200).json({
       success: true,
