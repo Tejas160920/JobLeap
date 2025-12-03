@@ -2,15 +2,48 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FaEnvelope, FaArrowLeft, FaCheckCircle } from 'react-icons/fa';
 import { API_BASE_URL } from '../config/api';
+import { isValidEmail } from '../utils/validation';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState('');
+  const [fieldError, setFieldError] = useState('');
+  const [touched, setTouched] = useState(false);
+
+  // Validate email
+  const validateEmail = (value) => {
+    if (!value.trim()) return 'Email is required';
+    if (!isValidEmail(value)) return 'Please enter a valid email address';
+    return '';
+  };
+
+  const handleBlur = () => {
+    setTouched(true);
+    setFieldError(validateEmail(email));
+  };
+
+  const handleEmailChange = (e) => {
+    const value = e.target.value;
+    setEmail(value);
+    if (touched) {
+      setFieldError(validateEmail(value));
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate before submission
+    const emailError = validateEmail(email);
+    setFieldError(emailError);
+    setTouched(true);
+
+    if (emailError) {
+      return;
+    }
+
     setIsLoading(true);
     setError('');
 
@@ -96,12 +129,17 @@ const ForgotPassword = () => {
                   type="email"
                   id="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                  onChange={handleEmailChange}
+                  onBlur={handleBlur}
+                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all ${
+                    touched && fieldError ? 'border-red-500' : 'border-gray-300'
+                  }`}
                   placeholder="Enter your email"
-                  required
                 />
               </div>
+              {touched && fieldError && (
+                <p className="text-red-500 text-sm mt-1">{fieldError}</p>
+              )}
             </div>
 
             <button

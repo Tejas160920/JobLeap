@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { FaGoogle, FaApple, FaEye, FaEyeSlash, FaEnvelope, FaLock, FaBriefcase, FaUser, FaCheck } from "react-icons/fa";
+import { FaGoogle, FaApple, FaEye, FaEyeSlash, FaEnvelope, FaLock, FaBriefcase, FaUser, FaCheck, FaTimes } from "react-icons/fa";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { API_BASE_URL } from "../config/api";
+import { isValidEmail, isValidPassword } from "../utils/validation";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -20,10 +21,58 @@ const Signup = () => {
     }
   }, [searchParams]);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [touched, setTouched] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
+  const [passwordChecks, setPasswordChecks] = useState({
+    minLength: false,
+    hasUppercase: false,
+    hasLowercase: false,
+    hasNumber: false
+  });
+
+  // Validate individual fields
+  const validateField = (name, value) => {
+    switch (name) {
+      case 'email':
+        if (!value.trim()) return 'Email is required';
+        if (!isValidEmail(value)) return 'Please enter a valid email address';
+        return '';
+      case 'password':
+        if (!value) return 'Password is required';
+        const pwdCheck = isValidPassword(value);
+        if (!pwdCheck.isValid) return 'Password must meet all requirements';
+        return '';
+      case 'confirmPassword':
+        if (!value) return 'Please confirm your password';
+        if (value !== formData.password) return 'Passwords do not match';
+        return '';
+      default:
+        return '';
+    }
+  };
+
+  // Handle field blur for validation
+  const handleBlur = (field) => {
+    setTouched(prev => ({ ...prev, [field]: true }));
+    const error = validateField(field, formData[field]);
+    setFieldErrors(prev => ({ ...prev, [field]: error }));
+  };
+
+  // Validate all fields before submission
+  const validateForm = () => {
+    const errors = {
+      email: validateField('email', formData.email),
+      password: validateField('password', formData.password),
+      confirmPassword: validateField('confirmPassword', formData.confirmPassword)
+    };
+    setFieldErrors(errors);
+    setTouched({ email: true, password: true, confirmPassword: true });
+    return !errors.email && !errors.password && !errors.confirmPassword;
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -32,15 +81,41 @@ const Signup = () => {
       [name]: value,
     }));
 
-    // Check password strength
+    // Update field validation on change if already touched
+    if (touched[name]) {
+      const error = validateField(name, value);
+      setFieldErrors(prev => ({ ...prev, [name]: error }));
+    }
+
+    // Check password strength and requirements
     if (name === "password") {
       let strength = 0;
-      if (value.length >= 8) strength++;
-      if (/[A-Z]/.test(value)) strength++;
-      if (/[a-z]/.test(value)) strength++;
-      if (/[0-9]/.test(value)) strength++;
+      const checks = {
+        minLength: value.length >= 8,
+        hasUppercase: /[A-Z]/.test(value),
+        hasLowercase: /[a-z]/.test(value),
+        hasNumber: /[0-9]/.test(value)
+      };
+      setPasswordChecks(checks);
+
+      if (checks.minLength) strength++;
+      if (checks.hasUppercase) strength++;
+      if (checks.hasLowercase) strength++;
+      if (checks.hasNumber) strength++;
       if (/[^A-Za-z0-9]/.test(value)) strength++;
       setPasswordStrength(strength);
+
+      // Revalidate confirm password if already filled
+      if (formData.confirmPassword && touched.confirmPassword) {
+        const confirmError = value !== formData.confirmPassword ? 'Passwords do not match' : '';
+        setFieldErrors(prev => ({ ...prev, confirmPassword: confirmError }));
+      }
+    }
+
+    // If confirm password is being changed, validate it against password
+    if (name === "confirmPassword" && touched.confirmPassword) {
+      const error = value !== formData.password ? 'Passwords do not match' : '';
+      setFieldErrors(prev => ({ ...prev, confirmPassword: error }));
     }
   };
 
@@ -48,13 +123,8 @@ const Signup = () => {
     e.preventDefault();
     setError("");
 
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords don't match");
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      setError("Password must be at least 6 characters long");
+    // Validate form before submission
+    if (!validateForm()) {
       return;
     }
 
@@ -192,11 +262,16 @@ const Signup = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                  onBlur={() => handleBlur('email')}
+                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all ${
+                    touched.email && fieldErrors.email ? 'border-red-500' : 'border-gray-300'
+                  }`}
                   placeholder="Enter your email"
-                  required
                 />
               </div>
+              {touched.email && fieldErrors.email && (
+                <p className="text-red-500 text-sm mt-1">{fieldErrors.email}</p>
+              )}
             </div>
 
             {/* Role Selection */}
@@ -245,9 +320,11 @@ const Signup = () => {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                  onBlur={() => handleBlur('password')}
+                  className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all ${
+                    touched.password && fieldErrors.password ? 'border-red-500' : 'border-gray-300'
+                  }`}
                   placeholder="Create a password"
-                  required
                 />
                 <button
                   type="button"
@@ -260,7 +337,7 @@ const Signup = () => {
               {/* Password Strength Indicator */}
               {formData.password && (
                 <div className="mt-2">
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 mb-2">
                     <div className="flex-1 bg-gray-200 rounded-full h-2">
                       <div
                         className={`h-2 rounded-full transition-all duration-300 ${getPasswordStrengthColor()}`}
@@ -271,7 +348,29 @@ const Signup = () => {
                       {getPasswordStrengthText()}
                     </span>
                   </div>
+                  {/* Password Requirements */}
+                  <div className="grid grid-cols-2 gap-1 text-xs">
+                    <div className={`flex items-center ${passwordChecks.minLength ? 'text-green-600' : 'text-gray-500'}`}>
+                      {passwordChecks.minLength ? <FaCheck className="mr-1" /> : <FaTimes className="mr-1" />}
+                      8+ characters
+                    </div>
+                    <div className={`flex items-center ${passwordChecks.hasUppercase ? 'text-green-600' : 'text-gray-500'}`}>
+                      {passwordChecks.hasUppercase ? <FaCheck className="mr-1" /> : <FaTimes className="mr-1" />}
+                      Uppercase letter
+                    </div>
+                    <div className={`flex items-center ${passwordChecks.hasLowercase ? 'text-green-600' : 'text-gray-500'}`}>
+                      {passwordChecks.hasLowercase ? <FaCheck className="mr-1" /> : <FaTimes className="mr-1" />}
+                      Lowercase letter
+                    </div>
+                    <div className={`flex items-center ${passwordChecks.hasNumber ? 'text-green-600' : 'text-gray-500'}`}>
+                      {passwordChecks.hasNumber ? <FaCheck className="mr-1" /> : <FaTimes className="mr-1" />}
+                      Number
+                    </div>
+                  </div>
                 </div>
+              )}
+              {touched.password && fieldErrors.password && !formData.password && (
+                <p className="text-red-500 text-sm mt-1">{fieldErrors.password}</p>
               )}
             </div>
 
@@ -288,9 +387,11 @@ const Signup = () => {
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                  onBlur={() => handleBlur('confirmPassword')}
+                  className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all ${
+                    touched.confirmPassword && fieldErrors.confirmPassword ? 'border-red-500' : 'border-gray-300'
+                  }`}
                   placeholder="Confirm your password"
-                  required
                 />
                 <button
                   type="button"
@@ -308,7 +409,10 @@ const Signup = () => {
                       <span className="text-green-600">Passwords match</span>
                     </>
                   ) : (
-                    <span className="text-red-600">Passwords don't match</span>
+                    <>
+                      <FaTimes className="text-red-500 mr-2" />
+                      <span className="text-red-600">Passwords don't match</span>
+                    </>
                   )}
                 </div>
               )}
@@ -326,7 +430,7 @@ const Signup = () => {
 
             <button
               type="submit"
-              disabled={isLoading || formData.password !== formData.confirmPassword}
+              disabled={isLoading || formData.password !== formData.confirmPassword || !isValidPassword(formData.password).isValid}
               className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg font-semibold text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300 btn-hover-lift disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
             >
               {isLoading ? (

@@ -18,6 +18,8 @@ import {
   FaEye
 } from "react-icons/fa";
 import { API_BASE_URL } from "../config/api";
+import { isValidPhone, isValidUrl, isValidLinkedIn, isValidGitHub, isValidName } from "../utils/validation";
+import LocationDropdown from "./ui/LocationDropdown";
 
 const ProfileCompletion = () => {
   const navigate = useNavigate();
@@ -159,18 +161,39 @@ const ProfileCompletion = () => {
 
   const validateStep = (step) => {
     const newErrors = {};
-    
+
     if (step === 1) {
-      if (!formData.fullName.trim()) newErrors.fullName = "Full name is required";
-      if (!formData.phone.trim()) newErrors.phone = "Phone number is required";
+      if (!formData.fullName.trim()) {
+        newErrors.fullName = "Full name is required";
+      } else if (!isValidName(formData.fullName)) {
+        newErrors.fullName = "Please enter a valid name (letters only, at least 2 characters)";
+      }
+
+      if (!formData.phone.trim()) {
+        newErrors.phone = "Phone number is required";
+      } else if (!isValidPhone(formData.phone)) {
+        newErrors.phone = "Please enter a valid phone number (10-15 digits)";
+      }
+
       if (!formData.location.trim()) newErrors.location = "Location is required";
     } else if (step === 2) {
       if (!formData.title.trim()) newErrors.title = "Job title is required";
       if (!formData.experience.trim()) newErrors.experience = "Experience level is required";
     } else if (step === 3) {
       if (formData.skills.length === 0) newErrors.skills = "Add at least one skill";
+    } else if (step === 4) {
+      // Validate URLs if provided
+      if (formData.linkedin && !isValidLinkedIn(formData.linkedin)) {
+        newErrors.linkedin = "Please enter a valid LinkedIn URL";
+      }
+      if (formData.github && !isValidGitHub(formData.github)) {
+        newErrors.github = "Please enter a valid GitHub URL";
+      }
+      if (formData.portfolio && !isValidUrl(formData.portfolio)) {
+        newErrors.portfolio = "Please enter a valid portfolio URL";
+      }
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -292,36 +315,35 @@ const ProfileCompletion = () => {
 
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-2">Phone Number *</label>
-          <input
-            type="tel"
-            name="phone"
-            value={formData.phone}
-            onChange={handleInputChange}
-            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
-              errors.phone ? 'border-red-500' : 'border-gray-300'
-            }`}
-            placeholder="Enter your phone number"
-          />
+          <div className="relative">
+            <FaPhone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="tel"
+              name="phone"
+              value={formData.phone}
+              onChange={handleInputChange}
+              className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+                errors.phone ? 'border-red-500' : 'border-gray-300'
+              }`}
+              placeholder="+91 XXXXX XXXXX"
+            />
+          </div>
           {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
         </div>
       </div>
 
       <div>
         <label className="block text-sm font-semibold text-gray-700 mb-2">Location *</label>
-        <div className="relative">
-          <FaMapMarkerAlt className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            name="location"
-            value={formData.location}
-            onChange={handleInputChange}
-            className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
-              errors.location ? 'border-red-500' : 'border-gray-300'
-            }`}
-            placeholder="City, State, Country"
-          />
-        </div>
-        {errors.location && <p className="text-red-500 text-sm mt-1">{errors.location}</p>}
+        <LocationDropdown
+          value={formData.location}
+          onChange={(value) => {
+            setFormData(prev => ({ ...prev, location: value }));
+            if (errors.location) setErrors(prev => ({ ...prev, location: "" }));
+          }}
+          placeholder="Select or type your location"
+          error={errors.location}
+          allowCustom={true}
+        />
       </div>
 
       <div>
@@ -511,10 +533,13 @@ const ProfileCompletion = () => {
               name="linkedin"
               value={formData.linkedin}
               onChange={handleInputChange}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+                errors.linkedin ? 'border-red-500' : 'border-gray-300'
+              }`}
               placeholder="https://linkedin.com/in/yourname"
             />
           </div>
+          {errors.linkedin && <p className="text-red-500 text-sm mt-1">{errors.linkedin}</p>}
         </div>
 
         <div>
@@ -526,10 +551,13 @@ const ProfileCompletion = () => {
               name="github"
               value={formData.github}
               onChange={handleInputChange}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+                errors.github ? 'border-red-500' : 'border-gray-300'
+              }`}
               placeholder="https://github.com/yourname"
             />
           </div>
+          {errors.github && <p className="text-red-500 text-sm mt-1">{errors.github}</p>}
         </div>
 
         <div className="md:col-span-2">
