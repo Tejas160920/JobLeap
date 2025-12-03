@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FaGoogle, FaApple, FaEye, FaEyeSlash, FaEnvelope, FaLock, FaBriefcase } from "react-icons/fa";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { API_BASE_URL, API_URL } from "../config/api";
+import { isValidEmail } from "../utils/validation";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -9,8 +10,10 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [touched, setTouched] = useState({});
 
   useEffect(() => {
     // Check for OAuth errors
@@ -26,9 +29,48 @@ const Login = () => {
     }
   }, [searchParams]);
 
+  // Validate individual fields
+  const validateField = (name, value) => {
+    switch (name) {
+      case 'email':
+        if (!value.trim()) return 'Email is required';
+        if (!isValidEmail(value)) return 'Please enter a valid email address';
+        return '';
+      case 'password':
+        if (!value) return 'Password is required';
+        return '';
+      default:
+        return '';
+    }
+  };
+
+  // Handle field blur for validation
+  const handleBlur = (field) => {
+    setTouched(prev => ({ ...prev, [field]: true }));
+    const error = validateField(field, field === 'email' ? email : password);
+    setFieldErrors(prev => ({ ...prev, [field]: error }));
+  };
+
+  // Validate all fields before submission
+  const validateForm = () => {
+    const errors = {
+      email: validateField('email', email),
+      password: validateField('password', password)
+    };
+    setFieldErrors(errors);
+    setTouched({ email: true, password: true });
+    return !errors.email && !errors.password;
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
+
+    // Validate form before submission
+    if (!validateForm()) {
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -141,12 +183,22 @@ const Login = () => {
                   type="email"
                   id="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (touched.email) {
+                      setFieldErrors(prev => ({ ...prev, email: validateField('email', e.target.value) }));
+                    }
+                  }}
+                  onBlur={() => handleBlur('email')}
+                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all ${
+                    touched.email && fieldErrors.email ? 'border-red-500' : 'border-gray-300'
+                  }`}
                   placeholder="Enter your email"
-                  required
                 />
               </div>
+              {touched.email && fieldErrors.email && (
+                <p className="text-red-500 text-sm mt-1">{fieldErrors.email}</p>
+              )}
             </div>
 
             <div>
@@ -159,10 +211,17 @@ const Login = () => {
                   type={showPassword ? "text" : "password"}
                   id="password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (touched.password) {
+                      setFieldErrors(prev => ({ ...prev, password: validateField('password', e.target.value) }));
+                    }
+                  }}
+                  onBlur={() => handleBlur('password')}
+                  className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all ${
+                    touched.password && fieldErrors.password ? 'border-red-500' : 'border-gray-300'
+                  }`}
                   placeholder="Enter your password"
-                  required
                 />
                 <button
                   type="button"
@@ -172,6 +231,9 @@ const Login = () => {
                   {showPassword ? <FaEyeSlash /> : <FaEye />}
                 </button>
               </div>
+              {touched.password && fieldErrors.password && (
+                <p className="text-red-500 text-sm mt-1">{fieldErrors.password}</p>
+              )}
             </div>
 
             <div className="flex items-center justify-between">

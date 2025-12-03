@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { 
-  FaBriefcase, 
-  FaBuilding, 
-  FaMapMarkerAlt, 
-  FaDollarSign, 
-  FaClock, 
+import {
+  FaBriefcase,
+  FaBuilding,
+  FaMapMarkerAlt,
+  FaDollarSign,
+  FaClock,
   FaFileAlt,
   FaCheck,
   FaTimes,
@@ -16,6 +16,9 @@ import {
   FaLightbulb
 } from "react-icons/fa";
 import AccessDenied from "./AccessDenied";
+import { API_BASE_URL } from "../config/api";
+import { isValidSalary } from "../utils/validation";
+import LocationDropdown from "./ui/LocationDropdown";
 
 const JobForm = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -59,10 +62,19 @@ const JobForm = () => {
 
     if (step === 1) {
       if (!formData.title.trim()) newErrors.title = "Job title is required";
+      if (formData.title.trim().length < 3) newErrors.title = "Job title must be at least 3 characters";
       if (!formData.company.trim()) newErrors.company = "Company name is required";
+      if (formData.company.trim().length < 2) newErrors.company = "Company name must be at least 2 characters";
       if (!formData.location.trim()) newErrors.location = "Location is required";
+      if (formData.salary && !isValidSalary(formData.salary)) {
+        newErrors.salary = "Please enter a valid salary format (e.g., $80,000 or 80k-100k)";
+      }
     } else if (step === 2) {
-      if (!formData.description.trim()) newErrors.description = "Job description is required";
+      if (!formData.description.trim()) {
+        newErrors.description = "Job description is required";
+      } else if (formData.description.trim().length < 50) {
+        newErrors.description = "Job description must be at least 50 characters";
+      }
       if (formData.requirements.every(req => !req.trim())) newErrors.requirements = "At least one requirement is needed";
     }
 
@@ -131,7 +143,7 @@ const JobForm = () => {
         skills: formData.skills.filter(skill => skill.trim()),
       };
 
-      const res = await fetch("http://localhost:5000/api/jobs", {
+      const res = await fetch(`${API_BASE_URL}/jobs`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -373,20 +385,16 @@ const JobForm = () => {
           <label className="block text-sm font-semibold text-gray-700 mb-2">
             Location *
           </label>
-          <div className="relative">
-            <FaMapMarkerAlt className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              name="location"
-              placeholder="e.g. San Francisco, CA"
-              value={formData.location}
-              onChange={handleChange}
-              className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all ${
-                errors.location ? "border-red-500" : "border-gray-300"
-              }`}
-            />
-          </div>
-          {errors.location && <p className="text-red-500 text-sm mt-1">{errors.location}</p>}
+          <LocationDropdown
+            value={formData.location}
+            onChange={(value) => {
+              setFormData(prev => ({ ...prev, location: value }));
+              if (errors.location) setErrors(prev => ({ ...prev, location: "" }));
+            }}
+            placeholder="Select or type job location"
+            error={errors.location}
+            allowCustom={true}
+          />
         </div>
 
         <div>
@@ -477,9 +485,12 @@ const JobForm = () => {
               placeholder="e.g. $80,000 - $120,000"
               value={formData.salary}
               onChange={handleChange}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+                errors.salary ? "border-red-500" : "border-gray-300"
+              }`}
             />
           </div>
+          {errors.salary && <p className="text-red-500 text-sm mt-1">{errors.salary}</p>}
         </div>
 
         <div>
