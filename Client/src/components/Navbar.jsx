@@ -144,15 +144,28 @@ const Navbar = () => {
                         <span>{profileCompleted ? 'Edit Profile' : 'Complete Profile'}</span>
                       </Link>
                       
-                      <Link
-                        to="/my-applications"
-                        className="flex items-center space-x-2 w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                        onClick={() => setIsUserMenuOpen(false)}
-                      >
-                        <FaFileAlt />
-                        <span>My Applications</span>
-                      </Link>
-                      
+                      {userRole === "seeking" && (
+                        <Link
+                          to="/my-applications"
+                          className="flex items-center space-x-2 w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                          onClick={() => setIsUserMenuOpen(false)}
+                        >
+                          <FaFileAlt />
+                          <span>My Applications</span>
+                        </Link>
+                      )}
+
+                      {userRole === "hiring" && (
+                        <Link
+                          to="/my-jobs"
+                          className="flex items-center space-x-2 w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                          onClick={() => setIsUserMenuOpen(false)}
+                        >
+                          <FaBriefcase />
+                          <span>My Job Postings</span>
+                        </Link>
+                      )}
+
                       <button
                         onClick={() => {
                           navigate('/settings');
@@ -286,14 +299,26 @@ const Navbar = () => {
                     <FaEdit className="text-sm" />
                     <span>{profileCompleted ? 'Edit Profile' : 'Complete Profile'}</span>
                   </Link>
-                  <Link
-                    to="/my-applications"
-                    className="flex items-center space-x-2 px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-lg"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <FaFileAlt className="text-sm" />
-                    <span>My Applications</span>
-                  </Link>
+                  {userRole === "seeking" && (
+                    <Link
+                      to="/my-applications"
+                      className="flex items-center space-x-2 px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-lg"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <FaFileAlt className="text-sm" />
+                      <span>My Applications</span>
+                    </Link>
+                  )}
+                  {userRole === "hiring" && (
+                    <Link
+                      to="/my-jobs"
+                      className="flex items-center space-x-2 px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-lg"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <FaBriefcase className="text-sm" />
+                      <span>My Job Postings</span>
+                    </Link>
+                  )}
                   <button
                     onClick={() => {
                       navigate('/settings');

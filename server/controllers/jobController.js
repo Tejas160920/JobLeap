@@ -256,3 +256,137 @@ exports.getRemoteJobs = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch remote jobs" });
   }
 };
+
+// Get a single job by ID
+exports.getJobById = async (req, res) => {
+  try {
+    await connectDB();
+
+    const { id } = req.params;
+    const job = await Job.findById(id);
+
+    if (!job) {
+      return res.status(404).json({
+        success: false,
+        message: "Job not found"
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      job: { ...job.toObject(), source: 'local' }
+    });
+  } catch (err) {
+    console.error("Error fetching job:", err);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch job",
+      error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
+    });
+  }
+};
+
+// Get jobs posted by the current user
+exports.getMyJobs = async (req, res) => {
+  try {
+    await connectDB();
+
+    const jobs = await Job.find({ postedBy: req.user.id }).sort({ postedAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      jobs: jobs.map(job => ({ ...job.toObject(), source: 'local' }))
+    });
+  } catch (err) {
+    console.error("Error fetching user jobs:", err);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch your jobs",
+      error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
+    });
+  }
+};
+
+// Update a job
+exports.updateJob = async (req, res) => {
+  try {
+    await connectDB();
+
+    const { id } = req.params;
+    const job = await Job.findById(id);
+
+    if (!job) {
+      return res.status(404).json({
+        success: false,
+        message: "Job not found"
+      });
+    }
+
+    // Check if user is the owner of the job
+    if (job.postedBy.toString() !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to edit this job"
+      });
+    }
+
+    // Update the job
+    const updatedJob = await Job.findByIdAndUpdate(
+      id,
+      { ...req.body },
+      { new: true, runValidators: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Job updated successfully",
+      job: updatedJob
+    });
+  } catch (err) {
+    console.error("Error updating job:", err);
+    res.status(500).json({
+      success: false,
+      message: "Failed to update job",
+      error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
+    });
+  }
+};
+
+// Delete a job
+exports.deleteJob = async (req, res) => {
+  try {
+    await connectDB();
+
+    const { id } = req.params;
+    const job = await Job.findById(id);
+
+    if (!job) {
+      return res.status(404).json({
+        success: false,
+        message: "Job not found"
+      });
+    }
+
+    // Check if user is the owner of the job
+    if (job.postedBy.toString() !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to delete this job"
+      });
+    }
+
+    await Job.findByIdAndDelete(id);
+
+    res.status(200).json({
+      success: true,
+      message: "Job deleted successfully"
+    });
+  } catch (err) {
+    console.error("Error deleting job:", err);
+    res.status(500).json({
+      success: false,
+      message: "Failed to delete job",
+      error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
+    });
+  }
+};
