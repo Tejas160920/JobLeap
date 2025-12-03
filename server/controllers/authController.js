@@ -33,7 +33,8 @@ const formatUserResponse = (user) => {
     email: user.email,
     role: user.role,
     profileCompleted: user.profileCompleted,
-    emailVerified: user.emailVerified
+    emailVerified: user.emailVerified,
+    needsRoleSelection: user.needsRoleSelection || false
   };
 };
 
@@ -190,22 +191,66 @@ exports.getProfile = async (req, res) => {
 
     const user = await User.findById(userId).select('-password');
     if (!user) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        message: "User not found" 
+        message: "User not found"
       });
     }
 
-    res.status(200).json({ 
+    res.status(200).json({
       success: true,
       user: formatUserResponse(user),
       profile: user.profile
     });
   } catch (err) {
     console.error("Get profile error:", err.message);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      message: "Failed to get profile", 
+      message: "Failed to get profile",
+      error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
+    });
+  }
+};
+
+// Update user role (for OAuth users who need to select role)
+exports.updateRole = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { role } = req.body;
+
+    if (!role || !['seeking', 'hiring'].includes(role)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid role. Must be 'seeking' or 'hiring'"
+      });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    user.role = role;
+    user.needsRoleSelection = false;
+    await user.save();
+
+    // Generate new token with updated role
+    const token = generateToken(user);
+
+    res.status(200).json({
+      success: true,
+      message: "Role updated successfully",
+      token,
+      user: formatUserResponse(user)
+    });
+  } catch (err) {
+    console.error("Update role error:", err.message);
+    res.status(500).json({
+      success: false,
+      message: "Failed to update role",
       error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
     });
   }

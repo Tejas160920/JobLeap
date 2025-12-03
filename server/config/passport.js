@@ -50,13 +50,14 @@ if (GoogleStrategy && process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_
         googleId: profile.id,
         email: profile.emails[0].value,
         password: securePassword,
-        role: 'seeking',
+        role: 'seeking', // Default role, will be updated on role selection
         profile: {
           firstName: profile.name.givenName,
           lastName: profile.name.familyName,
           avatar: profile.photos[0]?.value
         },
-        profileCompleted: false
+        profileCompleted: false,
+        needsRoleSelection: true // Flag for new OAuth users
       });
 
       done(null, newUser);

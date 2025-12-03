@@ -50,6 +50,10 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  needsRoleSelection: {
+    type: Boolean,
+    default: false
+  },
   // Settings
   settings: {
     emailNotifications: { type: Boolean, default: true },
