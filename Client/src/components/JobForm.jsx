@@ -13,11 +13,13 @@ import {
   FaMinus,
   FaEye,
   FaArrowLeft,
-  FaLightbulb
+  FaLightbulb,
+  FaExternalLinkAlt,
+  FaEnvelope
 } from "react-icons/fa";
 import AccessDenied from "./AccessDenied";
 import { API_BASE_URL } from "../config/api";
-import { isValidSalary } from "../utils/validation";
+import { isValidSalary, isValidUrl, isValidEmail } from "../utils/validation";
 import LocationDropdown from "./ui/LocationDropdown";
 
 const JobForm = () => {
@@ -36,6 +38,8 @@ const JobForm = () => {
     skills: [""],
     experience: "Mid-level",
     category: "Technology",
+    applicationUrl: "",
+    applicationEmail: "",
   });
 
   const [isAuthorized, setIsAuthorized] = useState(null);
@@ -76,6 +80,18 @@ const JobForm = () => {
         newErrors.description = "Job description must be at least 50 characters";
       }
       if (formData.requirements.every(req => !req.trim())) newErrors.requirements = "At least one requirement is needed";
+      // Validate application URL if provided
+      if (formData.applicationUrl && !isValidUrl(formData.applicationUrl)) {
+        newErrors.applicationUrl = "Please enter a valid URL";
+      }
+      // Validate application email if provided
+      if (formData.applicationEmail && !isValidEmail(formData.applicationEmail)) {
+        newErrors.applicationEmail = "Please enter a valid email address";
+      }
+      // Require at least one application method
+      if (!formData.applicationUrl && !formData.applicationEmail) {
+        newErrors.applicationMethod = "Please provide either an application URL or email";
+      }
     }
 
     setErrors(newErrors);
@@ -171,6 +187,8 @@ const JobForm = () => {
             skills: [""],
             experience: "Mid-level",
             category: "Technology",
+            applicationUrl: "",
+            applicationEmail: "",
           });
           setCurrentStep(1);
           setSubmitSuccess(false);
@@ -592,6 +610,58 @@ const JobForm = () => {
       {renderArrayField('requirements', 'Requirements', 'e.g. Bachelor\'s degree in Computer Science', <FaCheck className="text-sm" />)}
       {renderArrayField('skills', 'Required Skills', 'e.g. JavaScript, React, Node.js')}
       {renderArrayField('benefits', 'Benefits & Perks', 'e.g. Health insurance, Remote work options')}
+
+      {/* Application Method Section */}
+      <div className="border-t border-gray-200 pt-6 mt-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">How to Apply *</h3>
+        <p className="text-sm text-gray-600 mb-4">Provide at least one way for candidates to apply</p>
+
+        {errors.applicationMethod && (
+          <p className="text-red-500 text-sm mb-4">{errors.applicationMethod}</p>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Application URL
+            </label>
+            <div className="relative">
+              <FaExternalLinkAlt className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <input
+                type="url"
+                name="applicationUrl"
+                placeholder="https://yourcompany.com/careers/apply"
+                value={formData.applicationUrl}
+                onChange={handleChange}
+                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all ${
+                  errors.applicationUrl ? "border-red-500" : "border-gray-300"
+                }`}
+              />
+            </div>
+            {errors.applicationUrl && <p className="text-red-500 text-sm mt-1">{errors.applicationUrl}</p>}
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Application Email
+            </label>
+            <div className="relative">
+              <FaEnvelope className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <input
+                type="email"
+                name="applicationEmail"
+                placeholder="careers@yourcompany.com"
+                value={formData.applicationEmail}
+                onChange={handleChange}
+                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all ${
+                  errors.applicationEmail ? "border-red-500" : "border-gray-300"
+                }`}
+              />
+            </div>
+            {errors.applicationEmail && <p className="text-red-500 text-sm mt-1">{errors.applicationEmail}</p>}
+          </div>
+        </div>
+      </div>
     </div>
   );
 

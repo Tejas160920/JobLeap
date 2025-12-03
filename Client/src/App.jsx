@@ -9,6 +9,8 @@ import JobForm from './components/JobForm';
 import Signup from './components/Signup';
 import ProfileCompletion from './components/ProfileCompletion';
 import MyApplications from './components/MyApplications';
+import MyJobs from './components/MyJobs';
+import EditJob from './components/EditJob';
 import Settings from './components/Settings';
 import CareerAdvice from './components/CareerAdvice';
 import ResumeBuilder from './components/ResumeBuilder';
@@ -113,6 +115,9 @@ function AppContent() {
             }
           />
           <Route path="/add-job" element={<JobForm />} />
+          <Route path="/post-job" element={<JobForm />} />
+          <Route path="/my-jobs" element={<MyJobs />} />
+          <Route path="/edit-job/:id" element={<EditJob />} />
           <Route path="/company-reviews" element={<CompanyReviews />} />
           <Route path="/career-advice" element={<CareerAdvice />} />
           <Route path="/resume-builder" element={<ResumeBuilder />} />
