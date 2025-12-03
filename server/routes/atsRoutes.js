@@ -115,8 +115,18 @@ Be constructive and specific in your feedback. Focus on actionable improvements.
     const analysis = JSON.parse(cleanedText);
     return analysis;
   } catch (error) {
-    console.error('Gemini analysis error:', error);
-    throw new Error('Failed to analyze resume with AI');
+    console.error('Gemini analysis error:', error.message || error);
+    // Provide more specific error messages
+    if (error.message?.includes('API_KEY')) {
+      throw new Error('Invalid Gemini API key. Please check your configuration.');
+    }
+    if (error.message?.includes('quota') || error.message?.includes('rate')) {
+      throw new Error('API rate limit reached. Please try again in a few minutes.');
+    }
+    if (error.message?.includes('JSON')) {
+      throw new Error('Failed to parse AI response. Please try again.');
+    }
+    throw new Error(`AI analysis failed: ${error.message || 'Unknown error'}`);
   }
 }
 
