@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const mammoth = require('mammoth');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const Groq = require('groq-sdk');
 
 // Configure multer for file uploads (store in memory)
 const upload = multer({
@@ -47,16 +47,15 @@ async function extractTextFromDOCX(buffer) {
   }
 }
 
-// Analyze resume against job description using Gemini
-async function analyzeWithGemini(resumeText, jobDescription, jobTitle, company) {
-  const apiKey = process.env.GEMINI_API_KEY;
+// Analyze resume against job description using Groq
+async function analyzeWithGroq(resumeText, jobDescription, jobTitle, company) {
+  const apiKey = process.env.GROQ_API_KEY;
 
   if (!apiKey) {
-    throw new Error('Gemini API key not configured');
+    throw new Error('Groq API key not configured');
   }
 
-  const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  const groq = new Groq({ apiKey });
 
   const prompt = `You are an expert ATS (Applicant Tracking System) analyzer. Analyze this resume against the job description and provide a detailed compatibility assessment.
 
@@ -95,9 +94,14 @@ Provide your analysis in the following JSON format (respond ONLY with valid JSON
 Be constructive and specific in your feedback. Focus on actionable improvements.`;
 
   try {
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    const completion = await groq.chat.completions.create({
+      messages: [{ role: 'user', content: prompt }],
+      model: 'llama-3.1-70b-versatile',
+      temperature: 0.3,
+      max_tokens: 2000,
+    });
+
+    const text = completion.choices[0]?.message?.content || '';
 
     // Clean the response - remove markdown code blocks if present
     let cleanedText = text.trim();
@@ -115,12 +119,11 @@ Be constructive and specific in your feedback. Focus on actionable improvements.
     const analysis = JSON.parse(cleanedText);
     return analysis;
   } catch (error) {
-    console.error('Gemini analysis error:', error.message || error);
-    // Provide more specific error messages
-    if (error.message?.includes('API_KEY')) {
-      throw new Error('Invalid Gemini API key. Please check your configuration.');
+    console.error('Groq analysis error:', error.message || error);
+    if (error.message?.includes('API key')) {
+      throw new Error('Invalid Groq API key. Please check your configuration.');
     }
-    if (error.message?.includes('quota') || error.message?.includes('rate')) {
+    if (error.message?.includes('rate') || error.status === 429) {
       throw new Error('API rate limit reached. Please try again in a few minutes.');
     }
     if (error.message?.includes('JSON')) {
@@ -168,7 +171,7 @@ router.post('/check', upload.single('resume'), async (req, res) => {
     }
 
     // Analyze with Gemini
-    const analysis = await analyzeWithGemini(
+    const analysis = await analyzeWithGroq(
       resumeText,
       jobDescription,
       jobTitle || 'Not specified',
