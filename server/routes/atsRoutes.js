@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const pdfParse = require('pdf-parse');
 const mammoth = require('mammoth');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
@@ -24,14 +23,16 @@ const upload = multer({
   }
 });
 
-// Extract text from PDF
+// Extract text from PDF using dynamic import to avoid Vercel issues
 async function extractTextFromPDF(buffer) {
   try {
+    // Use dynamic import to load pdf-parse only when needed
+    const pdfParse = (await import('pdf-parse-new')).default;
     const data = await pdfParse(buffer);
     return data.text;
   } catch (error) {
     console.error('PDF extraction error:', error);
-    throw new Error('Failed to extract text from PDF');
+    throw new Error('Failed to extract text from PDF. Try uploading a DOCX file instead.');
   }
 }
 
