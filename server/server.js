@@ -41,7 +41,14 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'"],
       scriptSrc: ["'self'"],
       imgSrc: ["'self'", "data:", "https:", "blob:"],
-      connectSrc: ["'self'", process.env.FRONTEND_URL || 'http://localhost:5173'],
+      connectSrc: [
+        "'self'",
+        process.env.FRONTEND_URL || 'http://localhost:5173',
+        'https://jobleap.work',
+        'https://www.jobleap.work',
+        'https://job-leap.vercel.app',
+        'https://job-leap-wokg.vercel.app'
+      ],
       fontSrc: ["'self'", "https:", "data:"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
@@ -82,6 +89,8 @@ const allowedOrigins = [
   // Production domains
   'https://job-leap.vercel.app',
   'https://job-leap-wokg.vercel.app',
+  'https://jobleap.work',
+  'https://www.jobleap.work',
 ].filter(Boolean);
 
 const corsOptions = {
