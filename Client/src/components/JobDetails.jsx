@@ -216,9 +216,11 @@ const JobDetails = ({ job }) => {
         setShowSuccessMessage(true);
         setTimeout(() => setShowSuccessMessage(false), 3000);
       } else {
-        // Show error to user
-        alert(data.message || "Failed to save application. Please try again.");
-        console.error("Failed to save application:", data.message);
+        // Show error to user with full details
+        const errorMsg = data.error ? `${data.message}: ${data.error}` : data.message;
+        const details = data.details ? `\nDetails: ${data.details.join(', ')}` : '';
+        alert(errorMsg + details || "Failed to save application. Please try again.");
+        console.error("Failed to save application:", data);
       }
     } catch (err) {
       console.error("Error saving application:", err);
