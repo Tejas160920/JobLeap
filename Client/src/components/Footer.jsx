@@ -84,6 +84,14 @@ const Footer = () => {
                   Career Advice
                 </button>
               </li>
+              <li>
+                <button
+                  onClick={() => handleNavigation('/h1b-sponsors')}
+                  className="text-gray-500 hover:text-white transition-colors text-left"
+                >
+                  H1B Sponsors
+                </button>
+              </li>
             </ul>
           </div>
 

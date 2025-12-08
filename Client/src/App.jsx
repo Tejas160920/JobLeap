@@ -14,6 +14,7 @@ import EditJob from './components/EditJob';
 import Settings from './components/Settings';
 import CareerAdvice from './components/CareerAdvice';
 import ResumeBuilder from './components/ResumeBuilder';
+import H1BSponsors from './components/H1BSponsors';
 import SignupModal from './components/SignupModal';
 import OAuthCallback from './components/OAuthCallback';
 import RoleSelection from './components/RoleSelection';
@@ -121,6 +122,7 @@ function AppContent() {
           <Route path="/company-reviews" element={<CompanyReviews />} />
           <Route path="/career-advice" element={<CareerAdvice />} />
           <Route path="/resume-builder" element={<ResumeBuilder />} />
+          <Route path="/h1b-sponsors" element={<H1BSponsors />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/complete-profile" element={<ProfileCompletion />} />

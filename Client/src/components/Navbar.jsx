@@ -95,6 +95,9 @@ const Navbar = () => {
             <Link to="/resume-builder" className={navLinkClass("/resume-builder")}>
               Resume Builder
             </Link>
+            <Link to="/h1b-sponsors" className={navLinkClass("/h1b-sponsors")}>
+              H1B Sponsors
+            </Link>
           </div>
 
           {/* Right Side - Desktop */}
@@ -251,6 +254,13 @@ const Navbar = () => {
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Resume Builder
+              </Link>
+              <Link
+                to="/h1b-sponsors"
+                className={`block px-3 py-2 text-sm font-medium rounded-lg ${isActive('/h1b-sponsors') ? 'text-[#0d6d6e] bg-[#e6f3f3]' : 'text-gray-600 hover:bg-gray-50'}`}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                H1B Sponsors
               </Link>
 
               {userRole === "hiring" && (

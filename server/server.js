@@ -147,12 +147,14 @@ const jobRoutes = require("./routes/jobRoutes");
 const bookmarkRoutes = require("./routes/bookmarkRoutes");
 const applicationRoutes = require("./routes/applicationRoutes");
 const atsRoutes = require("./routes/atsRoutes");
+const h1bRoutes = require("./routes/h1bRoutes");
 
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api", jobRoutes);
 app.use("/api/bookmarks", bookmarkRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/api/ats", atsRoutes);
+app.use("/api/h1b", h1bRoutes);
 
 // Global error handler
 app.use((err, req, res, next) => {
