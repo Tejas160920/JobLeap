@@ -2,8 +2,6 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   FaBriefcase,
-  FaTwitter,
-  FaLinkedin,
   FaGithub,
   FaEnvelope
 } from "react-icons/fa";
@@ -38,25 +36,7 @@ const Footer = () => {
             </p>
             <div className="flex space-x-4">
               <a
-                href="https://twitter.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-500 hover:text-white transition-colors"
-                aria-label="Twitter"
-              >
-                <FaTwitter className="text-lg" />
-              </a>
-              <a
-                href="https://linkedin.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-500 hover:text-white transition-colors"
-                aria-label="LinkedIn"
-              >
-                <FaLinkedin className="text-lg" />
-              </a>
-              <a
-                href="https://github.com"
+                href="https://github.com/Tejas160920/JobLeap"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-500 hover:text-white transition-colors"
@@ -65,7 +45,9 @@ const Footer = () => {
                 <FaGithub className="text-lg" />
               </a>
               <a
-                href="mailto:support@jobleap.com"
+                href="mailto:jobleap.work@gmail.com"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-gray-500 hover:text-white transition-colors"
                 aria-label="Email"
               >
@@ -166,7 +148,9 @@ const Footer = () => {
               </li>
               <li>
                 <a
-                  href="mailto:support@jobleap.com"
+                  href="mailto:jobleap.work@gmail.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-gray-500 hover:text-white transition-colors"
                 >
                   Contact Us

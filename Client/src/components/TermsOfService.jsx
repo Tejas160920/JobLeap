@@ -6,12 +6,12 @@ const TermsOfService = () => {
   return (
     <div className="min-h-screen bg-gray-50 pt-20">
       <div className="max-w-4xl mx-auto px-4 py-12">
-        <Link to="/" className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-8">
+        <Link to="/" className="inline-flex items-center text-[#0d6d6e] hover:text-[#095555] mb-8">
           <FaArrowLeft className="mr-2" />
           Back to Home
         </Link>
 
-        <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 md:p-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-8">Terms of Service</h1>
           <p className="text-gray-600 mb-8">Last updated: December 2024</p>
 
@@ -80,12 +80,14 @@ const TermsOfService = () => {
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">8. Contact Us</h2>
               <p className="text-gray-700 leading-relaxed">
                 If you have any questions about these Terms of Service, please contact us at{' '}
-                <a href="mailto:support@jobleap.com" className="text-blue-600 hover:underline">
-                  support@jobleap.com
+                <a
+                  href="mailto:jobleap.work@gmail.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#0d6d6e] hover:underline"
+                >
+                  jobleap.work@gmail.com
                 </a>
-              </p>
-              <p className="text-sm text-gray-500 mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <strong>Note:</strong> Please update this email address with your actual support email before deploying to production.
               </p>
             </section>
           </div>
