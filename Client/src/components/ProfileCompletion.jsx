@@ -292,7 +292,7 @@ const ProfileCompletion = () => {
   const renderStep1 = () => (
     <div className="space-y-6">
       <div className="text-center mb-8">
-        <FaUser className="text-4xl text-blue-600 mx-auto mb-4" />
+        <FaUser className="text-4xl text-[#0d6d6e] mx-auto mb-4" />
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Personal Information</h2>
         <p className="text-gray-600">Let's start with the basics about you</p>
       </div>
@@ -305,7 +305,7 @@ const ProfileCompletion = () => {
             name="fullName"
             value={formData.fullName}
             onChange={handleInputChange}
-            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+            className={`w-full px-4 py-3 border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none ${
               errors.fullName ? 'border-red-500' : 'border-gray-300'
             }`}
             placeholder="Enter your full name"
@@ -322,7 +322,7 @@ const ProfileCompletion = () => {
               name="phone"
               value={formData.phone}
               onChange={handleInputChange}
-              className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+              className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none ${
                 errors.phone ? 'border-red-500' : 'border-gray-300'
               }`}
               placeholder="+91 XXXXX XXXXX"
@@ -353,7 +353,7 @@ const ProfileCompletion = () => {
           value={formData.bio}
           onChange={handleInputChange}
           rows="4"
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-vertical"
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none resize-vertical"
           placeholder="Tell us a bit about yourself..."
         />
       </div>
@@ -363,7 +363,7 @@ const ProfileCompletion = () => {
   const renderStep2 = () => (
     <div className="space-y-6">
       <div className="text-center mb-8">
-        <FaBriefcase className="text-4xl text-blue-600 mx-auto mb-4" />
+        <FaBriefcase className="text-4xl text-[#0d6d6e] mx-auto mb-4" />
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Professional Information</h2>
         <p className="text-gray-600">Tell us about your career</p>
       </div>
@@ -376,7 +376,7 @@ const ProfileCompletion = () => {
             name="title"
             value={formData.title}
             onChange={handleInputChange}
-            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+            className={`w-full px-4 py-3 border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none ${
               errors.title ? 'border-red-500' : 'border-gray-300'
             }`}
             placeholder="e.g., Software Engineer"
@@ -390,7 +390,7 @@ const ProfileCompletion = () => {
             name="experience"
             value={formData.experience}
             onChange={handleInputChange}
-            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+            className={`w-full px-4 py-3 border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none ${
               errors.experience ? 'border-red-500' : 'border-gray-300'
             }`}
           >
@@ -411,7 +411,7 @@ const ProfileCompletion = () => {
             name="currentCompany"
             value={formData.currentCompany}
             onChange={handleInputChange}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none"
             placeholder="Company name"
           />
         </div>
@@ -423,7 +423,7 @@ const ProfileCompletion = () => {
             name="expectedSalary"
             value={formData.expectedSalary}
             onChange={handleInputChange}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none"
             placeholder="e.g., $80,000 - $120,000"
           />
         </div>
@@ -434,7 +434,7 @@ const ProfileCompletion = () => {
   const renderStep3 = () => (
     <div className="space-y-6">
       <div className="text-center mb-8">
-        <FaStar className="text-4xl text-blue-600 mx-auto mb-4" />
+        <FaStar className="text-4xl text-[#0d6d6e] mx-auto mb-4" />
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Skills & Expertise</h2>
         <p className="text-gray-600">What are you skilled at?</p>
       </div>
@@ -447,13 +447,13 @@ const ProfileCompletion = () => {
             value={skillInput}
             onChange={(e) => setSkillInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleSkillAdd())}
-            className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+            className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none"
             placeholder="Type a skill and press Enter"
           />
           <button
             type="button"
             onClick={handleSkillAdd}
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+            className="bg-[#0d6d6e] text-white px-6 py-2.5 rounded-lg hover:bg-[#095555] transition-colors"
           >
             Add
           </button>
@@ -468,13 +468,13 @@ const ProfileCompletion = () => {
             {formData.skills.map(skill => (
               <span
                 key={skill}
-                className="bg-blue-100 text-blue-800 px-3 py-2 rounded-full text-sm font-medium flex items-center space-x-2"
+                className="bg-[#e6f3f3] text-[#0d6d6e] px-3 py-2 rounded-full text-sm font-medium flex items-center space-x-2"
               >
                 <span>{skill}</span>
                 <button
                   type="button"
                   onClick={() => handleSkillRemove(skill)}
-                  className="text-blue-600 hover:text-blue-800"
+                  className="text-[#0d6d6e] hover:text-[#095555]"
                 >
                   ×
                 </button>
@@ -518,7 +518,7 @@ const ProfileCompletion = () => {
   const renderStep4 = () => (
     <div className="space-y-6">
       <div className="text-center mb-8">
-        <FaUpload className="text-4xl text-blue-600 mx-auto mb-4" />
+        <FaUpload className="text-4xl text-[#0d6d6e] mx-auto mb-4" />
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Resume & Links</h2>
         <p className="text-gray-600">Upload your resume and add professional links</p>
       </div>
@@ -533,7 +533,7 @@ const ProfileCompletion = () => {
               name="linkedin"
               value={formData.linkedin}
               onChange={handleInputChange}
-              className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+              className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none ${
                 errors.linkedin ? 'border-red-500' : 'border-gray-300'
               }`}
               placeholder="https://linkedin.com/in/yourname"
@@ -551,7 +551,7 @@ const ProfileCompletion = () => {
               name="github"
               value={formData.github}
               onChange={handleInputChange}
-              className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+              className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none ${
                 errors.github ? 'border-red-500' : 'border-gray-300'
               }`}
               placeholder="https://github.com/yourname"
@@ -577,7 +577,7 @@ const ProfileCompletion = () => {
               >
                 <FaUpload className="text-3xl text-gray-400" />
                 <div>
-                  <span className="text-blue-600 font-medium">Click to upload resume</span>
+                  <span className="text-[#0d6d6e] font-medium">Click to upload resume</span>
                   <span className="text-gray-600"> or drag and drop</span>
                 </div>
                 <span className="text-sm text-gray-500">PDF, DOC, DOCX up to 5MB</span>
@@ -623,7 +623,7 @@ const ProfileCompletion = () => {
   const renderStep5 = () => (
     <div className="space-y-6">
       <div className="text-center mb-8">
-        <FaGraduationCap className="text-4xl text-blue-600 mx-auto mb-4" />
+        <FaGraduationCap className="text-4xl text-[#0d6d6e] mx-auto mb-4" />
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Job Preferences</h2>
         <p className="text-gray-600">Help us find the right opportunities for you</p>
       </div>
@@ -638,7 +638,7 @@ const ProfileCompletion = () => {
               onClick={() => handleArraySelection('jobTypes', type)}
               className={`p-3 rounded-lg border-2 transition-all ${
                 formData.jobTypes.includes(type)
-                  ? 'border-blue-500 bg-blue-50 text-blue-700'
+                  ? 'border-[#0d6d6e] bg-[#e6f3f3] text-[#0d6d6e]'
                   : 'border-gray-300 hover:border-gray-400'
               }`}
             >
@@ -658,7 +658,7 @@ const ProfileCompletion = () => {
               onClick={() => handleArraySelection('workTypes', type)}
               className={`p-3 rounded-lg border-2 transition-all ${
                 formData.workTypes.includes(type)
-                  ? 'border-blue-500 bg-blue-50 text-blue-700'
+                  ? 'border-[#0d6d6e] bg-[#e6f3f3] text-[#0d6d6e]'
                   : 'border-gray-300 hover:border-gray-400'
               }`}
             >
@@ -678,7 +678,7 @@ const ProfileCompletion = () => {
               onClick={() => handleArraySelection('industries', industry)}
               className={`p-3 rounded-lg border-2 transition-all text-sm ${
                 formData.industries.includes(industry)
-                  ? 'border-blue-500 bg-blue-50 text-blue-700'
+                  ? 'border-[#0d6d6e] bg-[#e6f3f3] text-[#0d6d6e]'
                   : 'border-gray-300 hover:border-gray-400'
               }`}
             >
@@ -694,26 +694,23 @@ const ProfileCompletion = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8 px-4">
+    <div className="min-h-screen bg-gray-50 py-8 px-4 pt-24">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-10">
           <button
             onClick={() => navigate("/")}
-            className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 font-medium mb-6 mx-auto"
+            className="flex items-center space-x-2 text-[#0d6d6e] hover:text-[#095555] font-medium mb-6 mx-auto"
           >
             <FaArrowLeft />
             <span>Back to Home</span>
           </button>
-          
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            {isEditing ? 'Edit Your' : 'Complete Your'}{" "}
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Profile
-            </span>
+
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
+            {isEditing ? 'Edit Your Profile' : 'Complete Your Profile'}
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            {isEditing 
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            {isEditing
               ? 'Update your information to get better job matches'
               : 'Help us find the perfect job opportunities for you'
             }
@@ -730,15 +727,15 @@ const ProfileCompletion = () => {
               
               return (
                 <div key={stepNumber} className="flex items-center">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold transition-all duration-300 ${
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-medium transition-colors ${
                     isCompleted ? "bg-green-600 text-white" :
-                    isActive ? "bg-blue-600 text-white" :
+                    isActive ? "bg-[#0d6d6e] text-white" :
                     "bg-gray-200 text-gray-600"
                   }`}>
                     {isCompleted ? <FaCheck /> : stepNumber}
                   </div>
                   {stepNumber < totalSteps && (
-                    <div className={`w-16 h-1 mx-4 rounded-full transition-colors duration-300 ${
+                    <div className={`w-12 h-1 mx-2 rounded-full transition-colors ${
                       currentStep > stepNumber ? "bg-green-600" : "bg-gray-200"
                     }`} />
                   )}
@@ -749,7 +746,7 @@ const ProfileCompletion = () => {
         </div>
 
         {/* Form */}
-        <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           <form onSubmit={handleSubmit} className="p-8">
             {currentStep === 1 && renderStep1()}
             {currentStep === 2 && renderStep2()}
@@ -768,7 +765,7 @@ const ProfileCompletion = () => {
                   </p>
                 </div>
 
-                <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8 text-left max-w-2xl mx-auto">
+                <div className="bg-gray-50 rounded-lg p-8 text-left max-w-2xl mx-auto">
                   <h3 className="text-xl font-bold text-gray-900 mb-4">Profile Summary</h3>
                   
                   <div className="space-y-4">
@@ -822,7 +819,7 @@ const ProfileCompletion = () => {
                   <button
                     type="button"
                     onClick={() => navigate("/", { replace: true })}
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+                    className="bg-[#0d6d6e] text-white px-6 py-2.5 rounded-lg font-medium hover:bg-[#095555] transition-colors"
                   >
                     Go to Dashboard
                   </button>
@@ -859,7 +856,7 @@ const ProfileCompletion = () => {
                 <button
                   type="button"
                   onClick={nextStep}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+                  className="bg-[#0d6d6e] text-white px-6 py-2.5 rounded-lg font-medium hover:bg-[#095555] transition-colors"
                 >
                   Next Step
                 </button>
@@ -867,7 +864,7 @@ const ProfileCompletion = () => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+                  className="bg-[#0d6d6e] text-white px-6 py-2.5 rounded-lg font-medium hover:bg-[#095555] transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   {isLoading ? (
                     <div className="flex items-center space-x-2">

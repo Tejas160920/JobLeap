@@ -140,16 +140,16 @@ const ATSCheckModal = ({ isOpen, onClose, job, onProceedToApply }) => {
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-lg">
         {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white rounded-t-2xl">
+        <div className="sticky top-0 bg-[#0d6d6e] p-6 text-white rounded-t-lg">
           <div className="flex justify-between items-start">
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <FaSearch className="text-xl" />
                 <h2 className="text-2xl font-bold">ATS Resume Checker</h2>
               </div>
-              <p className="text-blue-100 text-sm">
+              <p className="text-white/80 text-sm">
                 Check if your resume is optimized for: <span className="font-semibold">{job.title}</span> at {job.company}
               </p>
             </div>
@@ -174,10 +174,10 @@ const ATSCheckModal = ({ isOpen, onClose, job, onProceedToApply }) => {
                 onClick={() => fileInputRef.current?.click()}
                 className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${
                   isDragging
-                    ? 'border-blue-500 bg-blue-50'
+                    ? 'border-[#0d6d6e] bg-[#e6f3f3]'
                     : file
                     ? 'border-green-500 bg-green-50'
-                    : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'
+                    : 'border-gray-300 hover:border-[#0d6d6e] hover:bg-gray-50'
                 }`}
               >
                 <input
@@ -233,7 +233,7 @@ const ATSCheckModal = ({ isOpen, onClose, job, onProceedToApply }) => {
                 <button
                   onClick={handleAnalyze}
                   disabled={!file || isAnalyzing}
-                  className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-semibold flex items-center justify-center gap-2 hover:shadow-lg transform hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                  className="flex-1 bg-[#0d6d6e] text-white py-2.5 px-6 rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-[#095555] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isAnalyzing ? (
                     <>
@@ -407,7 +407,7 @@ const ATSCheckModal = ({ isOpen, onClose, job, onProceedToApply }) => {
                 </button>
                 <button
                   onClick={handleProceed}
-                  className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-semibold flex items-center justify-center gap-2 hover:shadow-lg transform hover:scale-105 transition-all"
+                  className="flex-1 bg-[#0d6d6e] text-white py-2.5 px-6 rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-[#095555] transition-colors"
                 >
                   Proceed to Apply
                   <FaExternalLinkAlt />

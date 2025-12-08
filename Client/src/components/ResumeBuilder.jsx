@@ -673,7 +673,7 @@ const ResumeBuilder = () => {
   const renderStep1 = () => (
     <div className="space-y-8">
       <div className="text-center">
-        <FaFileAlt className="text-4xl text-blue-600 mx-auto mb-4" />
+        <FaFileAlt className="text-4xl text-[#0d6d6e] mx-auto mb-4" />
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Choose Your Template</h2>
         <p className="text-gray-600">Select a resume template that matches your style and industry</p>
       </div>
@@ -683,9 +683,9 @@ const ResumeBuilder = () => {
           <div
             key={template.id}
             onClick={() => setSelectedTemplate(template.id)}
-            className={`relative cursor-pointer rounded-2xl border-2 transition-all duration-300 ${
+            className={`relative cursor-pointer rounded-lg border-2 transition-all duration-300 ${
               selectedTemplate === template.id
-                ? 'border-blue-500 bg-blue-50 transform scale-105'
+                ? 'border-[#0d6d6e] bg-[#e6f3f3] transform scale-105'
                 : 'border-gray-200 hover:border-gray-300 hover:transform hover:scale-102'
             }`}
           >
@@ -714,7 +714,7 @@ const ResumeBuilder = () => {
               </div>
             </div>
             {selectedTemplate === template.id && (
-              <div className="absolute top-2 right-2 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+              <div className="absolute top-2 right-2 w-8 h-8 bg-[#e6f3f3]0 rounded-full flex items-center justify-center">
                 <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
@@ -729,7 +729,7 @@ const ResumeBuilder = () => {
   const renderStep2 = () => (
     <div className="space-y-8">
       <div className="text-center">
-        <FaUser className="text-4xl text-blue-600 mx-auto mb-4" />
+        <FaUser className="text-4xl text-[#0d6d6e] mx-auto mb-4" />
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Personal Information</h2>
         <p className="text-gray-600">Add your contact details and professional summary</p>
       </div>
@@ -742,7 +742,7 @@ const ResumeBuilder = () => {
             value={resumeData.personalInfo.fullName}
             onChange={(e) => handleInputChange('personalInfo', 'fullName', e.target.value)}
             onBlur={() => handleBlur('fullName')}
-            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+            className={`w-full px-4 py-3 border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none ${
               getFieldError('fullName') ? 'border-red-500 bg-red-50' : 'border-gray-300'
             }`}
             placeholder="John Doe"
@@ -759,7 +759,7 @@ const ResumeBuilder = () => {
             value={resumeData.personalInfo.email}
             onChange={(e) => handleInputChange('personalInfo', 'email', e.target.value)}
             onBlur={() => handleBlur('email')}
-            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+            className={`w-full px-4 py-3 border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none ${
               getFieldError('email') ? 'border-red-500 bg-red-50' : 'border-gray-300'
             }`}
             placeholder="john@example.com"
@@ -776,7 +776,7 @@ const ResumeBuilder = () => {
             value={resumeData.personalInfo.phone}
             onChange={(e) => handleInputChange('personalInfo', 'phone', e.target.value)}
             onBlur={() => handleBlur('phone')}
-            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+            className={`w-full px-4 py-3 border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none ${
               getFieldError('phone') ? 'border-red-500 bg-red-50' : 'border-gray-300'
             }`}
             placeholder="+1 (555) 123-4567"
@@ -793,7 +793,7 @@ const ResumeBuilder = () => {
             value={resumeData.personalInfo.location}
             onChange={(e) => handleInputChange('personalInfo', 'location', e.target.value)}
             onBlur={() => handleBlur('location')}
-            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+            className={`w-full px-4 py-3 border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none ${
               getFieldError('location') ? 'border-red-500 bg-red-50' : 'border-gray-300'
             }`}
             placeholder="New York, NY"
@@ -810,7 +810,7 @@ const ResumeBuilder = () => {
             value={resumeData.personalInfo.website}
             onChange={(e) => handleInputChange('personalInfo', 'website', e.target.value)}
             onBlur={() => handleBlur('website')}
-            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+            className={`w-full px-4 py-3 border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none ${
               getFieldError('website') ? 'border-red-500 bg-red-50' : 'border-gray-300'
             }`}
             placeholder="https://yourwebsite.com"
@@ -827,7 +827,7 @@ const ResumeBuilder = () => {
             value={resumeData.personalInfo.linkedin}
             onChange={(e) => handleInputChange('personalInfo', 'linkedin', e.target.value)}
             onBlur={() => handleBlur('linkedin')}
-            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+            className={`w-full px-4 py-3 border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none ${
               getFieldError('linkedin') ? 'border-red-500 bg-red-50' : 'border-gray-300'
             }`}
             placeholder="https://linkedin.com/in/yourprofile"
@@ -850,7 +850,7 @@ const ResumeBuilder = () => {
           onChange={(e) => handleInputChange('personalInfo', 'summary', e.target.value)}
           onBlur={() => handleBlur('summary')}
           rows="4"
-          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-vertical ${
+          className={`w-full px-4 py-3 border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none resize-vertical ${
             getFieldError('summary') ? 'border-red-500 bg-red-50' : 'border-gray-300'
           }`}
           placeholder="A brief overview of your professional background, key skills, and career objectives..."
@@ -865,13 +865,13 @@ const ResumeBuilder = () => {
   const renderStep3 = () => (
     <div className="space-y-8">
       <div className="text-center">
-        <FaBriefcase className="text-4xl text-blue-600 mx-auto mb-4" />
+        <FaBriefcase className="text-4xl text-[#0d6d6e] mx-auto mb-4" />
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Work Experience</h2>
         <p className="text-gray-600">Add your professional experience and achievements</p>
       </div>
 
       {resumeData.experience.map((exp, index) => (
-        <div key={index} className="bg-gray-50 rounded-2xl p-6 relative">
+        <div key={index} className="bg-gray-50 rounded-lg p-6 relative">
           {resumeData.experience.length > 1 && (
             <button
               onClick={() => removeSection('experience', index)}
@@ -891,7 +891,7 @@ const ResumeBuilder = () => {
                 value={exp.jobTitle}
                 onChange={(e) => handleInputChange('experience', 'jobTitle', e.target.value, index)}
                 onBlur={() => handleBlur(`experience_${index}_jobTitle`)}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none ${
                   getFieldError(`experience_${index}_jobTitle`) ? 'border-red-500 bg-red-50' : 'border-gray-300'
                 }`}
                 placeholder="Software Engineer"
@@ -908,7 +908,7 @@ const ResumeBuilder = () => {
                 value={exp.company}
                 onChange={(e) => handleInputChange('experience', 'company', e.target.value, index)}
                 onBlur={() => handleBlur(`experience_${index}_company`)}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none ${
                   getFieldError(`experience_${index}_company`) ? 'border-red-500 bg-red-50' : 'border-gray-300'
                 }`}
                 placeholder="Tech Corp"
@@ -924,7 +924,7 @@ const ResumeBuilder = () => {
                 type="text"
                 value={exp.location}
                 onChange={(e) => handleInputChange('experience', 'location', e.target.value, index)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none"
                 placeholder="San Francisco, CA"
               />
             </div>
@@ -934,7 +934,7 @@ const ResumeBuilder = () => {
                 type="checkbox"
                 checked={exp.current}
                 onChange={(e) => handleInputChange('experience', 'current', e.target.checked, index)}
-                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                className="rounded border-gray-300 text-[#0d6d6e] focus:ring-blue-500"
               />
               <label className="text-sm font-medium text-gray-700">Currently working here</label>
             </div>
@@ -947,7 +947,7 @@ const ResumeBuilder = () => {
                 type="month"
                 value={exp.startDate}
                 onChange={(e) => handleInputChange('experience', 'startDate', e.target.value, index)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none"
               />
             </div>
 
@@ -959,7 +959,7 @@ const ResumeBuilder = () => {
                   value={exp.endDate}
                   onChange={(e) => handleInputChange('experience', 'endDate', e.target.value, index)}
                   onBlur={() => handleBlur(`experience_${index}_endDate`)}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none ${
                     getFieldError(`experience_${index}_endDate`) ? 'border-red-500 bg-red-50' : 'border-gray-300'
                   }`}
                 />
@@ -982,7 +982,7 @@ const ResumeBuilder = () => {
               onChange={(e) => handleInputChange('experience', 'description', e.target.value, index)}
               onBlur={() => handleBlur(`experience_${index}_description`)}
               rows="4"
-              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-vertical ${
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none resize-vertical ${
                 getFieldError(`experience_${index}_description`) ? 'border-red-500 bg-red-50' : 'border-gray-300'
               }`}
               placeholder="• Developed and maintained web applications using React and Node.js&#10;• Collaborated with cross-functional teams to deliver high-quality software solutions&#10;• Improved application performance by 30% through code optimization"
@@ -996,7 +996,7 @@ const ResumeBuilder = () => {
 
       <button
         onClick={() => addSection('experience')}
-        className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 font-medium"
+        className="flex items-center space-x-2 text-[#0d6d6e] hover:text-[#095555] font-medium"
       >
         <FaPlus />
         <span>Add More Experience</span>
@@ -1007,7 +1007,7 @@ const ResumeBuilder = () => {
   const renderStep4 = () => (
     <div className="space-y-8">
       <div className="text-center">
-        <FaGraduationCap className="text-4xl text-blue-600 mx-auto mb-4" />
+        <FaGraduationCap className="text-4xl text-[#0d6d6e] mx-auto mb-4" />
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Education & Skills</h2>
         <p className="text-gray-600">Add your educational background and key skills</p>
       </div>
@@ -1016,7 +1016,7 @@ const ResumeBuilder = () => {
       <div>
         <h3 className="text-xl font-bold text-gray-900 mb-4">Education</h3>
         {resumeData.education.map((edu, index) => (
-          <div key={index} className="bg-gray-50 rounded-2xl p-6 relative mb-4">
+          <div key={index} className="bg-gray-50 rounded-lg p-6 relative mb-4">
             {resumeData.education.length > 1 && (
               <button
                 onClick={() => removeSection('education', index)}
@@ -1034,7 +1034,7 @@ const ResumeBuilder = () => {
                   value={edu.degree}
                   onChange={(e) => handleInputChange('education', 'degree', e.target.value, index)}
                   onBlur={() => handleBlur(`education_${index}_degree`)}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none ${
                     getFieldError(`education_${index}_degree`) ? 'border-red-500 bg-red-50' : 'border-gray-300'
                   }`}
                   placeholder="Bachelor of Science in Computer Science"
@@ -1051,7 +1051,7 @@ const ResumeBuilder = () => {
                   value={edu.institution}
                   onChange={(e) => handleInputChange('education', 'institution', e.target.value, index)}
                   onBlur={() => handleBlur(`education_${index}_institution`)}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none ${
                     getFieldError(`education_${index}_institution`) ? 'border-red-500 bg-red-50' : 'border-gray-300'
                   }`}
                   placeholder="University of California, Berkeley"
@@ -1067,7 +1067,7 @@ const ResumeBuilder = () => {
                   type="month"
                   value={edu.graduationDate}
                   onChange={(e) => handleInputChange('education', 'graduationDate', e.target.value, index)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none"
                 />
               </div>
 
@@ -1078,7 +1078,7 @@ const ResumeBuilder = () => {
                   value={edu.gpa}
                   onChange={(e) => handleInputChange('education', 'gpa', e.target.value, index)}
                   onBlur={() => handleBlur(`education_${index}_gpa`)}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none ${
                     getFieldError(`education_${index}_gpa`) ? 'border-red-500 bg-red-50' : 'border-gray-300'
                   }`}
                   placeholder="3.8/4.0"
@@ -1093,7 +1093,7 @@ const ResumeBuilder = () => {
 
         <button
           onClick={() => addSection('education')}
-          className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 font-medium mb-8"
+          className="flex items-center space-x-2 text-[#0d6d6e] hover:text-[#095555] font-medium mb-8"
         >
           <FaPlus />
           <span>Add More Education</span>
@@ -1101,7 +1101,7 @@ const ResumeBuilder = () => {
       </div>
 
       {/* Final Preview Section */}
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8 text-center">
+      <div className="bg-gray-50 rounded-lg p-8 text-center">
         <h3 className="text-2xl font-bold text-gray-900 mb-4">Your Resume is Ready!</h3>
         <p className="text-gray-600 mb-6">Preview your resume and download it as HTML (easily convertible to PDF)</p>
         
@@ -1116,7 +1116,7 @@ const ResumeBuilder = () => {
           
           <button 
             onClick={generatePDF}
-            className="flex items-center justify-center space-x-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+            className="flex items-center justify-center space-x-2 bg-green-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-green-700 transition-colors"
           >
             <FaDownload />
             <span>Generate PDF</span>
@@ -1135,15 +1135,12 @@ const ResumeBuilder = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-20 px-6 pt-20">
+    <div className="min-h-screen bg-gray-50 py-20 px-6 pt-20">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            Resume{" "}
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Builder
-            </span>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
+            Resume Builder
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Create a professional resume that gets you hired
@@ -1160,15 +1157,15 @@ const ResumeBuilder = () => {
               
               return (
                 <div key={stepNumber} className="flex items-center">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold transition-all duration-300 ${
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-medium transition-colors ${
                     isCompleted ? "bg-green-600 text-white" :
-                    isActive ? "bg-blue-600 text-white" :
+                    isActive ? "bg-[#0d6d6e] text-white" :
                     "bg-gray-200 text-gray-600"
                   }`}>
                     {stepNumber}
                   </div>
                   <div className="ml-3">
-                    <p className={`font-medium ${isActive ? "text-blue-600" : "text-gray-600"}`}>
+                    <p className={`font-medium ${isActive ? "text-[#0d6d6e]" : "text-gray-600"}`}>
                       Step {stepNumber}
                     </p>
                     <p className="text-sm text-gray-500">
@@ -1190,7 +1187,7 @@ const ResumeBuilder = () => {
         </div>
 
         {/* Form */}
-        <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           <div className="p-8">
             {currentStep === 1 && renderStep1()}
             {currentStep === 2 && renderStep2()}
@@ -1215,7 +1212,7 @@ const ResumeBuilder = () => {
               {currentStep < totalSteps && (
                 <button
                   onClick={nextStep}
-                  className="flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+                  className="flex items-center space-x-2 bg-[#0d6d6e] text-white px-6 py-2.5 rounded-lg font-medium hover:bg-[#095555] transition-colors"
                 >
                   <span>Next Step</span>
                   <FaArrowRight />

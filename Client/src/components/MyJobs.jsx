@@ -105,14 +105,14 @@ const MyJobs = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center pt-16">
-        <FaSpinner className="animate-spin text-4xl text-blue-600" />
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center pt-16">
+        <FaSpinner className="animate-spin text-4xl text-[#0d6d6e]" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 pt-20 pb-12 px-4">
+    <div className="min-h-screen bg-gray-50 pt-20 pb-12 px-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
@@ -126,7 +126,7 @@ const MyJobs = () => {
           </div>
           <button
             onClick={() => navigate("/post-job")}
-            className="mt-4 md:mt-0 flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+            className="mt-4 md:mt-0 flex items-center space-x-2 bg-[#0d6d6e] text-white px-6 py-2.5 rounded-lg font-medium hover:bg-[#095555] transition-colors"
           >
             <FaPlus />
             <span>Post New Job</span>
@@ -140,7 +140,7 @@ const MyJobs = () => {
         )}
 
         {jobs.length === 0 ? (
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-12 text-center">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
             <FaBriefcase className="mx-auto text-5xl text-gray-300 mb-4" />
             <h2 className="text-2xl font-bold text-gray-900 mb-2">No Jobs Posted Yet</h2>
             <p className="text-gray-600 mb-6">
@@ -148,7 +148,7 @@ const MyJobs = () => {
             </p>
             <button
               onClick={() => navigate("/post-job")}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+              className="bg-[#0d6d6e] text-white px-6 py-2.5 rounded-lg font-medium hover:bg-[#095555] transition-colors"
             >
               Post Your First Job
             </button>
@@ -158,7 +158,7 @@ const MyJobs = () => {
             {jobs.map((job) => (
               <div
                 key={job._id}
-                className="bg-white rounded-xl shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow"
+                className="bg-white rounded-xl shadow-md border border-gray-200 p-6 hover:shadow-sm transition-shadow"
               >
                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
                   <div className="flex-1">
@@ -198,11 +198,11 @@ const MyJobs = () => {
                     </div>
 
                     <div className="flex items-center gap-4 mt-3 text-sm">
-                      <div className="flex items-center text-blue-600">
+                      <div className="flex items-center text-[#0d6d6e]">
                         <FaEye className="mr-1.5" />
                         {job.viewCount || 0} views
                       </div>
-                      <div className="flex items-center text-purple-600">
+                      <div className="flex items-center text-[#0d6d6e]">
                         <FaUsers className="mr-1.5" />
                         {job.applicationCount || 0} applications
                       </div>
@@ -234,7 +234,7 @@ const MyJobs = () => {
         {/* Delete Confirmation Modal */}
         {deleteConfirm && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl p-8 max-w-md w-full">
+            <div className="bg-white rounded-lg p-8 max-w-md w-full">
               <div className="text-center">
                 <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
                   <FaTrash className="text-red-600 text-2xl" />

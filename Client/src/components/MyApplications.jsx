@@ -113,7 +113,7 @@ const MyApplications = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8 px-4 pt-24">
+      <div className="min-h-screen bg-gray-50 py-8 px-4 pt-24">
         <div className="max-w-6xl mx-auto">
           <div className="mb-12">
             <div className="h-6 w-32 bg-gray-200 rounded animate-pulse mb-6" />
@@ -127,25 +127,22 @@ const MyApplications = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8 px-4 pt-24">
+    <div className="min-h-screen bg-gray-50 py-8 px-4 pt-24">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-12">
           <button
             onClick={() => navigate("/")}
-            className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 font-medium mb-6"
+            className="flex items-center space-x-2 text-[#0d6d6e] hover:text-[#095555] font-medium mb-6"
           >
             <FaArrowLeft />
             <span>Back to Home</span>
           </button>
 
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            My{" "}
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Applications
-            </span>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
+            My Applications
           </h1>
-          <p className="text-xl text-gray-600">
+          <p className="text-lg text-gray-600">
             Track your job applications and their status
           </p>
         </div>
@@ -159,7 +156,7 @@ const MyApplications = () => {
             </p>
             <button
               onClick={() => navigate("/")}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+              className="bg-[#0d6d6e] text-white px-6 py-2.5 rounded-lg font-medium hover:bg-[#095555] transition-colors"
             >
               Find Jobs
             </button>
@@ -169,7 +166,7 @@ const MyApplications = () => {
             {applications.map((application) => (
               <div
                 key={application._id}
-                className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-all duration-300"
+                className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
               >
                 {/* Header with title and status badge */}
                 <div className="flex items-start justify-between mb-4">
@@ -224,7 +221,7 @@ const MyApplications = () => {
                       href={application.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center space-x-2 px-4 py-2 border border-blue-300 rounded-lg text-blue-700 hover:bg-blue-50 transition-colors"
+                      className="flex items-center space-x-2 px-4 py-2 border border-[#0d6d6e] rounded-lg text-[#0d6d6e] hover:bg-[#e6f3f3] transition-colors"
                     >
                       <FaExternalLinkAlt />
                       <span>View Job</span>
@@ -298,7 +295,7 @@ const MyApplications = () => {
                   href={selectedApplication.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors text-center"
+                  className="flex-1 bg-[#0d6d6e] text-white py-2.5 rounded-lg font-medium hover:bg-[#095555] transition-colors text-center"
                 >
                   View Original Job
                 </a>

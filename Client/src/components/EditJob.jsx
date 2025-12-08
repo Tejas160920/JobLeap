@@ -205,16 +205,16 @@ const EditJob = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center pt-16">
-        <FaSpinner className="animate-spin text-4xl text-blue-600" />
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center pt-16">
+        <FaSpinner className="animate-spin text-4xl text-[#0d6d6e]" />
       </div>
     );
   }
 
   if (saveSuccess) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center px-4 pt-16">
-        <div className="bg-white rounded-2xl shadow-2xl p-8 text-center max-w-md mx-auto">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 pt-16">
+        <div className="bg-white rounded-lg shadow-sm p-8 text-center max-w-md mx-auto">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <FaCheck className="text-green-600 text-2xl" />
           </div>
@@ -238,7 +238,7 @@ const EditJob = () => {
               placeholder={placeholder}
               value={item}
               onChange={(e) => handleArrayField(field, index, e.target.value)}
-              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none"
             />
             <button
               type="button"
@@ -253,7 +253,7 @@ const EditJob = () => {
         <button
           type="button"
           onClick={() => addArrayField(field)}
-          className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 font-medium transition-colors"
+          className="flex items-center space-x-2 text-[#0d6d6e] hover:text-[#095555] font-medium transition-colors"
         >
           <FaPlus />
           <span>Add {label.toLowerCase().replace(/s$/, '')}</span>
@@ -263,7 +263,7 @@ const EditJob = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8 px-4 pt-20">
+    <div className="min-h-screen bg-gray-50 py-8 px-4 pt-20">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -279,7 +279,7 @@ const EditJob = () => {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
+        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
           <div className="space-y-6">
             {/* Basic Info */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -294,7 +294,7 @@ const EditJob = () => {
                     name="title"
                     value={formData.title}
                     onChange={handleChange}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none ${
                       errors.title ? "border-red-500" : "border-gray-300"
                     }`}
                   />
@@ -313,7 +313,7 @@ const EditJob = () => {
                     name="company"
                     value={formData.company}
                     onChange={handleChange}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none ${
                       errors.company ? "border-red-500" : "border-gray-300"
                     }`}
                   />
@@ -350,7 +350,7 @@ const EditJob = () => {
                     value={formData.salary}
                     onChange={handleChange}
                     placeholder="e.g., $80,000 - $120,000"
-                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none ${
                       errors.salary ? "border-red-500" : "border-gray-300"
                     }`}
                   />
@@ -366,7 +366,7 @@ const EditJob = () => {
                   name="jobType"
                   value={formData.jobType}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none"
                 >
                   <option value="Full-time">Full-time</option>
                   <option value="Part-time">Part-time</option>
@@ -382,7 +382,7 @@ const EditJob = () => {
                   name="workType"
                   value={formData.workType}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none"
                 >
                   <option value="On-site">On-site</option>
                   <option value="Remote">Remote</option>
@@ -396,7 +396,7 @@ const EditJob = () => {
                   name="status"
                   value={formData.status}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none"
                 >
                   <option value="active">Active</option>
                   <option value="closed">Closed</option>
@@ -417,7 +417,7 @@ const EditJob = () => {
                   rows="6"
                   value={formData.description}
                   onChange={handleChange}
-                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-vertical ${
+                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none resize-vertical ${
                     errors.description ? "border-red-500" : "border-gray-300"
                   }`}
                 />
@@ -446,7 +446,7 @@ const EditJob = () => {
                       value={formData.applicationUrl}
                       onChange={handleChange}
                       placeholder="https://yourcompany.com/careers/apply"
-                      className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+                      className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none ${
                         errors.applicationUrl ? "border-red-500" : "border-gray-300"
                       }`}
                     />
@@ -466,7 +466,7 @@ const EditJob = () => {
                       value={formData.applicationEmail}
                       onChange={handleChange}
                       placeholder="careers@yourcompany.com"
-                      className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+                      className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none ${
                         errors.applicationEmail ? "border-red-500" : "border-gray-300"
                       }`}
                     />
@@ -488,7 +488,7 @@ const EditJob = () => {
               <button
                 type="submit"
                 disabled={isSaving}
-                className="flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+                className="flex items-center space-x-2 bg-[#0d6d6e] text-white px-6 py-2.5 rounded-lg font-medium hover:bg-[#095555] transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {isSaving ? (
                   <>

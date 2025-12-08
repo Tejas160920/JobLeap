@@ -567,18 +567,15 @@ const CompanyReviews = () => {
     });
 
   return (
-    <main className="pt-16 bg-gradient-to-br from-blue-50 via-white to-purple-50 min-h-screen">
+    <main className="pt-16 bg-gray-50 min-h-screen">
       {/* Hero Section */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-purple-600/5"></div>
+        <div className="absolute inset-0 bg-[#0d6d6e]/5"></div>
 
         <div className="relative max-w-7xl mx-auto px-6 py-20 lg:py-28">
           <div className="text-center">
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight">
-              Discover{" "}
-              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Great Companies
-              </span>
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 leading-tight">
+              Discover Great Companies
             </h1>
             <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto">
               Explore top companies and find your next career opportunity
@@ -593,7 +590,7 @@ const CompanyReviews = () => {
                   placeholder="Search companies, industries, or locations..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 text-lg border border-gray-300 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  className="w-full pl-12 pr-4 py-4 text-lg border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none"
                 />
               </div>
             </div>
@@ -607,9 +604,9 @@ const CompanyReviews = () => {
           <div className="flex flex-wrap gap-3 justify-center">
             <button
               onClick={() => setSelectedIndustry("")}
-              className={`px-4 py-2 rounded-full font-medium transition-all duration-300 ${
+              className={`px-4 py-2 rounded-full font-medium transition-colors ${
                 selectedIndustry === ""
-                  ? "bg-blue-600 text-white shadow-lg"
+                  ? "bg-[#0d6d6e] text-white"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
@@ -619,9 +616,9 @@ const CompanyReviews = () => {
               <button
                 key={industry.name}
                 onClick={() => setSelectedIndustry(industry.name)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium transition-all duration-300 ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium transition-colors ${
                   selectedIndustry === industry.name
-                    ? "bg-blue-600 text-white shadow-lg"
+                    ? "bg-[#0d6d6e] text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
@@ -652,7 +649,7 @@ const CompanyReviews = () => {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e]"
               >
                 <option value="rating">Highest Rated</option>
                 <option value="recommend">Most Recommended</option>
@@ -674,7 +671,7 @@ const CompanyReviews = () => {
                   setSearchTerm("");
                   setSelectedIndustry("");
                 }}
-                className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                className="bg-[#0d6d6e] text-white px-6 py-2.5 rounded-lg font-medium hover:bg-[#095555] transition-colors"
               >
                 Show All Companies
               </button>
@@ -684,7 +681,7 @@ const CompanyReviews = () => {
               {filteredCompanies.map((company) => (
                 <div
                   key={company.name}
-                  className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300"
+                  className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300"
                 >
                   {/* Header */}
                   <div className="p-6 border-b border-gray-100">
@@ -786,7 +783,7 @@ const CompanyReviews = () => {
                     <div className="flex space-x-3 pt-4">
                       <button
                         onClick={() => navigate('/', { state: { companyFilter: company.name } })}
-                        className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 px-4 rounded-lg font-medium hover:shadow-lg transition-all duration-300 text-sm"
+                        className="flex-1 bg-[#0d6d6e] text-white py-2 px-4 rounded-lg font-medium hover:bg-[#095555] transition-colors text-sm"
                       >
                         View Jobs
                       </button>

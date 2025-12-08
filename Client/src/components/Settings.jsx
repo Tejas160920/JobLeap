@@ -143,9 +143,9 @@ const Settings = () => {
 
   if (isFetching) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <FaSpinner className="animate-spin text-4xl text-blue-600 mx-auto mb-4" />
+          <FaSpinner className="animate-spin text-4xl text-[#0d6d6e] mx-auto mb-4" />
           <p className="text-gray-600">Loading settings...</p>
         </div>
       </div>
@@ -153,35 +153,32 @@ const Settings = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8 px-4">
+    <div className="min-h-screen bg-gray-50 py-8 px-4 pt-24">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="mb-12">
+        <div className="mb-10">
           <button
             onClick={() => navigate("/")}
-            className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 font-medium mb-6"
+            className="flex items-center space-x-2 text-[#0d6d6e] hover:text-[#095555] font-medium mb-6"
           >
             <FaArrowLeft />
             <span>Back to Home</span>
           </button>
-          
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            Account{" "}
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Settings
-            </span>
+
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
+            Account Settings
           </h1>
-          <p className="text-xl text-gray-600">
+          <p className="text-lg text-gray-600">
             Manage your account preferences and privacy settings
           </p>
         </div>
 
         <div className="space-y-8">
           {/* Notification Settings */}
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center space-x-3 mb-6">
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <FaBell className="text-blue-600" />
+              <div className="w-10 h-10 bg-[#e6f3f3] rounded-lg flex items-center justify-center">
+                <FaBell className="text-[#0d6d6e]" />
               </div>
               <div>
                 <h2 className="text-2xl font-bold text-gray-900">Notifications</h2>
@@ -202,7 +199,7 @@ const Settings = () => {
                     checked={settings.emailNotifications}
                     onChange={(e) => handleSettingChange('emailNotifications', e.target.checked)}
                   />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#0d6d6e]"></div>
                 </label>
               </div>
 
@@ -218,7 +215,7 @@ const Settings = () => {
                     checked={settings.jobAlerts}
                     onChange={(e) => handleSettingChange('jobAlerts', e.target.checked)}
                   />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#0d6d6e]"></div>
                 </label>
               </div>
 
@@ -234,17 +231,17 @@ const Settings = () => {
                     checked={settings.marketingEmails}
                     onChange={(e) => handleSettingChange('marketingEmails', e.target.checked)}
                   />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#0d6d6e]"></div>
                 </label>
               </div>
             </div>
           </div>
 
           {/* Privacy Settings */}
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center space-x-3 mb-6">
-              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                <FaShieldAlt className="text-purple-600" />
+              <div className="w-10 h-10 bg-[#e6f3f3] rounded-lg flex items-center justify-center">
+                <FaShieldAlt className="text-[#0d6d6e]" />
               </div>
               <div>
                 <h2 className="text-2xl font-bold text-gray-900">Privacy</h2>
@@ -263,7 +260,7 @@ const Settings = () => {
                       value="public"
                       checked={settings.profileVisibility === 'public'}
                       onChange={(e) => handleSettingChange('profileVisibility', e.target.value)}
-                      className="mr-3 text-blue-600"
+                      className="mr-3 text-[#0d6d6e]"
                     />
                     <div>
                       <span className="font-medium">Public</span>
@@ -277,7 +274,7 @@ const Settings = () => {
                       value="private"
                       checked={settings.profileVisibility === 'private'}
                       onChange={(e) => handleSettingChange('profileVisibility', e.target.value)}
-                      className="mr-3 text-blue-600"
+                      className="mr-3 text-[#0d6d6e]"
                     />
                     <div>
                       <span className="font-medium">Private</span>
@@ -291,7 +288,7 @@ const Settings = () => {
           </div>
 
           {/* Account Management */}
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center space-x-3 mb-6">
               <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
                 <FaUser className="text-red-600" />
@@ -308,7 +305,7 @@ const Settings = () => {
                 className="w-full flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
               >
                 <div className="flex items-center space-x-3">
-                  <FaEdit className="text-blue-600" />
+                  <FaEdit className="text-[#0d6d6e]" />
                   <div>
                     <h3 className="font-semibold text-gray-900">Edit Profile</h3>
                     <p className="text-sm text-gray-600">Update your personal information and preferences</p>
@@ -350,7 +347,7 @@ const Settings = () => {
             <button
               onClick={handleSaveSettings}
               disabled={isLoading}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+              className="bg-[#0d6d6e] text-white px-6 py-2.5 rounded-lg font-medium hover:bg-[#095555] transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <div className="flex items-center space-x-2">
@@ -371,7 +368,7 @@ const Settings = () => {
       {/* Delete Account Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-8 max-w-md w-full">
+          <div className="bg-white rounded-lg p-8 max-w-md w-full">
             <div className="text-center mb-6">
               <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <FaTrash className="text-red-600 text-2xl" />
@@ -392,7 +389,7 @@ const Settings = () => {
                   value={deletePassword}
                   onChange={(e) => setDeletePassword(e.target.value)}
                   placeholder="Your password"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none"
                 />
               </div>
             )}

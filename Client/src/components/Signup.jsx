@@ -196,36 +196,30 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center px-4 py-12">
-      {/* Background decoration */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-10 right-10 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-        <div className="absolute bottom-10 left-10 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
-      </div>
-
-      <div className="relative w-full max-w-md">
-        <div className="bg-white/90 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200 p-8">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-md">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="flex items-center justify-center mb-6">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
-                <FaBriefcase className="text-white text-xl" />
+            <div className="flex items-center justify-center mb-5">
+              <div className="w-10 h-10 bg-[#0d6d6e] rounded-lg flex items-center justify-center">
+                <FaBriefcase className="text-white text-lg" />
               </div>
-              <span className="ml-3 text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <span className="ml-2 text-xl font-bold text-gray-900">
                 JobLeap
               </span>
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Join JobLeap</h1>
-            <p className="text-gray-600">Create your account and start your career journey</p>
+            <h1 className="text-2xl font-bold text-gray-900 mb-1">Join JobLeap</h1>
+            <p className="text-gray-500 text-sm">Create your account and start your career journey</p>
           </div>
 
           {/* Social Signup Buttons */}
-          <div className="space-y-3 mb-6">
+          <div className="mb-6">
             <button
               onClick={() => handleSocialSignup("Google")}
-              className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 hover:shadow-md transition-all duration-300 transform hover:scale-105"
+              className="w-full flex items-center justify-center px-4 py-2.5 border border-gray-300 rounded-lg text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors"
             >
-              <FaGoogle className="mr-3 text-red-500" />
+              <FaGoogle className="mr-2 text-red-500" />
               Continue with Google
             </button>
           </div>
@@ -233,17 +227,17 @@ const Signup = () => {
           {/* Divider */}
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300"></div>
+              <div className="w-full border-t border-gray-200"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-gray-500 font-medium">Or create with email</span>
+              <span className="px-3 bg-white text-gray-500">Or create with email</span>
             </div>
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className="mb-4 p-4 bg-red-50 border-l-4 border-red-500 rounded-lg">
-              <p className="text-red-700 text-sm font-medium">{error}</p>
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-700 text-sm">{error}</p>
             </div>
           )}
 
@@ -263,7 +257,7 @@ const Signup = () => {
                   value={formData.email}
                   onChange={handleChange}
                   onBlur={() => handleBlur('email')}
-                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all ${
+                  className={`w-full pl-10 pr-4 py-2.5 text-sm border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none transition-colors ${
                     touched.email && fieldErrors.email ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="Enter your email"
@@ -283,9 +277,9 @@ const Signup = () => {
                 <button
                   type="button"
                   onClick={() => setFormData(prev => ({ ...prev, role: "seeking" }))}
-                  className={`p-3 border-2 rounded-lg text-center transition-all ${
+                  className={`p-3 border rounded-lg text-center transition-colors ${
                     formData.role === "seeking"
-                      ? "border-blue-500 bg-blue-50 text-blue-700"
+                      ? "border-[#0d6d6e] bg-[#e6f3f3] text-[#0d6d6e]"
                       : "border-gray-300 hover:border-gray-400"
                   }`}
                 >
@@ -295,9 +289,9 @@ const Signup = () => {
                 <button
                   type="button"
                   onClick={() => setFormData(prev => ({ ...prev, role: "hiring" }))}
-                  className={`p-3 border-2 rounded-lg text-center transition-all ${
+                  className={`p-3 border rounded-lg text-center transition-colors ${
                     formData.role === "hiring"
-                      ? "border-blue-500 bg-blue-50 text-blue-700"
+                      ? "border-[#0d6d6e] bg-[#e6f3f3] text-[#0d6d6e]"
                       : "border-gray-300 hover:border-gray-400"
                   }`}
                 >
@@ -321,7 +315,7 @@ const Signup = () => {
                   value={formData.password}
                   onChange={handleChange}
                   onBlur={() => handleBlur('password')}
-                  className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all ${
+                  className={`w-full pl-10 pr-12 py-2.5 text-sm border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none transition-colors ${
                     touched.password && fieldErrors.password ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="Create a password"
@@ -388,7 +382,7 @@ const Signup = () => {
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   onBlur={() => handleBlur('confirmPassword')}
-                  className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all ${
+                  className={`w-full pl-10 pr-12 py-2.5 text-sm border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none transition-colors ${
                     touched.confirmPassword && fieldErrors.confirmPassword ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="Confirm your password"
@@ -419,19 +413,19 @@ const Signup = () => {
             </div>
 
             <div className="flex items-center">
-              <input type="checkbox" required className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+              <input type="checkbox" required className="rounded border-gray-300 text-[#0d6d6e] focus:ring-[#0d6d6e]" />
               <span className="ml-2 text-sm text-gray-600">
                 I agree to the{" "}
-                <Link to="/terms" className="text-blue-600 hover:underline">Terms of Service</Link>
+                <Link to="/terms" className="text-[#0d6d6e] hover:underline">Terms of Service</Link>
                 {" "}and{" "}
-                <Link to="/privacy" className="text-blue-600 hover:underline">Privacy Policy</Link>
+                <Link to="/privacy" className="text-[#0d6d6e] hover:underline">Privacy Policy</Link>
               </span>
             </div>
 
             <button
               type="submit"
               disabled={isLoading || formData.password !== formData.confirmPassword || !isValidPassword(formData.password).isValid}
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg font-semibold text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300 btn-hover-lift disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+              className="w-full bg-[#0d6d6e] text-white py-2.5 rounded-lg font-medium hover:bg-[#095555] transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">
@@ -445,12 +439,12 @@ const Signup = () => {
           </form>
 
           {/* Login link */}
-          <div className="mt-8 text-center">
-            <p className="text-gray-600">
+          <div className="mt-6 text-center">
+            <p className="text-gray-600 text-sm">
               Already have an account?{" "}
               <Link
                 to="/login"
-                className="text-blue-600 hover:text-blue-800 font-semibold hover:underline transition-colors"
+                className="text-[#0d6d6e] hover:text-[#095555] font-medium"
               >
                 Sign in
               </Link>

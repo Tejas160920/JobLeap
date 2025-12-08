@@ -72,8 +72,8 @@ const ForgotPassword = () => {
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center px-4 pt-16">
-        <div className="bg-white/90 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200 p-8 max-w-md w-full text-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 pt-16">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 max-w-md w-full text-center">
           <FaCheckCircle className="text-5xl text-green-500 mx-auto mb-6" />
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Check Your Email</h2>
           <p className="text-gray-600 mb-6">
@@ -84,7 +84,7 @@ const ForgotPassword = () => {
           </p>
           <Link
             to="/login"
-            className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:shadow-lg transition-all"
+            className="inline-block bg-[#0d6d6e] text-white px-6 py-2.5 rounded-lg font-medium hover:bg-[#095555] transition-colors"
           >
             Return to Login
           </Link>
@@ -94,15 +94,11 @@ const ForgotPassword = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center px-4 pt-16">
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-10 right-10 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-        <div className="absolute bottom-10 left-10 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
-      </div>
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 pt-16">
 
       <div className="relative w-full max-w-md">
-        <div className="bg-white/90 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200 p-8">
-          <Link to="/login" className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-6">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+          <Link to="/login" className="inline-flex items-center text-[#0d6d6e] hover:text-[#095555] mb-6">
             <FaArrowLeft className="mr-2" />
             Back to Login
           </Link>
@@ -131,7 +127,7 @@ const ForgotPassword = () => {
                   value={email}
                   onChange={handleEmailChange}
                   onBlur={handleBlur}
-                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all ${
+                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none transition-all ${
                     touched && fieldError ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="Enter your email"
@@ -145,7 +141,7 @@ const ForgotPassword = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg font-semibold text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+              className="w-full bg-[#0d6d6e] text-white py-2.5 rounded-lg font-medium hover:bg-[#095555] transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">
@@ -161,7 +157,7 @@ const ForgotPassword = () => {
           <div className="mt-8 text-center">
             <p className="text-gray-600">
               Remember your password?{' '}
-              <Link to="/login" className="text-blue-600 hover:text-blue-800 font-semibold hover:underline">
+              <Link to="/login" className="text-[#0d6d6e] hover:text-[#095555] font-semibold hover:underline">
                 Sign in
               </Link>
             </p>

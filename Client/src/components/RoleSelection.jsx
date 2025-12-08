@@ -72,22 +72,17 @@ const RoleSelection = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center px-4 py-12">
-      {/* Background decoration */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-10 right-10 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-        <div className="absolute bottom-10 left-10 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
-      </div>
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
 
       <div className="relative w-full max-w-2xl">
-        <div className="bg-white/90 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200 p-8">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
           {/* Header */}
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-6">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
-                <FaBriefcase className="text-white text-xl" />
+              <div className="w-10 h-10 bg-[#0d6d6e] rounded-lg flex items-center justify-center">
+                <FaBriefcase className="text-white text-lg" />
               </div>
-              <span className="ml-3 text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <span className="ml-2 text-xl font-bold text-gray-900">
                 JobLeap
               </span>
             </div>
@@ -107,18 +102,18 @@ const RoleSelection = () => {
             {/* Job Seeker */}
             <button
               onClick={() => setSelectedRole('seeking')}
-              className={`p-6 rounded-xl border-2 transition-all duration-300 text-left ${
+              className={`p-6 rounded-lg border-2 transition-colors text-left ${
                 selectedRole === 'seeking'
-                  ? 'border-blue-500 bg-blue-50 shadow-lg'
-                  : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                  ? 'border-[#0d6d6e] bg-[#e6f3f3]'
+                  : 'border-gray-200 hover:border-[#0d6d6e]/50 hover:bg-gray-50'
               }`}
             >
-              <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-4 ${
+              <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4 ${
                 selectedRole === 'seeking'
-                  ? 'bg-blue-500'
+                  ? 'bg-[#0d6d6e]'
                   : 'bg-gray-100'
               }`}>
-                <FaSearch className={`text-2xl ${
+                <FaSearch className={`text-xl ${
                   selectedRole === 'seeking' ? 'text-white' : 'text-gray-500'
                 }`} />
               </div>
@@ -127,8 +122,8 @@ const RoleSelection = () => {
                 Browse job listings, apply to positions, track applications, and build your resume.
               </p>
               {selectedRole === 'seeking' && (
-                <div className="mt-4 flex items-center text-blue-600 font-medium">
-                  <span className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center mr-2">
+                <div className="mt-4 flex items-center text-[#0d6d6e] font-medium">
+                  <span className="w-5 h-5 bg-[#0d6d6e] rounded-full flex items-center justify-center mr-2">
                     <span className="text-white text-xs">✓</span>
                   </span>
                   Selected
@@ -139,18 +134,18 @@ const RoleSelection = () => {
             {/* Recruiter/Employer */}
             <button
               onClick={() => setSelectedRole('hiring')}
-              className={`p-6 rounded-xl border-2 transition-all duration-300 text-left ${
+              className={`p-6 rounded-lg border-2 transition-colors text-left ${
                 selectedRole === 'hiring'
-                  ? 'border-purple-500 bg-purple-50 shadow-lg'
-                  : 'border-gray-200 hover:border-purple-300 hover:bg-gray-50'
+                  ? 'border-[#0d6d6e] bg-[#e6f3f3]'
+                  : 'border-gray-200 hover:border-[#0d6d6e]/50 hover:bg-gray-50'
               }`}
             >
-              <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-4 ${
+              <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4 ${
                 selectedRole === 'hiring'
-                  ? 'bg-purple-500'
+                  ? 'bg-[#0d6d6e]'
                   : 'bg-gray-100'
               }`}>
-                <FaUserTie className={`text-2xl ${
+                <FaUserTie className={`text-xl ${
                   selectedRole === 'hiring' ? 'text-white' : 'text-gray-500'
                 }`} />
               </div>
@@ -159,8 +154,8 @@ const RoleSelection = () => {
                 Post job listings, review applications, and find the perfect candidates for your team.
               </p>
               {selectedRole === 'hiring' && (
-                <div className="mt-4 flex items-center text-purple-600 font-medium">
-                  <span className="w-5 h-5 bg-purple-500 rounded-full flex items-center justify-center mr-2">
+                <div className="mt-4 flex items-center text-[#0d6d6e] font-medium">
+                  <span className="w-5 h-5 bg-[#0d6d6e] rounded-full flex items-center justify-center mr-2">
                     <span className="text-white text-xs">✓</span>
                   </span>
                   Selected
@@ -173,7 +168,7 @@ const RoleSelection = () => {
           <button
             onClick={handleRoleSelect}
             disabled={!selectedRole || isLoading}
-            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 rounded-xl font-semibold text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            className="w-full bg-[#0d6d6e] text-white py-3 rounded-lg font-medium hover:bg-[#095555] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <div className="flex items-center justify-center">

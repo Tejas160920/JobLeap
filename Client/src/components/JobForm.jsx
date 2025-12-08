@@ -205,8 +205,8 @@ const JobForm = () => {
 
   if (isAuthorized === null) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
-        <FaSpinner className="animate-spin text-4xl text-blue-600" />
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <FaSpinner className="animate-spin text-4xl text-[#0d6d6e]" />
       </div>
     );
   }
@@ -215,8 +215,8 @@ const JobForm = () => {
 
   if (submitSuccess) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center px-4">
-        <div className="bg-white rounded-2xl shadow-2xl p-8 text-center max-w-md mx-auto">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+        <div className="bg-white rounded-lg shadow-sm p-8 text-center max-w-md mx-auto">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <FaCheck className="text-green-600 text-2xl" />
           </div>
@@ -232,7 +232,7 @@ const JobForm = () => {
 
   if (previewMode) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8 px-4">
+      <div className="min-h-screen bg-gray-50 py-8 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <button
@@ -246,11 +246,11 @@ const JobForm = () => {
             <div></div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             {/* Job Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-8">
+            <div className="bg-[#0d6d6e] text-white p-8">
               <h1 className="text-3xl font-bold mb-2">{formData.title}</h1>
-              <div className="flex items-center space-x-6 text-blue-100">
+              <div className="flex items-center space-x-6 text-white/80">
                 <div className="flex items-center space-x-2">
                   <FaBuilding />
                   <span>{formData.company}</span>
@@ -271,9 +271,9 @@ const JobForm = () => {
             {/* Job Details */}
             <div className="p-8">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <h3 className="font-semibold text-blue-900 mb-2">Job Type</h3>
-                  <p className="text-blue-700">{formData.jobType}</p>
+                <div className="bg-[#e6f3f3] p-4 rounded-lg">
+                  <h3 className="font-semibold text-[#095555] mb-2">Job Type</h3>
+                  <p className="text-[#0d6d6e]">{formData.jobType}</p>
                 </div>
                 <div className="bg-purple-50 p-4 rounded-lg">
                   <h3 className="font-semibold text-purple-900 mb-2">Work Type</h3>
@@ -310,7 +310,7 @@ const JobForm = () => {
                     <h3 className="text-xl font-bold text-gray-900 mb-3">Required Skills</h3>
                     <div className="flex flex-wrap gap-2">
                       {formData.skills.filter(skill => skill.trim()).map((skill, index) => (
-                        <span key={index} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                        <span key={index} className="bg-blue-100 text-[#095555] px-3 py-1 rounded-full text-sm font-medium">
                           {skill}
                         </span>
                       ))}
@@ -339,7 +339,7 @@ const JobForm = () => {
             <button
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+              className="bg-[#0d6d6e] text-white px-6 py-2.5 rounded-lg font-medium hover:bg-[#095555] transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <div className="flex items-center space-x-2">
@@ -370,7 +370,7 @@ const JobForm = () => {
             placeholder="e.g. Senior Software Engineer"
             value={formData.title}
             onChange={handleChange}
-            className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all ${
+            className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none transition-all ${
               errors.title ? "border-red-500" : "border-gray-300"
             }`}
           />
@@ -390,7 +390,7 @@ const JobForm = () => {
             placeholder="e.g. TechCorp Inc."
             value={formData.company}
             onChange={handleChange}
-            className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all ${
+            className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none transition-all ${
               errors.company ? "border-red-500" : "border-gray-300"
             }`}
           />
@@ -423,7 +423,7 @@ const JobForm = () => {
             name="category"
             value={formData.category}
             onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none"
           >
             <option value="Technology">Technology</option>
             <option value="Finance">Finance</option>
@@ -446,7 +446,7 @@ const JobForm = () => {
             name="jobType"
             value={formData.jobType}
             onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none"
           >
             <option value="Full-time">Full-time</option>
             <option value="Part-time">Part-time</option>
@@ -464,7 +464,7 @@ const JobForm = () => {
             name="workType"
             value={formData.workType}
             onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none"
           >
             <option value="On-site">On-site</option>
             <option value="Remote">Remote</option>
@@ -480,7 +480,7 @@ const JobForm = () => {
             name="experience"
             value={formData.experience}
             onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none"
           >
             <option value="Entry-level">Entry-level</option>
             <option value="Mid-level">Mid-level</option>
@@ -503,7 +503,7 @@ const JobForm = () => {
               placeholder="e.g. $80,000 - $120,000"
               value={formData.salary}
               onChange={handleChange}
-              className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none ${
+              className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none ${
                 errors.salary ? "border-red-500" : "border-gray-300"
               }`}
             />
@@ -519,7 +519,7 @@ const JobForm = () => {
             name="salaryType"
             value={formData.salaryType}
             onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none"
           >
             <option value="yearly">Per Year</option>
             <option value="monthly">Per Month</option>
@@ -545,7 +545,7 @@ const JobForm = () => {
                 placeholder={placeholder}
                 value={item}
                 onChange={(e) => handleArrayField(field, index, e.target.value)}
-                className={`w-full ${icon ? 'pl-10' : 'pl-4'} pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none`}
+                className={`w-full ${icon ? 'pl-10' : 'pl-4'} pr-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none`}
               />
             </div>
             <button
@@ -561,7 +561,7 @@ const JobForm = () => {
         <button
           type="button"
           onClick={() => addArrayField(field)}
-          className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 font-medium transition-colors"
+          className="flex items-center space-x-2 text-[#0d6d6e] hover:text-[#095555] font-medium transition-colors"
         >
           <FaPlus />
           <span>Add {label.toLowerCase().slice(0, -1)}</span>
@@ -585,16 +585,16 @@ const JobForm = () => {
             placeholder="Describe the role, responsibilities, and what makes this position exciting..."
             value={formData.description}
             onChange={handleChange}
-            className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-vertical ${
+            className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none resize-vertical ${
               errors.description ? "border-red-500" : "border-gray-300"
             }`}
           />
         </div>
         {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
+        <div className="bg-[#e6f3f3] border border-[#0d6d6e]/20 rounded-lg p-4 mt-4">
           <div className="flex items-start space-x-2">
-            <FaLightbulb className="text-blue-600 mt-1 flex-shrink-0" />
-            <div className="text-blue-800 text-sm">
+            <FaLightbulb className="text-[#0d6d6e] mt-1 flex-shrink-0" />
+            <div className="text-[#095555] text-sm">
               <p className="font-medium mb-1">💡 Pro Tips for a Great Job Description:</p>
               <ul className="text-xs space-y-1">
                 <li>• Start with an engaging overview of your company</li>
@@ -633,7 +633,7 @@ const JobForm = () => {
                 placeholder="https://yourcompany.com/careers/apply"
                 value={formData.applicationUrl}
                 onChange={handleChange}
-                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all ${
+                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none transition-all ${
                   errors.applicationUrl ? "border-red-500" : "border-gray-300"
                 }`}
               />
@@ -653,7 +653,7 @@ const JobForm = () => {
                 placeholder="careers@yourcompany.com"
                 value={formData.applicationEmail}
                 onChange={handleChange}
-                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all ${
+                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none transition-all ${
                   errors.applicationEmail ? "border-red-500" : "border-gray-300"
                 }`}
               />
@@ -667,7 +667,7 @@ const JobForm = () => {
 
   const renderStep3 = () => (
     <div className="text-center space-y-6">
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8">
+      <div className="bg-gray-50 rounded-lg p-8">
         <h3 className="text-2xl font-bold text-gray-900 mb-4">Review Your Job Posting</h3>
         <p className="text-gray-600 mb-6">
           Take a moment to review all the details before publishing your job. You can make changes if needed.
@@ -676,7 +676,7 @@ const JobForm = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-left">
           <div className="bg-white rounded-lg p-4 border border-gray-200">
             <div className="flex items-center space-x-2 mb-2">
-              <FaBriefcase className="text-blue-600" />
+              <FaBriefcase className="text-[#0d6d6e]" />
               <span className="font-semibold text-gray-900">Position</span>
             </div>
             <p className="text-gray-700">{formData.title}</p>
@@ -685,7 +685,7 @@ const JobForm = () => {
 
           <div className="bg-white rounded-lg p-4 border border-gray-200">
             <div className="flex items-center space-x-2 mb-2">
-              <FaMapMarkerAlt className="text-blue-600" />
+              <FaMapMarkerAlt className="text-[#0d6d6e]" />
               <span className="font-semibold text-gray-900">Location</span>
             </div>
             <p className="text-gray-700">{formData.location}</p>
@@ -694,7 +694,7 @@ const JobForm = () => {
 
           <div className="bg-white rounded-lg p-4 border border-gray-200">
             <div className="flex items-center space-x-2 mb-2">
-              <FaClock className="text-blue-600" />
+              <FaClock className="text-[#0d6d6e]" />
               <span className="font-semibold text-gray-900">Employment</span>
             </div>
             <p className="text-gray-700">{formData.jobType}</p>
@@ -717,15 +717,12 @@ const JobForm = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8 px-4">
+    <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            Post a New{" "}
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Job Opening
-            </span>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
+            Post a New Job Opening
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Find the perfect candidates by creating an engaging job posting that stands out
@@ -742,15 +739,15 @@ const JobForm = () => {
               
               return (
                 <div key={stepNumber} className="flex items-center">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold transition-all duration-300 ${
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-medium transition-colors ${
                     isCompleted ? "bg-green-600 text-white" :
-                    isActive ? "bg-blue-600 text-white" :
+                    isActive ? "bg-[#0d6d6e] text-white" :
                     "bg-gray-200 text-gray-600"
                   }`}>
                     {isCompleted ? <FaCheck /> : stepNumber}
                   </div>
                   <div className="ml-3">
-                    <p className={`font-medium ${isActive ? "text-blue-600" : "text-gray-600"}`}>
+                    <p className={`font-medium ${isActive ? "text-[#0d6d6e]" : "text-gray-600"}`}>
                       Step {stepNumber}
                     </p>
                     <p className="text-sm text-gray-500">
@@ -771,7 +768,7 @@ const JobForm = () => {
         </div>
 
         {/* Form */}
-        <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           <form onSubmit={handleSubmit} className="p-8">
             {currentStep === 1 && renderStep1()}
             {currentStep === 2 && renderStep2()}
@@ -797,7 +794,7 @@ const JobForm = () => {
                 <button
                   type="button"
                   onClick={nextStep}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+                  className="bg-[#0d6d6e] text-white px-6 py-2.5 rounded-lg font-medium hover:bg-[#095555] transition-colors"
                 >
                   Next Step
                 </button>
@@ -805,7 +802,7 @@ const JobForm = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+                  className="bg-[#0d6d6e] text-white px-6 py-2.5 rounded-lg font-medium hover:bg-[#095555] transition-colors disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
                 >
                   {isSubmitting ? (
                     <div className="flex items-center space-x-2">

@@ -80,16 +80,13 @@ const CareerAdvice = () => {
   };
 
   return (
-    <main className="pt-16 bg-gradient-to-br from-blue-50 via-white to-purple-50 min-h-screen">
+    <main className="pt-16 bg-gray-50 min-h-screen">
       {/* Hero Section */}
       <section className="py-20 lg:py-28">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center">
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight">
-              Career{" "}
-              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Advice
-              </span>
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 leading-tight">
+              Career Advice
             </h1>
             <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto">
               Expert insights, tips, and strategies to accelerate your career growth
@@ -104,7 +101,7 @@ const CareerAdvice = () => {
                   placeholder="Search articles..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 text-lg border border-gray-300 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  className="w-full pl-12 pr-4 py-4 text-lg border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none"
                 />
               </div>
             </div>
@@ -120,9 +117,9 @@ const CareerAdvice = () => {
               <button
                 key={category.tag}
                 onClick={() => setSelectedCategory(category.tag)}
-                className={`px-4 py-2 rounded-full font-medium transition-all duration-300 ${
+                className={`px-4 py-2 rounded-full font-medium transition-colors ${
                   selectedCategory === category.tag
-                    ? "bg-blue-600 text-white shadow-lg"
+                    ? "bg-[#0d6d6e] text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
@@ -149,7 +146,7 @@ const CareerAdvice = () => {
 
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-20">
-              <FaSpinner className="animate-spin text-4xl text-blue-600 mb-4" />
+              <FaSpinner className="animate-spin text-4xl text-[#0d6d6e] mb-4" />
               <p className="text-gray-600">Loading articles...</p>
             </div>
           ) : error ? (
@@ -159,7 +156,7 @@ const CareerAdvice = () => {
               <p className="text-gray-600 mb-6">{error}</p>
               <button
                 onClick={() => fetchArticles(selectedCategory)}
-                className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                className="bg-[#0d6d6e] text-white px-6 py-2.5 rounded-lg font-medium hover:bg-[#095555] transition-colors"
               >
                 Try Again
               </button>
@@ -173,7 +170,7 @@ const CareerAdvice = () => {
               </p>
               <button
                 onClick={() => setSearchTerm("")}
-                className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                className="bg-[#0d6d6e] text-white px-6 py-2.5 rounded-lg font-medium hover:bg-[#095555] transition-colors"
               >
                 Clear Search
               </button>
@@ -184,7 +181,7 @@ const CareerAdvice = () => {
                 <article
                   key={article.id}
                   onClick={() => openArticle(article.url)}
-                  className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group"
+                  className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group"
                 >
                   {/* Cover Image */}
                   {article.cover_image && (
@@ -212,11 +209,11 @@ const CareerAdvice = () => {
                     {/* Tags */}
                     {article.tag_list && article.tag_list.length > 0 && (
                       <div className="flex items-center flex-wrap gap-2 mb-3">
-                        <FaTag className="text-blue-600 text-sm" />
+                        <FaTag className="text-[#0d6d6e] text-sm" />
                         {article.tag_list.slice(0, 3).map((tag, index) => (
                           <span
                             key={index}
-                            className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded"
+                            className="text-xs font-medium text-[#0d6d6e] bg-[#e6f3f3] px-2 py-0.5 rounded"
                           >
                             {tag}
                           </span>
@@ -225,7 +222,7 @@ const CareerAdvice = () => {
                     )}
 
                     {/* Title */}
-                    <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors line-clamp-2">
+                    <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-[#0d6d6e] transition-colors line-clamp-2">
                       {article.title}
                     </h3>
 
@@ -275,7 +272,7 @@ const CareerAdvice = () => {
 
                     {/* Read More */}
                     <div className="mt-4 flex items-center justify-end">
-                      <span className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 font-medium transition-colors">
+                      <span className="flex items-center space-x-2 text-[#0d6d6e] hover:text-[#095555] font-medium transition-colors">
                         <span>Read Article</span>
                         <FaExternalLinkAlt className="text-sm" />
                       </span>
