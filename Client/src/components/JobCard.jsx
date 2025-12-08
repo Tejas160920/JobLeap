@@ -3,7 +3,7 @@ import { FaMapMarkerAlt, FaClock, FaDollarSign, FaBriefcase, FaBookmark, FaRegBo
 
 const JobCard = ({ job, isSelected, onSelect }) => {
   const [isBookmarked, setIsBookmarked] = React.useState(false);
-  
+
   const handleBookmark = (e) => {
     e.stopPropagation();
     setIsBookmarked(!isBookmarked);
@@ -29,63 +29,58 @@ const JobCard = ({ job, isSelected, onSelect }) => {
   return (
     <div
       onClick={onSelect}
-      className={`group cursor-pointer rounded-xl p-6 transition-all duration-300 card-hover border ${
-        isSelected 
-          ? "border-blue-500 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-lg" 
-          : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-lg"
+      className={`cursor-pointer rounded-lg p-5 transition-all duration-200 border ${
+        isSelected
+          ? "border-[#0d6d6e] bg-[#f0f9f9] shadow-sm"
+          : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm"
       }`}
     >
-      <div className="flex justify-between items-start mb-4">
+      <div className="flex justify-between items-start mb-3">
         <div className="flex-1">
-          <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
+          <h3 className={`text-lg font-semibold mb-1 ${isSelected ? 'text-[#0d6d6e]' : 'text-gray-900'}`}>
             {job.title}
           </h3>
-          <p className="text-lg font-semibold text-gray-700 mb-1">{job.company}</p>
+          <p className="text-base text-gray-700">{job.company}</p>
         </div>
         <button
           onClick={handleBookmark}
-          className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+          className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
         >
           {isBookmarked ? (
-            <FaBookmark className="text-blue-600" />
+            <FaBookmark className="text-[#0d6d6e]" />
           ) : (
-            <FaRegBookmark className="text-gray-400 group-hover:text-gray-600" />
+            <FaRegBookmark className="text-gray-400" />
           )}
         </button>
       </div>
 
-      <div className="flex items-center text-gray-600 mb-3">
-        <FaMapMarkerAlt className="mr-2 text-sm" />
-        <span className="text-sm">{job.location}</span>
+      <div className="flex items-center text-gray-500 mb-3 text-sm">
+        <FaMapMarkerAlt className="mr-2 text-xs" />
+        <span>{job.location}</span>
       </div>
 
-      <div className="flex flex-wrap gap-3 mb-4">
+      <div className="flex flex-wrap gap-2 mb-4">
         {job.salary && (
-          <div className="flex items-center bg-green-100 text-green-800 px-3 py-1.5 rounded-full text-sm font-medium">
+          <div className="flex items-center bg-[#e6f3f3] text-[#0d6d6e] px-3 py-1 rounded text-sm font-medium">
             <FaDollarSign className="mr-1 text-xs" />
             {job.salary}
           </div>
         )}
-        <div className="flex items-center bg-blue-100 text-blue-800 px-3 py-1.5 rounded-full text-sm font-medium">
+        <div className="flex items-center bg-gray-100 text-gray-700 px-3 py-1 rounded text-sm font-medium">
           <FaBriefcase className="mr-1 text-xs" />
           {job.jobType || job.type || "Full-time"}
         </div>
       </div>
 
-      <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+      <div className="flex items-center justify-between pt-3 border-t border-gray-100">
         <div className="flex items-center text-gray-500 text-sm">
-          <FaClock className="mr-1" />
+          <FaClock className="mr-1 text-xs" />
           {getTimeAgo(job.postedAt)}
         </div>
-        <div className={`text-sm font-medium ${isSelected ? "text-blue-600" : "text-gray-600 group-hover:text-blue-600"} transition-colors`}>
+        <div className={`text-sm font-medium ${isSelected ? "text-[#0d6d6e]" : "text-gray-500"}`}>
           View Details →
         </div>
       </div>
-
-      {/* Subtle gradient overlay when selected */}
-      {isSelected && (
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-purple-600/5 rounded-xl pointer-events-none"></div>
-      )}
     </div>
   );
 };

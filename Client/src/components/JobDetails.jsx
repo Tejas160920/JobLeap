@@ -328,17 +328,17 @@ const JobDetails = ({ job }) => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-6 border-b border-gray-200">
+      <div className="p-6 border-b border-gray-200">
         <div className="flex justify-between items-start mb-4">
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">{job.title}</h1>
-            <div className="flex items-center text-xl font-semibold text-gray-700 mb-2">
-              <FaBuilding className="mr-2 text-blue-600" />
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">{job.title}</h1>
+            <div className="flex items-center text-lg text-gray-700 mb-2">
+              <FaBuilding className="mr-2 text-gray-500" />
               {job.company}
             </div>
-            <div className="flex items-center text-gray-600">
+            <div className="flex items-center text-gray-500 text-sm">
               <FaMapMarkerAlt className="mr-2" />
               <span>{job.location}</span>
               <span className="mx-3">•</span>
@@ -346,11 +346,11 @@ const JobDetails = ({ job }) => {
               <span>Posted {getTimeAgo(job.postedAt)}</span>
             </div>
           </div>
-          
-          <div className="flex space-x-2">
+
+          <div className="flex space-x-1">
             <button
               onClick={handleLike}
-              className="p-3 rounded-full hover:bg-white transition-colors"
+              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
             >
               {isLiked ? (
                 <FaHeart className="text-red-500" />
@@ -360,17 +360,17 @@ const JobDetails = ({ job }) => {
             </button>
             <button
               onClick={handleBookmark}
-              className="p-3 rounded-full hover:bg-white transition-colors"
+              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
             >
               {isBookmarked ? (
-                <FaBookmark className="text-blue-600" />
+                <FaBookmark className="text-[#0d6d6e]" />
               ) : (
                 <FaRegBookmark className="text-gray-400" />
               )}
             </button>
             <button
               onClick={handleShare}
-              className="p-3 rounded-full hover:bg-white transition-colors"
+              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
             >
               <FaShare className="text-gray-400" />
             </button>
@@ -378,29 +378,29 @@ const JobDetails = ({ job }) => {
         </div>
 
         {/* Job badges */}
-        <div className="flex flex-wrap gap-3 mb-6">
+        <div className="flex flex-wrap gap-2 mb-6">
           {job.salary && (
-            <div className="flex items-center bg-green-100 text-green-800 px-4 py-2 rounded-full font-medium">
-              <FaDollarSign className="mr-2" />
+            <div className="flex items-center bg-[#e6f3f3] text-[#0d6d6e] px-3 py-1.5 rounded text-sm font-medium">
+              <FaDollarSign className="mr-1" />
               {job.salary}
             </div>
           )}
-          <div className="flex items-center bg-blue-100 text-blue-800 px-4 py-2 rounded-full font-medium">
-            <FaBriefcase className="mr-2" />
+          <div className="flex items-center bg-gray-100 text-gray-700 px-3 py-1.5 rounded text-sm font-medium">
+            <FaBriefcase className="mr-1" />
             {job.jobType || job.type || "Full-time"}
           </div>
-          <div className="flex items-center bg-purple-100 text-purple-800 px-4 py-2 rounded-full font-medium">
-            <FaClock className="mr-2" />
+          <div className="flex items-center bg-gray-100 text-gray-700 px-3 py-1.5 rounded text-sm font-medium">
+            <FaClock className="mr-1" />
             Remote Friendly
           </div>
         </div>
 
         {/* Action buttons */}
-        <div className="flex space-x-4">
+        <div className="flex space-x-3">
           <button
             onClick={handleApply}
             disabled={isApplying}
-            className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300 btn-hover-lift flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+            className="flex-1 bg-[#0d6d6e] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#095555] transition-colors flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {isApplying ? (
               <>
@@ -410,16 +410,16 @@ const JobDetails = ({ job }) => {
             ) : (
               <>
                 Apply Now
-                <FaExternalLinkAlt className="ml-2" />
+                <FaExternalLinkAlt className="ml-2 text-sm" />
               </>
             )}
           </button>
           <button
             onClick={handleBookmark}
-            className={`px-6 py-3 border-2 rounded-lg font-semibold transition-colors flex items-center ${
+            className={`px-5 py-3 border rounded-lg font-medium transition-colors flex items-center ${
               isBookmarked
-                ? 'border-blue-500 bg-blue-50 text-blue-700'
-                : 'border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50'
+                ? 'border-[#0d6d6e] bg-[#e6f3f3] text-[#0d6d6e]'
+                : 'border-gray-300 text-gray-700 hover:bg-gray-50'
             }`}
           >
             {isBookmarked ? <FaBookmark className="mr-2" /> : <FaRegBookmark className="mr-2" />}
@@ -499,16 +499,15 @@ const JobDetails = ({ job }) => {
         </div>
 
         {/* Company info */}
-        <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">About {job.company}</h3>
-          <p className="text-gray-700 mb-4">
+        <div className="bg-gray-50 rounded-lg p-5 border border-gray-200">
+          <h3 className="text-base font-semibold text-gray-900 mb-2">About {job.company}</h3>
+          <p className="text-gray-600 text-sm mb-3">
             {job.company} is a leading company committed to innovation and excellence.
-            We offer a dynamic work environment where talented individuals can grow their careers
-            and make meaningful contributions to our success.
+            We offer a dynamic work environment where talented individuals can grow their careers.
           </p>
           <button
             onClick={() => navigate('/company-reviews', { state: { companyFilter: job.company } })}
-            className="text-blue-600 hover:text-blue-800 font-medium transition-colors"
+            className="text-[#0d6d6e] hover:text-[#095555] text-sm font-medium transition-colors"
           >
             View Company Profile →
           </button>
@@ -518,30 +517,30 @@ const JobDetails = ({ job }) => {
       {/* Profile Completion Popup */}
       {showProfilePrompt && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-8 max-w-md mx-auto">
+          <div className="bg-white rounded-lg p-6 max-w-md mx-auto">
             <div className="text-center">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <FaBriefcase className="text-blue-600 text-2xl" />
+              <div className="w-12 h-12 bg-[#e6f3f3] rounded-full flex items-center justify-center mx-auto mb-4">
+                <FaBriefcase className="text-[#0d6d6e] text-lg" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">
+              <h3 className="text-xl font-bold text-gray-900 mb-3">
                 Complete Your Profile
               </h3>
-              <p className="text-gray-600 mb-6">
+              <p className="text-gray-600 mb-5 text-sm">
                 To get better job matches and apply for positions, please complete your profile first.
               </p>
-              <div className="flex space-x-4">
+              <div className="flex space-x-3">
                 <button
                   onClick={() => {
                     setShowProfilePrompt(false);
                     navigate('/complete-profile');
                   }}
-                  className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+                  className="flex-1 bg-[#0d6d6e] text-white py-2.5 rounded-lg font-medium hover:bg-[#095555] transition-colors"
                 >
                   Complete Profile
                 </button>
                 <button
                   onClick={() => setShowProfilePrompt(false)}
-                  className="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+                  className="flex-1 border border-gray-300 text-gray-700 py-2.5 rounded-lg font-medium hover:bg-gray-50 transition-colors"
                 >
                   Later
                 </button>
@@ -554,32 +553,32 @@ const JobDetails = ({ job }) => {
       {/* Application Confirmation Popup */}
       {showApplicationConfirm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-8 max-w-md mx-auto shadow-2xl">
+          <div className="bg-white rounded-lg p-6 max-w-md mx-auto shadow-lg">
             <div className="text-center">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <FaBriefcase className="text-green-600 text-2xl" />
+              <div className="w-12 h-12 bg-[#e6f3f3] rounded-full flex items-center justify-center mx-auto mb-4">
+                <FaCheckCircle className="text-[#0d6d6e] text-lg" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">
+              <h3 className="text-xl font-bold text-gray-900 mb-3">
                 Did you apply?
               </h3>
-              <p className="text-gray-600 mb-6">
+              <p className="text-gray-600 mb-5 text-sm">
                 Did you complete your application for <span className="font-semibold">{job.title}</span> at <span className="font-semibold">{job.company}</span>?
               </p>
-              <div className="flex space-x-4">
+              <div className="flex space-x-3">
                 <button
                   onClick={() => confirmApplication(true)}
-                  className="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+                  className="flex-1 bg-[#0d6d6e] text-white py-2.5 rounded-lg font-medium hover:bg-[#095555] transition-colors"
                 >
                   Yes, I applied
                 </button>
                 <button
                   onClick={() => confirmApplication(false)}
-                  className="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+                  className="flex-1 border border-gray-300 text-gray-700 py-2.5 rounded-lg font-medium hover:bg-gray-50 transition-colors"
                 >
                   No, not yet
                 </button>
               </div>
-              <p className="text-sm text-gray-500 mt-4">
+              <p className="text-xs text-gray-500 mt-3">
                 This helps us track your applications accurately.
               </p>
             </div>
@@ -597,11 +596,11 @@ const JobDetails = ({ job }) => {
 
       {/* Success Message Toast */}
       {showSuccessMessage && (
-        <div className="fixed bottom-6 right-6 bg-green-600 text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3 z-50 animate-fade-in">
-          <FaCheckCircle className="text-xl" />
+        <div className="fixed bottom-6 right-6 bg-[#0d6d6e] text-white px-5 py-3 rounded-lg shadow-lg flex items-center space-x-3 z-50 fade-in">
+          <FaCheckCircle className="text-lg" />
           <div>
-            <p className="font-semibold">Application Tracked!</p>
-            <p className="text-sm text-green-100">View it in My Applications</p>
+            <p className="font-medium text-sm">Application Tracked!</p>
+            <p className="text-xs text-white/80">View it in My Applications</p>
           </div>
         </div>
       )}

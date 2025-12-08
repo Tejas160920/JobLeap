@@ -1,7 +1,23 @@
 /* Custom fonts - must be first */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 @import "tailwindcss";
+
+/* CSS Variables for Professional Theme */
+:root {
+  --primary: #0d6d6e;
+  --primary-dark: #095555;
+  --primary-light: #e6f3f3;
+  --secondary: #1a1a2e;
+  --accent: #16a085;
+  --text-dark: #1a1a2e;
+  --text-medium: #4a5568;
+  --text-light: #718096;
+  --bg-light: #f8fafa;
+  --bg-white: #ffffff;
+  --border-light: #e2e8f0;
+  --border-medium: #cbd5e0;
+}
 
 * {
   box-sizing: border-box;
@@ -16,6 +32,7 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  color: var(--text-dark);
 }
 
 /* Custom scrollbar */
@@ -38,30 +55,39 @@ body {
 
 /* Smooth transitions */
 .transition-all {
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
-/* Custom gradient backgrounds */
-.gradient-bg {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+/* Professional button styles */
+.btn-primary {
+  background-color: var(--primary);
+  color: white;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
-.gradient-bg-2 {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+.btn-primary:hover {
+  background-color: var(--primary-dark);
 }
 
-/* Glassmorphism effect */
-.glass {
-  background: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+.btn-secondary {
+  background-color: white;
+  color: var(--text-dark);
+  border: 1px solid var(--border-medium);
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background-color: var(--bg-light);
+  border-color: var(--border-medium);
 }
 
 /* Custom animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -70,17 +96,16 @@ body {
 }
 
 .fade-in {
-  animation: fadeIn 0.6s ease-out;
+  animation: fadeIn 0.4s ease-out;
 }
 
-/* Custom button hover effects */
+/* Subtle button hover effects */
 .btn-hover-lift:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Card hover effects */
+/* Card hover effects - subtle and professional */
 .card-hover:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }

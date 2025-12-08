@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { FaGoogle, FaApple, FaEye, FaEyeSlash, FaEnvelope, FaLock, FaBriefcase } from "react-icons/fa";
+import { FaGoogle, FaEye, FaEyeSlash, FaEnvelope, FaLock, FaBriefcase } from "react-icons/fa";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { API_BASE_URL, API_URL } from "../config/api";
+import { API_BASE_URL } from "../config/api";
 import { isValidEmail } from "../utils/validation";
 
 const Login = () => {
@@ -16,7 +16,6 @@ const Login = () => {
   const [touched, setTouched] = useState({});
 
   useEffect(() => {
-    // Check for OAuth errors
     const oauthError = searchParams.get('error');
     if (oauthError) {
       if (oauthError === 'google_auth_failed') {
@@ -29,7 +28,6 @@ const Login = () => {
     }
   }, [searchParams]);
 
-  // Validate individual fields
   const validateField = (name, value) => {
     switch (name) {
       case 'email':
@@ -44,14 +42,12 @@ const Login = () => {
     }
   };
 
-  // Handle field blur for validation
   const handleBlur = (field) => {
     setTouched(prev => ({ ...prev, [field]: true }));
     const error = validateField(field, field === 'email' ? email : password);
     setFieldErrors(prev => ({ ...prev, [field]: error }));
   };
 
-  // Validate all fields before submission
   const validateForm = () => {
     const errors = {
       email: validateField('email', email),
@@ -66,7 +62,6 @@ const Login = () => {
     e.preventDefault();
     setError("");
 
-    // Validate form before submission
     if (!validateForm()) {
       return;
     }
@@ -90,10 +85,8 @@ const Login = () => {
         localStorage.setItem("userEmail", data.user.email);
         localStorage.setItem("profileCompleted", data.user.profileCompleted);
 
-        // Dispatch event to update Navbar
         window.dispatchEvent(new Event('authChange'));
 
-        // Redirect based on profile completion
         if (!data.user.profileCompleted && data.user.role === 'seeking') {
           navigate("/complete-profile");
         } else {
@@ -111,45 +104,37 @@ const Login = () => {
 
   const handleSocialLogin = (provider) => {
     if (provider === 'Google') {
-      // Redirect to Google OAuth
       window.location.href = `${API_BASE_URL}/auth/google`;
     } else if (provider === 'Apple') {
-      // Redirect to Apple OAuth (if configured)
       window.location.href = `${API_BASE_URL}/auth/apple`;
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center px-4 py-12">
-      {/* Background decoration */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-10 right-10 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-        <div className="absolute bottom-10 left-10 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
-      </div>
-
-      <div className="relative w-full max-w-md">
-        <div className="bg-white/90 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200 p-8">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-md">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="flex items-center justify-center mb-6">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
-                <FaBriefcase className="text-white text-xl" />
+            <div className="flex items-center justify-center mb-5">
+              <div className="w-10 h-10 bg-[#0d6d6e] rounded-lg flex items-center justify-center">
+                <FaBriefcase className="text-white text-lg" />
               </div>
-              <span className="ml-3 text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <span className="ml-2 text-xl font-bold text-gray-900">
                 JobLeap
               </span>
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back</h1>
-            <p className="text-gray-600">Sign in to continue your job search journey</p>
+            <h1 className="text-2xl font-bold text-gray-900 mb-1">Welcome back</h1>
+            <p className="text-gray-500 text-sm">Sign in to continue your job search</p>
           </div>
 
           {/* Social Login Buttons */}
-          <div className="space-y-3 mb-6">
+          <div className="mb-6">
             <button
               onClick={() => handleSocialLogin("Google")}
-              className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 hover:shadow-md transition-all duration-300 transform hover:scale-105"
+              className="w-full flex items-center justify-center px-4 py-2.5 border border-gray-300 rounded-lg text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors"
             >
-              <FaGoogle className="mr-3 text-red-500" />
+              <FaGoogle className="mr-2 text-red-500" />
               Continue with Google
             </button>
           </div>
@@ -157,28 +142,28 @@ const Login = () => {
           {/* Divider */}
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300"></div>
+              <div className="w-full border-t border-gray-200"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-gray-500 font-medium">Or continue with email</span>
+              <span className="px-3 bg-white text-gray-500">Or continue with email</span>
             </div>
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className="mb-4 p-4 bg-red-50 border-l-4 border-red-500 rounded-lg">
-              <p className="text-red-700 text-sm font-medium">{error}</p>
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-700 text-sm">{error}</p>
             </div>
           )}
 
           {/* Login Form */}
-          <form onSubmit={handleLogin} className="space-y-5">
+          <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                 Email Address
               </label>
               <div className="relative">
-                <FaEnvelope className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <FaEnvelope className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm" />
                 <input
                   type="email"
                   id="email"
@@ -190,23 +175,23 @@ const Login = () => {
                     }
                   }}
                   onBlur={() => handleBlur('email')}
-                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all ${
+                  className={`w-full pl-10 pr-4 py-2.5 text-sm border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none transition-colors ${
                     touched.email && fieldErrors.email ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="Enter your email"
                 />
               </div>
               {touched.email && fieldErrors.email && (
-                <p className="text-red-500 text-sm mt-1">{fieldErrors.email}</p>
+                <p className="text-red-500 text-xs mt-1">{fieldErrors.email}</p>
               )}
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
                 Password
               </label>
               <div className="relative">
-                <FaLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <FaLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm" />
                 <input
                   type={showPassword ? "text" : "password"}
                   id="password"
@@ -218,7 +203,7 @@ const Login = () => {
                     }
                   }}
                   onBlur={() => handleBlur('password')}
-                  className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all ${
+                  className={`w-full pl-10 pr-10 py-2.5 text-sm border rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none transition-colors ${
                     touched.password && fieldErrors.password ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="Enter your password"
@@ -228,20 +213,20 @@ const Login = () => {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
-                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                  {showPassword ? <FaEyeSlash className="text-sm" /> : <FaEye className="text-sm" />}
                 </button>
               </div>
               {touched.password && fieldErrors.password && (
-                <p className="text-red-500 text-sm mt-1">{fieldErrors.password}</p>
+                <p className="text-red-500 text-xs mt-1">{fieldErrors.password}</p>
               )}
             </div>
 
             <div className="flex items-center justify-between">
               <label className="flex items-center">
-                <input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                <input type="checkbox" className="rounded border-gray-300 text-[#0d6d6e] focus:ring-[#0d6d6e]" />
                 <span className="ml-2 text-sm text-gray-600">Remember me</span>
               </label>
-              <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-800 font-medium">
+              <Link to="/forgot-password" className="text-sm text-[#0d6d6e] hover:text-[#095555] font-medium">
                 Forgot password?
               </Link>
             </div>
@@ -249,11 +234,11 @@ const Login = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg font-semibold text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300 btn-hover-lift disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+              className="w-full bg-[#0d6d6e] text-white py-2.5 rounded-lg font-medium hover:bg-[#095555] transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div>
                   Signing in...
                 </div>
               ) : (
@@ -263,12 +248,12 @@ const Login = () => {
           </form>
 
           {/* Sign up link */}
-          <div className="mt-8 text-center">
-            <p className="text-gray-600">
+          <div className="mt-6 text-center">
+            <p className="text-gray-600 text-sm">
               Don't have an account?{" "}
               <Link
                 to="/signup"
-                className="text-blue-600 hover:text-blue-800 font-semibold hover:underline transition-colors"
+                className="text-[#0d6d6e] hover:text-[#095555] font-medium"
               >
                 Sign up for free
               </Link>
@@ -277,11 +262,11 @@ const Login = () => {
         </div>
 
         {/* Bottom text */}
-        <p className="text-center text-sm text-gray-500 mt-6">
+        <p className="text-center text-xs text-gray-500 mt-4">
           By signing in, you agree to our{" "}
-          <Link to="/terms" className="text-blue-600 hover:underline">Terms of Service</Link>
+          <Link to="/terms" className="text-[#0d6d6e] hover:underline">Terms of Service</Link>
           {" "}and{" "}
-          <Link to="/privacy" className="text-blue-600 hover:underline">Privacy Policy</Link>
+          <Link to="/privacy" className="text-[#0d6d6e] hover:underline">Privacy Policy</Link>
         </p>
       </div>
     </div>

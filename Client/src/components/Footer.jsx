@@ -5,8 +5,7 @@ import {
   FaTwitter,
   FaLinkedin,
   FaGithub,
-  FaEnvelope,
-  FaHeart
+  FaEnvelope
 } from "react-icons/fa";
 
 const Footer = () => {
@@ -23,18 +22,18 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-gray-900 text-gray-300">
-      <div className="max-w-7xl mx-auto px-6 py-12">
+    <footer className="bg-gray-900 text-gray-400">
+      <div className="max-w-7xl mx-auto px-6 py-10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="col-span-1 md:col-span-1">
             <Link to="/" onClick={scrollToTop} className="flex items-center space-x-2 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <FaBriefcase className="text-white text-xl" />
+              <div className="w-8 h-8 bg-[#0d6d6e] rounded-lg flex items-center justify-center">
+                <FaBriefcase className="text-white text-sm" />
               </div>
-              <span className="text-2xl font-bold text-white">JobLeap</span>
+              <span className="text-xl font-bold text-white">JobLeap</span>
             </Link>
-            <p className="text-gray-400 text-sm mb-4">
+            <p className="text-gray-500 text-sm mb-4">
               Your gateway to finding the perfect remote job. Connect with top companies worldwide.
             </p>
             <div className="flex space-x-4">
@@ -42,47 +41,47 @@ const Footer = () => {
                 href="https://twitter.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-blue-400 transition-colors"
+                className="text-gray-500 hover:text-white transition-colors"
                 aria-label="Twitter"
               >
-                <FaTwitter className="text-xl" />
+                <FaTwitter className="text-lg" />
               </a>
               <a
                 href="https://linkedin.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-blue-400 transition-colors"
+                className="text-gray-500 hover:text-white transition-colors"
                 aria-label="LinkedIn"
               >
-                <FaLinkedin className="text-xl" />
+                <FaLinkedin className="text-lg" />
               </a>
               <a
                 href="https://github.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-blue-400 transition-colors"
+                className="text-gray-500 hover:text-white transition-colors"
                 aria-label="GitHub"
               >
-                <FaGithub className="text-xl" />
+                <FaGithub className="text-lg" />
               </a>
               <a
                 href="mailto:support@jobleap.com"
-                className="hover:text-blue-400 transition-colors"
+                className="text-gray-500 hover:text-white transition-colors"
                 aria-label="Email"
               >
-                <FaEnvelope className="text-xl" />
+                <FaEnvelope className="text-lg" />
               </a>
             </div>
           </div>
 
           {/* Explore */}
           <div>
-            <h3 className="text-white font-semibold mb-4">Explore</h3>
+            <h3 className="text-white font-medium text-sm mb-4">Explore</h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <button
                   onClick={() => handleNavigation('/')}
-                  className="hover:text-white transition-colors text-left"
+                  className="text-gray-500 hover:text-white transition-colors text-left"
                 >
                   Browse Jobs
                 </button>
@@ -90,7 +89,7 @@ const Footer = () => {
               <li>
                 <button
                   onClick={() => handleNavigation('/company-reviews')}
-                  className="hover:text-white transition-colors text-left"
+                  className="text-gray-500 hover:text-white transition-colors text-left"
                 >
                   Company Reviews
                 </button>
@@ -98,7 +97,7 @@ const Footer = () => {
               <li>
                 <button
                   onClick={() => handleNavigation('/career-advice')}
-                  className="hover:text-white transition-colors text-left"
+                  className="text-gray-500 hover:text-white transition-colors text-left"
                 >
                   Career Advice
                 </button>
@@ -108,12 +107,12 @@ const Footer = () => {
 
           {/* Resources */}
           <div>
-            <h3 className="text-white font-semibold mb-4">Resources</h3>
+            <h3 className="text-white font-medium text-sm mb-4">Resources</h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <button
                   onClick={() => handleNavigation('/resume-builder')}
-                  className="hover:text-white transition-colors text-left"
+                  className="text-gray-500 hover:text-white transition-colors text-left"
                 >
                   Resume Builder
                 </button>
@@ -121,7 +120,7 @@ const Footer = () => {
               <li>
                 <button
                   onClick={() => handleNavigation('/my-applications')}
-                  className="hover:text-white transition-colors text-left"
+                  className="text-gray-500 hover:text-white transition-colors text-left"
                 >
                   My Applications
                 </button>
@@ -129,7 +128,7 @@ const Footer = () => {
               <li>
                 <button
                   onClick={() => handleNavigation('/settings')}
-                  className="hover:text-white transition-colors text-left"
+                  className="text-gray-500 hover:text-white transition-colors text-left"
                 >
                   Account Settings
                 </button>
@@ -137,7 +136,7 @@ const Footer = () => {
               <li>
                 <button
                   onClick={() => handleNavigation('/add-job')}
-                  className="hover:text-white transition-colors text-left"
+                  className="text-gray-500 hover:text-white transition-colors text-left"
                 >
                   Post a Job
                 </button>
@@ -147,12 +146,12 @@ const Footer = () => {
 
           {/* Company */}
           <div>
-            <h3 className="text-white font-semibold mb-4">Legal</h3>
+            <h3 className="text-white font-medium text-sm mb-4">Legal</h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <button
                   onClick={() => handleNavigation('/privacy')}
-                  className="hover:text-white transition-colors text-left"
+                  className="text-gray-500 hover:text-white transition-colors text-left"
                 >
                   Privacy Policy
                 </button>
@@ -160,7 +159,7 @@ const Footer = () => {
               <li>
                 <button
                   onClick={() => handleNavigation('/terms')}
-                  className="hover:text-white transition-colors text-left"
+                  className="text-gray-500 hover:text-white transition-colors text-left"
                 >
                   Terms of Service
                 </button>
@@ -168,7 +167,7 @@ const Footer = () => {
               <li>
                 <a
                   href="mailto:support@jobleap.com"
-                  className="hover:text-white transition-colors"
+                  className="text-gray-500 hover:text-white transition-colors"
                 >
                   Contact Us
                 </a>
@@ -178,12 +177,12 @@ const Footer = () => {
         </div>
 
         {/* Bottom */}
-        <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-sm text-gray-500">
+        <div className="border-t border-gray-800 mt-8 pt-6 flex flex-col md:flex-row justify-between items-center">
+          <p className="text-xs text-gray-500">
             &copy; {currentYear} JobLeap. All rights reserved.
           </p>
-          <p className="text-sm text-gray-500 flex items-center mt-4 md:mt-0">
-            Made with <FaHeart className="text-red-500 mx-1" /> for job seekers everywhere
+          <p className="text-xs text-gray-500 mt-3 md:mt-0">
+            Built for job seekers worldwide
           </p>
         </div>
       </div>
