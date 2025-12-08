@@ -191,9 +191,14 @@ const JobDetails = ({ job }) => {
     }
 
     const token = localStorage.getItem("token");
-    if (!token) return;
+    if (!token) {
+      console.error("No token found");
+      return;
+    }
 
     try {
+      console.log("Saving application:", pendingApplicationData);
+
       const res = await fetch(`${API_BASE_URL}/applications`, {
         method: 'POST',
         headers: {
@@ -204,16 +209,20 @@ const JobDetails = ({ job }) => {
       });
 
       const data = await res.json();
+      console.log("Application save response:", data);
 
       if (data.success) {
         // Show success message
         setShowSuccessMessage(true);
         setTimeout(() => setShowSuccessMessage(false), 3000);
       } else {
+        // Show error to user
+        alert(data.message || "Failed to save application. Please try again.");
         console.error("Failed to save application:", data.message);
       }
     } catch (err) {
       console.error("Error saving application:", err);
+      alert("Error saving application. Please try again.");
     } finally {
       setPendingApplicationData(null);
     }
