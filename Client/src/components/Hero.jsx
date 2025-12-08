@@ -3,29 +3,21 @@ import {
   FaSearch,
   FaMapMarkerAlt,
   FaBriefcase,
-  FaFilter,
-  FaLocationArrow,
-  FaGlobe,
-  FaClock
+  FaLocationArrow
 } from "react-icons/fa";
 
 const Hero = ({ onSearch, onViewAllJobs, showCompactMode, onCompanyClick }) => {
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
-  const [jobType, setJobType] = useState("");
-  const [salaryRange, setSalaryRange] = useState("");
 
   const popularSearches = [
-    "Software Engineer", "Data Scientist", "Product Manager", "Designer", "Marketing", "Sales Manager"
-  ];
-
-  const quickFilters = [
-    { label: "Remote", value: "remote", icon: <FaGlobe /> },
-    { label: "Full-time", value: "full-time", icon: <FaClock /> },
-    { label: "Senior Level", value: "senior", icon: <FaBriefcase /> },
-    { label: "Startup", value: "startup", icon: <FaBriefcase /> },
+    "Customer Service",
+    "Data Entry",
+    "Marketing",
+    "Software Engineer",
+    "Project Manager",
+    "Data Analyst"
   ];
 
   const featuredCompanies = [
@@ -34,14 +26,13 @@ const Hero = ({ onSearch, onViewAllJobs, showCompactMode, onCompanyClick }) => {
     { name: "Apple", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Apple_logo_black.svg/1667px-Apple_logo_black.svg.png" },
     { name: "Amazon", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/2560px-Amazon_logo.svg.png" },
     { name: "Meta", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Meta_Platforms_Inc._logo.svg/2560px-Meta_Platforms_Inc._logo.svg.png" },
-    { name: "Tesla", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Tesla_T_symbol.svg/1200px-Tesla_T_symbol.svg.png" },
   ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     if (onSearch) {
-      onSearch({ title, location, jobType, salaryRange });
+      onSearch({ title, location });
     }
     setTimeout(() => {
       setIsLoading(false);
@@ -68,204 +59,124 @@ const Hero = ({ onSearch, onViewAllJobs, showCompactMode, onCompanyClick }) => {
   };
 
   return (
-    <section className="relative bg-white">
-      <div className={`max-w-7xl mx-auto px-6 ${showCompactMode ? 'pt-20 pb-8 lg:pt-24 lg:pb-10' : 'pt-24 pb-16 lg:pt-28 lg:pb-20'}`}>
+    <section className="bg-white border-b border-gray-100">
+      <div className={`max-w-3xl mx-auto px-6 ${showCompactMode ? 'pt-20 pb-10' : 'pt-24 pb-16'}`}>
         <div className="text-center">
           {/* Main headline */}
-          <div className="fade-in">
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 leading-tight">
-              Find your{" "}
-              <span className="text-[#0d6d6e]">dream job</span>
-            </h1>
-            <p className="text-lg md:text-xl text-gray-600 mb-3 max-w-2xl mx-auto">
-              Discover job opportunities from top companies worldwide
-            </p>
-            <p className="text-base text-gray-500 mb-10 max-w-xl mx-auto">
-              Find the perfect role that matches your skills and ambitions
-            </p>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
+            Find a job with JobLeap
+          </h1>
+          <p className="text-gray-500 mb-8">
+            Search thousands of job openings from global companies hiring right now.
+          </p>
+
+          {/* Search form - Stacked like Workable */}
+          <div className="max-w-lg mx-auto mb-6">
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <div className="relative">
+                <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Job title or keyword"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="w-full pl-11 pr-4 py-3 text-base border border-gray-300 rounded-lg focus:border-[#0d6d6e] focus:ring-1 focus:ring-[#0d6d6e] outline-none"
+                />
+              </div>
+
+              <div className="relative">
+                <FaMapMarkerAlt className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="City, state, or 'Remote'"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  className="w-full pl-11 pr-10 py-3 text-base border border-gray-300 rounded-lg focus:border-[#0d6d6e] focus:ring-1 focus:ring-[#0d6d6e] outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={getCurrentLocation}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[#0d6d6e] transition-colors"
+                  title="Use current location"
+                >
+                  <FaLocationArrow className="text-sm" />
+                </button>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-[#0d6d6e] text-white py-3 rounded-lg font-medium hover:bg-[#095555] transition-colors disabled:opacity-70"
+              >
+                {isLoading ? (
+                  <div className="flex items-center justify-center">
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div>
+                    Searching...
+                  </div>
+                ) : (
+                  "Search jobs"
+                )}
+              </button>
+            </form>
           </div>
 
-          {/* Search form */}
-          <div className="max-w-4xl mx-auto mb-10 fade-in">
-            <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg border border-gray-200 p-2">
-              <div className="flex flex-col lg:flex-row gap-2">
-                <div className="flex-1 relative">
-                  <FaBriefcase className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Job title, skills, or company"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    className="w-full pl-11 pr-4 py-3.5 text-base border border-gray-200 focus:border-[#0d6d6e] focus:ring-1 focus:ring-[#0d6d6e] outline-none rounded-lg"
-                  />
-                </div>
-
-                <div className="flex-1 relative">
-                  <FaMapMarkerAlt className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="City, state, or remote"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    className="w-full pl-11 pr-10 py-3.5 text-base border border-gray-200 focus:border-[#0d6d6e] focus:ring-1 focus:ring-[#0d6d6e] outline-none rounded-lg"
-                  />
-                  <button
-                    type="button"
-                    onClick={getCurrentLocation}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[#0d6d6e] transition-colors"
-                    title="Use current location"
-                  >
-                    <FaLocationArrow />
-                  </button>
-                </div>
-
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
-                    className="px-4 py-3.5 bg-gray-50 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors flex items-center border border-gray-200"
-                  >
-                    <FaFilter className="mr-2" />
-                    Filters
-                  </button>
-
-                  <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="bg-[#0d6d6e] text-white px-6 py-3.5 rounded-lg font-medium hover:bg-[#095555] transition-colors flex items-center justify-center min-w-[120px] disabled:opacity-70"
-                  >
-                    {isLoading ? (
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    ) : (
-                      <>
-                        <FaSearch className="mr-2" />
-                        Search
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              {/* Advanced Search Options */}
-              {showAdvancedSearch && (
-                <div className="mt-3 pt-3 border-t border-gray-100">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <select
-                      value={jobType}
-                      onChange={(e) => setJobType(e.target.value)}
-                      className="px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none text-gray-700"
-                    >
-                      <option value="">Any job type</option>
-                      <option value="full-time">Full-time</option>
-                      <option value="part-time">Part-time</option>
-                      <option value="contract">Contract</option>
-                      <option value="remote">Remote</option>
-                    </select>
-                    <select
-                      value={salaryRange}
-                      onChange={(e) => setSalaryRange(e.target.value)}
-                      className="px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none text-gray-700"
-                    >
-                      <option value="">Any salary</option>
-                      <option value="50000-75000">$50k - $75k</option>
-                      <option value="75000-100000">$75k - $100k</option>
-                      <option value="100000-150000">$100k - $150k</option>
-                      <option value="150000+">$150k+</option>
-                    </select>
-                  </div>
-                </div>
-              )}
-            </form>
-
-            {/* Quick Filters */}
-            <div className="mt-6">
-              <p className="text-gray-500 mb-3 text-sm">Quick filters:</p>
-              <div className="flex flex-wrap justify-center gap-2">
-                {quickFilters.map((filter, index) => (
-                  <button
-                    key={index}
-                    onClick={() => {
-                      if (filter.value === 'remote') {
-                        setLocation('Remote');
-                      } else if (filter.value === 'full-time') {
-                        setJobType('full-time');
-                      }
-                    }}
-                    className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-600 hover:border-[#0d6d6e] hover:text-[#0d6d6e] transition-colors flex items-center space-x-2"
-                  >
-                    <span className="text-gray-400">{filter.icon}</span>
-                    <span>{filter.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Popular searches */}
-            <div className="mt-6">
-              <p className="text-gray-500 mb-3 text-sm">Popular searches:</p>
-              <div className="flex flex-wrap justify-center gap-2">
-                {popularSearches.map((search, index) => (
-                  <button
-                    key={index}
-                    onClick={() => {
-                      setTitle(search);
-                      onSearch({ title: search, location, jobType, salaryRange });
-                    }}
-                    className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-100 hover:border-gray-300 transition-colors"
-                  >
-                    {search}
-                  </button>
-                ))}
-              </div>
-            </div>
+          {/* Popular searches - Underlined links like Workable */}
+          <div className="mb-10">
+            <span className="text-gray-500 text-sm">Popular: </span>
+            {popularSearches.map((search, index) => (
+              <span key={index}>
+                <button
+                  onClick={() => {
+                    setTitle(search);
+                    onSearch({ title: search, location });
+                  }}
+                  className="text-gray-700 text-sm underline hover:text-[#0d6d6e] transition-colors"
+                >
+                  {search}
+                </button>
+                {index < popularSearches.length - 1 && <span className="text-gray-400 mx-2">·</span>}
+              </span>
+            ))}
           </div>
 
           {!showCompactMode && (
             <>
               {/* Featured Companies */}
-              <div className="mt-16 mb-12">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">Trusted by leading companies</h2>
+              <div className="py-10 border-t border-gray-100">
+                <p className="text-gray-400 text-sm mb-6">Trusted by leading companies</p>
                 <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
                   {featuredCompanies.map((company, index) => (
                     <div
                       key={index}
                       onClick={() => onCompanyClick && onCompanyClick(company.name)}
-                      className="cursor-pointer opacity-60 hover:opacity-100 transition-opacity"
+                      className="cursor-pointer opacity-30 hover:opacity-70 transition-opacity"
                       title={`Search jobs at ${company.name}`}
                     >
                       <img
                         src={company.logo}
                         alt={company.name}
-                        className="h-6 md:h-8 object-contain grayscale hover:grayscale-0 transition-all"
+                        className="h-5 md:h-6 object-contain"
                       />
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* CTA Section */}
-              <div className="mt-12 py-12 px-8 bg-[#0d6d6e] rounded-xl">
-                <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
-                  Ready to find your next opportunity?
-                </h2>
-                <p className="text-lg text-white/80 mb-6 max-w-xl mx-auto">
-                  Browse thousands of jobs from top companies
-                </p>
-                <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                  <button
-                    onClick={onViewAllJobs}
-                    className="bg-white text-[#0d6d6e] px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors flex items-center justify-center"
-                  >
-                    <FaBriefcase className="mr-2" />
-                    Browse All Jobs
-                  </button>
-                  <button
-                    onClick={() => window.location.href = '/resume-builder'}
-                    className="border-2 border-white text-white px-6 py-3 rounded-lg font-medium hover:bg-white/10 transition-colors"
-                  >
-                    Build Resume
-                  </button>
-                </div>
+              {/* CTA Buttons */}
+              <div className="pt-8 flex flex-col sm:flex-row gap-3 justify-center">
+                <button
+                  onClick={onViewAllJobs}
+                  className="bg-[#0d6d6e] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#095555] transition-colors flex items-center justify-center"
+                >
+                  <FaBriefcase className="mr-2" />
+                  Browse All Jobs
+                </button>
+                <button
+                  onClick={() => window.location.href = '/resume-builder'}
+                  className="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                >
+                  Build Your Resume
+                </button>
               </div>
             </>
           )}
