@@ -47,7 +47,9 @@ const CareerAdvice = () => {
       }
 
       const data = await response.json();
-      setArticles(data);
+      // Filter to only show articles with cover images
+      const articlesWithImages = data.filter(article => article.cover_image);
+      setArticles(articlesWithImages);
     } catch (err) {
       console.error("Error fetching articles:", err);
       setError("Failed to load articles. Please try again later.");
@@ -86,7 +88,7 @@ const CareerAdvice = () => {
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center">
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 leading-tight">
-              Career Advice
+              Career <span className="text-[#0d6d6e]">Advice</span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto">
               Expert insights, tips, and strategies to accelerate your career growth
