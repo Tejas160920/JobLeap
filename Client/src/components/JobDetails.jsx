@@ -26,6 +26,8 @@ const JobDetails = ({ job }) => {
   const [showProfilePrompt, setShowProfilePrompt] = useState(false);
   const [isApplying, setIsApplying] = useState(false);
   const [showATSModal, setShowATSModal] = useState(false);
+  const [showApplicationConfirm, setShowApplicationConfirm] = useState(false);
+  const [pendingApplicationData, setPendingApplicationData] = useState(null);
 
   // Check if job is bookmarked on load
   useEffect(() => {
@@ -115,7 +117,7 @@ const JobDetails = ({ job }) => {
     setIsApplying(true);
 
     try {
-      // Track the application in the database
+      // Prepare application data for later saving
       const isExternal = job._id?.startsWith('remoteok_');
 
       const applicationData = isExternal ? {
@@ -135,20 +137,12 @@ const JobDetails = ({ job }) => {
         jobId: job._id
       };
 
-      const res = await fetch(`${API_BASE_URL}/applications`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(applicationData)
-      });
-
-      const data = await res.json();
-
-      // For external jobs (RemoteOK), save and open the job URL
+      // For external jobs (RemoteOK), open the URL first then ask for confirmation
       if (job.url) {
         window.open(job.url, '_blank', 'noopener,noreferrer');
+        // Store application data and show confirmation popup
+        setPendingApplicationData(applicationData);
+        setShowApplicationConfirm(true);
         return;
       }
 
@@ -159,25 +153,57 @@ const JobDetails = ({ job }) => {
         return;
       }
 
-      // For local jobs with applicationUrl
+      // For local jobs with applicationUrl - open first then confirm
       if (job.applicationUrl) {
         window.open(job.applicationUrl, '_blank', 'noopener,noreferrer');
+        setPendingApplicationData(applicationData);
+        setShowApplicationConfirm(true);
         return;
       }
 
-      // For local jobs with applicationEmail
+      // For local jobs with applicationEmail - open first then confirm
       if (job.applicationEmail) {
         window.location.href = `mailto:${job.applicationEmail}?subject=Application for ${job.title}`;
+        setPendingApplicationData(applicationData);
+        setShowApplicationConfirm(true);
         return;
       }
     } catch (err) {
-      console.error("Error tracking application:", err);
-      // Still open the job URL even if tracking fails
+      console.error("Error during application process:", err);
+      // Still open the job URL even if there's an error
       if (job.url) {
         window.open(job.url, '_blank', 'noopener,noreferrer');
       }
     } finally {
       setIsApplying(false);
+    }
+  };
+
+  // Function to confirm and save the application
+  const confirmApplication = async (didApply) => {
+    setShowApplicationConfirm(false);
+
+    if (!didApply || !pendingApplicationData) {
+      setPendingApplicationData(null);
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      await fetch(`${API_BASE_URL}/applications`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(pendingApplicationData)
+      });
+    } catch (err) {
+      console.error("Error saving application:", err);
+    } finally {
+      setPendingApplicationData(null);
     }
   };
 
@@ -495,6 +521,42 @@ const JobDetails = ({ job }) => {
                   Later
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Application Confirmation Popup */}
+      {showApplicationConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-8 max-w-md mx-auto shadow-2xl">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <FaBriefcase className="text-green-600 text-2xl" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                Did you apply?
+              </h3>
+              <p className="text-gray-600 mb-6">
+                Did you complete your application for <span className="font-semibold">{job.title}</span> at <span className="font-semibold">{job.company}</span>?
+              </p>
+              <div className="flex space-x-4">
+                <button
+                  onClick={() => confirmApplication(true)}
+                  className="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+                >
+                  Yes, I applied
+                </button>
+                <button
+                  onClick={() => confirmApplication(false)}
+                  className="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+                >
+                  No, not yet
+                </button>
+              </div>
+              <p className="text-sm text-gray-500 mt-4">
+                This helps us track your applications accurately.
+              </p>
             </div>
           </div>
         </div>
