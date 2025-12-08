@@ -14,7 +14,8 @@ import {
   FaHeart,
   FaRegHeart,
   FaTags,
-  FaSearch
+  FaSearch,
+  FaCheckCircle
 } from "react-icons/fa";
 import { API_BASE_URL } from "../config/api";
 import ATSCheckModal from "./ATSCheckModal";
@@ -28,6 +29,7 @@ const JobDetails = ({ job }) => {
   const [showATSModal, setShowATSModal] = useState(false);
   const [showApplicationConfirm, setShowApplicationConfirm] = useState(false);
   const [pendingApplicationData, setPendingApplicationData] = useState(null);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   // Check if job is bookmarked on load
   useEffect(() => {
@@ -192,7 +194,7 @@ const JobDetails = ({ job }) => {
     if (!token) return;
 
     try {
-      await fetch(`${API_BASE_URL}/applications`, {
+      const res = await fetch(`${API_BASE_URL}/applications`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -200,6 +202,16 @@ const JobDetails = ({ job }) => {
         },
         body: JSON.stringify(pendingApplicationData)
       });
+
+      const data = await res.json();
+
+      if (data.success) {
+        // Show success message
+        setShowSuccessMessage(true);
+        setTimeout(() => setShowSuccessMessage(false), 3000);
+      } else {
+        console.error("Failed to save application:", data.message);
+      }
     } catch (err) {
       console.error("Error saving application:", err);
     } finally {
@@ -569,6 +581,17 @@ const JobDetails = ({ job }) => {
         job={job}
         onProceedToApply={proceedToApply}
       />
+
+      {/* Success Message Toast */}
+      {showSuccessMessage && (
+        <div className="fixed bottom-6 right-6 bg-green-600 text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3 z-50 animate-fade-in">
+          <FaCheckCircle className="text-xl" />
+          <div>
+            <p className="font-semibold">Application Tracked!</p>
+            <p className="text-sm text-green-100">View it in My Applications</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
