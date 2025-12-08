@@ -120,7 +120,9 @@ const JobDetails = ({ job }) => {
 
     try {
       // Prepare application data for later saving
-      const isExternal = job._id?.startsWith('remoteok_');
+      // Check if job is external (has a prefix like remoteok_, joinrise_, etc. or has a url but no valid MongoDB ObjectId)
+      const isValidObjectId = /^[a-f\d]{24}$/i.test(job._id);
+      const isExternal = !isValidObjectId || job._id?.includes('_');
 
       const applicationData = isExternal ? {
         externalJobId: job._id,
