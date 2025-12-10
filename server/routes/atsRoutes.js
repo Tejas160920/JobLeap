@@ -544,6 +544,122 @@ router.post('/optimize', upload.single('resume'), async (req, res) => {
   }
 });
 
+// POST /api/ats/enhance-text - AI text enhancement for resume builder
+router.post('/enhance-text', async (req, res) => {
+  try {
+    const { text, type } = req.body;
+
+    if (!text || !text.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Text is required for enhancement'
+      });
+    }
+
+    const apiKey = process.env.GROQ_API_KEY;
+    if (!apiKey) {
+      return res.status(503).json({
+        success: false,
+        message: 'AI enhancement service is not configured'
+      });
+    }
+
+    const groq = new Groq({ apiKey });
+
+    // Different prompts based on enhancement type
+    const prompts = {
+      experience: `You are an expert resume writer. Improve this job description bullet point to be more impactful for ATS systems and recruiters.
+
+Rules:
+- Start with a strong action verb (Led, Developed, Implemented, Optimized, Spearheaded, Architected, etc.)
+- Include quantifiable metrics where possible (%, numbers, time saved)
+- Keep it concise (1-2 lines max)
+- Make it ATS-friendly with relevant keywords
+- Focus on impact and results, not just responsibilities
+
+Original text: "${text}"
+
+Respond with ONLY the improved bullet point text, nothing else. No quotes, no explanation.`,
+
+      summary: `You are an expert resume writer. Improve this professional summary to be compelling and ATS-optimized.
+
+Rules:
+- Keep it to 2-3 impactful sentences
+- Highlight years of experience, key skills, and unique value proposition
+- Include relevant industry keywords
+- Make it specific, not generic
+- Avoid first-person pronouns (I, me, my)
+
+Original text: "${text}"
+
+Respond with ONLY the improved summary text, nothing else. No quotes, no explanation.`,
+
+      project: `You are an expert resume writer. Improve this project description to highlight technical skills and impact.
+
+Rules:
+- Mention specific technologies, frameworks, and tools used
+- Highlight the problem solved and impact achieved
+- Include metrics if applicable (users served, performance improvements, etc.)
+- Keep it to 2-3 concise sentences
+- Make it ATS-friendly
+
+Original text: "${text}"
+
+Respond with ONLY the improved project description, nothing else. No quotes, no explanation.`,
+
+      skill: `You are an expert resume writer. Suggest related skills and technologies based on this skill.
+
+Original skill: "${text}"
+
+Respond with a comma-separated list of 5-8 related skills/technologies that are commonly paired with this skill on resumes. Only list the skills, nothing else.`
+    };
+
+    const prompt = prompts[type] || prompts.experience;
+
+    const completion = await groq.chat.completions.create({
+      messages: [
+        {
+          role: 'system',
+          content: 'You are an expert resume writer and career coach. Provide concise, impactful improvements. Respond only with the improved text, no explanations or formatting.'
+        },
+        { role: 'user', content: prompt }
+      ],
+      model: 'llama-3.3-70b-versatile',
+      temperature: 0.7,
+      max_tokens: 300,
+    });
+
+    const enhancedText = completion.choices[0]?.message?.content?.trim() || '';
+
+    if (!enhancedText) {
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to generate enhancement'
+      });
+    }
+
+    res.json({
+      success: true,
+      enhanced: enhancedText
+    });
+
+  } catch (error) {
+    console.error('Text enhancement error:', error);
+
+    if (error.status === 429) {
+      return res.status(429).json({
+        success: false,
+        message: 'Rate limit reached. Please try again in a moment.'
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to enhance text'
+    });
+  }
+});
+
 // Handle multer errors
 router.use((error, req, res, next) => {
   if (error instanceof multer.MulterError) {
