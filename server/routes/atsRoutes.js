@@ -778,11 +778,11 @@ router.post('/generate-cover-letter', upload.single('resume'), async (req, res) 
       enthusiastic: 'Use a passionate, energetic tone. Show genuine excitement about the opportunity.'
     };
 
-    // Length-specific instructions
+    // Length-specific instructions (A4 page ~500 words with normal margins/font)
     const lengthInstructions = {
-      short: { words: '200-250', paragraphs: '2-3' },
-      standard: { words: '300-350', paragraphs: '3-4' },
-      detailed: { words: '400-500', paragraphs: '4-5' }
+      short: { words: '120-150', paragraphs: '2', description: 'VERY SHORT - half page maximum. Be extremely concise.' },
+      standard: { words: '200-250', paragraphs: '3', description: 'ONE PAGE ONLY - standard professional length.' },
+      detailed: { words: '350-400', paragraphs: '4-5', description: 'DETAILED but still professional - comprehensive coverage.' }
     };
 
     const toneGuide = toneInstructions[tone] || toneInstructions.professional;
@@ -826,15 +826,18 @@ Dear Hiring Manager,
 === TONE ===
 ${toneGuide}
 
-=== LENGTH ===
-Target ${lengthGuide.words} words with ${lengthGuide.paragraphs} paragraphs (not counting header).
+=== LENGTH - CRITICAL REQUIREMENT ===
+${lengthGuide.description}
+STRICT WORD LIMIT: ${lengthGuide.words} words MAXIMUM (not counting header/signature).
+EXACTLY ${lengthGuide.paragraphs} paragraphs in the body.
+DO NOT EXCEED THIS LIMIT. Count your words carefully. Shorter is better than longer.
 
 === COVER LETTER CONTENT REQUIREMENTS ===
 
-1. STRUCTURE:
-   - Opening paragraph: Engaging hook mentioning the specific role and company. NO generic openings.
-   - Body paragraph(s): Match candidate's specific experience and skills from their resume to the job requirements. Include specific achievements with numbers/metrics from the resume.
-   - Closing paragraph: Strong call to action, express interest in interview.
+1. STRUCTURE (${lengthGuide.paragraphs} paragraphs only):
+   - Opening: 2-3 sentences max. Hook + role + company.
+   - Body: ${lengthGuide.paragraphs === '2' ? '1 paragraph only' : lengthGuide.paragraphs === '3' ? '1-2 short paragraphs' : '2-3 paragraphs'}. Key achievements matching job requirements.
+   - Closing: 2 sentences max. Call to action.
 
 2. CONTENT RULES:
    - Reference SPECIFIC experiences, projects, and achievements from the candidate's resume
@@ -852,19 +855,26 @@ Target ${lengthGuide.words} words with ${lengthGuide.paragraphs} paragraphs (not
 4. CLOSING:
    - End with: "Sincerely," followed by the candidate's name
 
-Generate the complete cover letter starting with the header. Output ONLY the cover letter, no explanations.`;
+Generate the complete cover letter starting with the header. Output ONLY the cover letter, no explanations. REMEMBER: ${lengthGuide.words} words maximum!`;
+
+    // Adjust max tokens based on length to help enforce limits
+    const maxTokensByLength = {
+      short: 400,    // ~150 words + header
+      standard: 600, // ~250 words + header
+      detailed: 900  // ~400 words + header
+    };
 
     const completion = await groq.chat.completions.create({
       messages: [
         {
           role: 'system',
-          content: 'You are an expert cover letter writer. Generate professional, personalized cover letters using specific details from the candidate\'s resume. Always include the proper header with contact info and date. Output only the cover letter text.'
+          content: `You are an expert cover letter writer who writes CONCISE, impactful letters. You STRICTLY follow word limits. For this letter: MAXIMUM ${lengthGuide.words} words in the body. Be brief and impactful.`
         },
         { role: 'user', content: prompt }
       ],
       model: 'llama-3.3-70b-versatile',
       temperature: 0.7,
-      max_tokens: 1200,
+      max_tokens: maxTokensByLength[length] || 600,
     });
 
     const coverLetter = completion.choices[0]?.message?.content?.trim() || '';

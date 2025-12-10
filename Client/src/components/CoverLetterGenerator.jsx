@@ -251,9 +251,9 @@ const CoverLetterGenerator = () => {
   ];
 
   const lengthOptions = [
-    { value: "short", label: "Short", description: "~250 words, half page" },
-    { value: "standard", label: "Standard", description: "~350 words, 3/4 page" },
-    { value: "detailed", label: "Detailed", description: "~450 words, full page" }
+    { value: "short", label: "Short", description: "~150 words, ½ page" },
+    { value: "standard", label: "Standard", description: "~250 words, 1 page" },
+    { value: "detailed", label: "Detailed", description: "~400 words, full" }
   ];
 
   const tips = [
@@ -594,7 +594,7 @@ const CoverLetterGenerator = () => {
                 <p>✓ Your contact info (from resume)</p>
                 <p>✓ Today's date</p>
                 <p>✓ Hiring Manager salutation</p>
-                <p>✓ {length === "short" ? "2-3" : length === "standard" ? "3-4" : "4-5"} tailored paragraphs</p>
+                <p>✓ {length === "short" ? "2" : length === "standard" ? "3" : "4-5"} tailored paragraphs</p>
                 <p>✓ Professional closing</p>
               </div>
             </div>
