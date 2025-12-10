@@ -804,20 +804,18 @@ router.post('/generate-cover-letter', upload.single('resume'), async (req, res) 
     if (contactInfo.github) headerSection += (contactInfo.linkedin ? ' | ' : '\n') + contactInfo.github;
     if (contactInfo.portfolio) headerSection += '\n' + contactInfo.portfolio;
 
-    const prompt = `You are an expert career coach and professional cover letter writer. Generate a compelling, ATS-optimized cover letter for a job application.
+    const prompt = `You are a top-tier executive recruiter and career strategist who has reviewed 50,000+ cover letters and knows exactly what gets candidates hired at Fortune 500 companies, startups, and everything in between.
 
 === CANDIDATE'S RESUME ===
 ${resumeText}
 
-=== JOB DETAILS ===
+=== TARGET POSITION ===
 Job Title: ${jobTitle}
 Company: ${company}
 Job Description:
 ${jobDescription}
 
-=== FORMATTING REQUIREMENTS ===
-The cover letter MUST start with this exact header format:
-
+=== HEADER FORMAT (use exactly) ===
 ${headerSection || '[Candidate Name]'}
 ${today}
 
@@ -826,36 +824,57 @@ Dear Hiring Manager,
 === TONE ===
 ${toneGuide}
 
-=== LENGTH - CRITICAL REQUIREMENT ===
+=== LENGTH REQUIREMENT ===
 ${lengthGuide.description}
-STRICT WORD LIMIT: ${lengthGuide.words} words MAXIMUM (not counting header/signature).
-EXACTLY ${lengthGuide.paragraphs} paragraphs in the body.
-DO NOT EXCEED THIS LIMIT. Count your words carefully. Shorter is better than longer.
+Word limit: ${lengthGuide.words} words (body only, excluding header/signature).
+Paragraphs: ${lengthGuide.paragraphs}
 
-=== COVER LETTER CONTENT REQUIREMENTS ===
+=== INDUSTRY-STANDARD COVER LETTER FORMULA ===
 
-1. STRUCTURE (${lengthGuide.paragraphs} paragraphs only):
-   - Opening: 2-3 sentences max. Hook + role + company.
-   - Body: ${lengthGuide.paragraphs === '2' ? '1 paragraph only' : lengthGuide.paragraphs === '3' ? '1-2 short paragraphs' : '2-3 paragraphs'}. Key achievements matching job requirements.
-   - Closing: 2 sentences max. Call to action.
+**OPENING PARAGRAPH (2-3 sentences):**
+- Start with a HOOK: A compelling achievement, a connection to the company, or a bold statement about your fit
+- NEVER start with "I am writing to apply..." or "I am interested in..." - these are instant turn-offs
+- Good openers: "After leading [achievement] at [Company], I'm excited to bring that same impact to ${company}..." OR "When I [specific accomplishment], I discovered my passion for [field] - which is why ${company}'s mission resonates deeply..."
+- Mention the EXACT job title and company name
+- Show you've researched the company (reference their product, mission, recent news, or culture)
 
-2. CONTENT RULES:
-   - Reference SPECIFIC experiences, projects, and achievements from the candidate's resume
-   - Include numbers and metrics from their resume (e.g., "increased sales by 30%", "managed team of 5")
-   - Mention the company name naturally 2-3 times
-   - Include 3-5 keywords from the job description
-   - Show genuine knowledge of the role requirements
+**BODY PARAGRAPH(S) (${lengthGuide.paragraphs === '2' ? 'combined with opening' : lengthGuide.paragraphs === '3' ? '1 focused paragraph' : '2 focused paragraphs'}):**
+- Use the "PAR" method: Problem → Action → Result
+- Match YOUR specific achievements to THEIR requirements (mirror their language)
+- Include NUMBERS: revenue generated, percentage improvements, team sizes, users impacted, time saved
+- Focus on IMPACT, not responsibilities ("Increased conversion by 40%" not "Was responsible for conversions")
+- Connect your experience to what they need - show you understand their challenges
+- Use keywords from the job description naturally
 
-3. STYLE RULES:
-   - NO clichés like "I am writing to apply" or "I believe I would be a great fit"
-   - Active voice, strong action verbs
-   - Specific and concrete examples, not vague claims
-   - Professional but engaging
+**CLOSING PARAGRAPH (2 sentences max):**
+- Express genuine enthusiasm for THIS specific role (not generic interest)
+- Include a confident call-to-action: "I'd welcome the opportunity to discuss how my experience in [X] can help ${company} achieve [Y]."
+- NEVER beg or sound desperate ("I hope you'll consider me...")
 
-4. CLOSING:
-   - End with: "Sincerely," followed by the candidate's name
+=== WHAT MAKES A COVER LETTER STAND OUT ===
+✓ Specificity - Names, numbers, results (not vague claims)
+✓ Research - Show you know the company, not just the job posting
+✓ Value proposition - What YOU bring to THEM (not what you want from them)
+✓ Confidence without arrogance - Own your achievements
+✓ Storytelling - One brief story beats a list of qualifications
+✓ Keywords - Mirror language from the job description for ATS
 
-Generate the complete cover letter starting with the header. Output ONLY the cover letter, no explanations. REMEMBER: ${lengthGuide.words} words maximum!`;
+=== ABSOLUTE DON'Ts (hiring managers hate these) ===
+✗ "I am writing to apply for..." (boring, wastes space)
+✗ "I believe I would be a great fit..." (everyone says this)
+✗ "I am a hard worker / team player / detail-oriented" (show, don't tell)
+✗ "Please find my resume attached..." (they know)
+✗ Repeating your entire resume (highlight, don't duplicate)
+✗ Generic praise ("Your company is great...")
+✗ Desperation ("I really need this job...")
+✗ Apologizing ("Although I lack experience in...")
+
+=== SIGNATURE ===
+End with:
+Sincerely,
+${contactInfo.name || '[Candidate Name]'}
+
+Generate the cover letter now. Output ONLY the letter, no commentary. Stay within ${lengthGuide.words} words.`;
 
     // Adjust max tokens based on length to help enforce limits
     const maxTokensByLength = {
@@ -868,12 +887,12 @@ Generate the complete cover letter starting with the header. Output ONLY the cov
       messages: [
         {
           role: 'system',
-          content: `You are an expert cover letter writer who writes CONCISE, impactful letters. You STRICTLY follow word limits. For this letter: MAXIMUM ${lengthGuide.words} words in the body. Be brief and impactful.`
+          content: `You are an elite career strategist who writes cover letters that get results. Your letters have helped candidates land jobs at Google, Goldman Sachs, McKinsey, and top startups. You write CONCISE, IMPACTFUL letters with strong hooks, specific achievements, and confident closing. STRICT word limit: ${lengthGuide.words} words maximum in the body. Quality over quantity - every sentence must earn its place.`
         },
         { role: 'user', content: prompt }
       ],
       model: 'llama-3.3-70b-versatile',
-      temperature: 0.7,
+      temperature: 0.75,
       max_tokens: maxTokensByLength[length] || 600,
     });
 
