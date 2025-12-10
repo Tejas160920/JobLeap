@@ -14,7 +14,9 @@ import {
   FaSortAmountUp,
   FaInfoCircle,
   FaBriefcase,
-  FaGlobe
+  FaGlobe,
+  FaChevronLeft,
+  FaChevronRight
 } from "react-icons/fa";
 import axios from "axios";
 
@@ -36,6 +38,9 @@ const H1BSponsors = () => {
   const [salarySearch, setSalarySearch] = useState("");
   const [salaryResults, setSalaryResults] = useState(null);
   const [salaryLoading, setSalaryLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pagination, setPagination] = useState(null);
+  const ITEMS_PER_PAGE = 21;
 
   const industries = [
     "Technology",
@@ -55,6 +60,11 @@ const H1BSponsors = () => {
       fetchSponsors();
     }, 300);
     return () => clearTimeout(delaySearch);
+  }, [searchTerm, filters, currentPage]);
+
+  // Reset to page 1 when search or filters change
+  useEffect(() => {
+    setCurrentPage(1);
   }, [searchTerm, filters]);
 
   const fetchStats = async () => {
@@ -78,17 +88,27 @@ const H1BSponsors = () => {
         industry: filters.industry,
         sortBy: filters.sortBy,
         sortOrder: filters.sortOrder,
-        limit: 50
+        page: currentPage,
+        limit: ITEMS_PER_PAGE
       });
 
       const response = await axios.get(`${API_URL}/h1b/sponsors?${params}`);
       if (response.data.success) {
         setSponsors(response.data.data);
+        setPagination(response.data.pagination);
       }
     } catch (error) {
       console.error("Error fetching sponsors:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && (!pagination || newPage <= pagination.totalPages)) {
+      setCurrentPage(newPage);
+      // Scroll to top of sponsors section
+      window.scrollTo({ top: 500, behavior: 'smooth' });
     }
   };
 
@@ -334,69 +354,146 @@ const H1BSponsors = () => {
             )}
           </div>
 
+          {/* Results count and pagination info */}
+          {pagination && (
+            <div className="mb-4 text-sm text-gray-600">
+              Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, pagination.totalResults)} of {pagination.totalResults} companies
+            </div>
+          )}
+
           {/* Sponsors Grid */}
           {loading ? (
             <div className="flex items-center justify-center py-20">
               <FaSpinner className="animate-spin text-4xl text-[#0d6d6e]" />
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {sponsors.map((company) => (
-                <div
-                  key={company.slug}
-                  onClick={() => setSelectedCompany(company)}
-                  className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-lg transition-all cursor-pointer"
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <h3 className="text-lg font-bold text-gray-900">{company.name}</h3>
-                      <span className="inline-block mt-1 px-2 py-0.5 bg-[#e6f3f3] text-[#0d6d6e] text-xs font-medium rounded">
-                        {company.industry}
-                      </span>
-                    </div>
-                    <div className="flex items-center space-x-1 text-green-600">
-                      <FaCheckCircle />
-                      <span className="text-sm font-medium">{company.approvalRate}%</span>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                      <div className="text-sm text-gray-500">Total LCAs</div>
-                      <div className="text-xl font-bold text-gray-900">
-                        {formatNumber(company.totalLCAs)}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-sm text-gray-500">Avg Salary</div>
-                      <div className="text-xl font-bold text-[#0d6d6e]">
-                        {formatSalary(company.avgSalary)}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center text-sm text-gray-500">
-                    <FaMapMarkerAlt className="mr-1" />
-                    {company.headquarters.city}, {company.headquarters.state}
-                  </div>
-
-                  {/* Top Job Titles Preview */}
-                  <div className="mt-4 pt-4 border-t border-gray-100">
-                    <div className="text-xs text-gray-500 mb-2">Top Roles:</div>
-                    <div className="flex flex-wrap gap-1">
-                      {company.topJobTitles.slice(0, 3).map((job, idx) => (
-                        <span
-                          key={idx}
-                          className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded"
-                        >
-                          {job.title.split(" ").slice(0, 2).join(" ")}
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {sponsors.map((company) => (
+                  <div
+                    key={company.slug}
+                    onClick={() => setSelectedCompany(company)}
+                    className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-lg transition-all cursor-pointer"
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-900">{company.name}</h3>
+                        <span className="inline-block mt-1 px-2 py-0.5 bg-[#e6f3f3] text-[#0d6d6e] text-xs font-medium rounded">
+                          {company.industry}
                         </span>
-                      ))}
+                      </div>
+                      <div className="flex items-center space-x-1 text-green-600">
+                        <FaCheckCircle />
+                        <span className="text-sm font-medium">{company.approvalRate}%</span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      <div>
+                        <div className="text-sm text-gray-500">Total LCAs</div>
+                        <div className="text-xl font-bold text-gray-900">
+                          {formatNumber(company.totalLCAs)}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-sm text-gray-500">Avg Salary</div>
+                        <div className="text-xl font-bold text-[#0d6d6e]">
+                          {formatSalary(company.avgSalary)}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center text-sm text-gray-500">
+                      <FaMapMarkerAlt className="mr-1" />
+                      {company.headquarters.city}, {company.headquarters.state}
+                    </div>
+
+                    {/* Top Job Titles Preview */}
+                    <div className="mt-4 pt-4 border-t border-gray-100">
+                      <div className="text-xs text-gray-500 mb-2">Top Roles:</div>
+                      <div className="flex flex-wrap gap-1">
+                        {company.topJobTitles.slice(0, 3).map((job, idx) => (
+                          <span
+                            key={idx}
+                            className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded"
+                          >
+                            {job.title.split(" ").slice(0, 2).join(" ")}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </div>
+                ))}
+              </div>
+
+              {/* Pagination Controls */}
+              {pagination && pagination.totalPages > 1 && (
+                <div className="mt-8 flex items-center justify-center gap-2">
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="flex items-center gap-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <FaChevronLeft className="text-sm" />
+                    <span>Previous</span>
+                  </button>
+
+                  <div className="flex items-center gap-1">
+                    {/* First page */}
+                    {currentPage > 2 && (
+                      <>
+                        <button
+                          onClick={() => handlePageChange(1)}
+                          className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                        >
+                          1
+                        </button>
+                        {currentPage > 3 && <span className="px-2 text-gray-400">...</span>}
+                      </>
+                    )}
+
+                    {/* Pages around current */}
+                    {[currentPage - 1, currentPage, currentPage + 1]
+                      .filter(page => page >= 1 && page <= pagination.totalPages)
+                      .map(page => (
+                        <button
+                          key={page}
+                          onClick={() => handlePageChange(page)}
+                          className={`px-3 py-2 border rounded-lg transition-colors ${
+                            page === currentPage
+                              ? "bg-[#0d6d6e] text-white border-[#0d6d6e]"
+                              : "border-gray-300 hover:bg-gray-50"
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      ))}
+
+                    {/* Last page */}
+                    {currentPage < pagination.totalPages - 1 && (
+                      <>
+                        {currentPage < pagination.totalPages - 2 && <span className="px-2 text-gray-400">...</span>}
+                        <button
+                          onClick={() => handlePageChange(pagination.totalPages)}
+                          className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                        >
+                          {pagination.totalPages}
+                        </button>
+                      </>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === pagination.totalPages}
+                    className="flex items-center gap-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span>Next</span>
+                    <FaChevronRight className="text-sm" />
+                  </button>
                 </div>
-              ))}
-            </div>
+              )}
+            </>
           )}
         </div>
       </section>
