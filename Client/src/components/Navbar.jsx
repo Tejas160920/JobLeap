@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaBars, FaTimes, FaBriefcase, FaUser, FaSignOutAlt, FaEdit, FaCog, FaFileAlt } from "react-icons/fa";
+import { FaBars, FaTimes, FaBriefcase, FaUser, FaSignOutAlt, FaEdit, FaCog, FaFileAlt, FaChartBar } from "react-icons/fa";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const Navbar = () => {
@@ -97,6 +97,9 @@ const Navbar = () => {
             </Link>
             <Link to="/h1b-sponsors" className={navLinkClass("/h1b-sponsors")}>
               H1B Sponsors
+            </Link>
+            <Link to="/ats-optimizer" className={navLinkClass("/ats-optimizer")}>
+              ATS Optimizer
             </Link>
           </div>
 
@@ -261,6 +264,13 @@ const Navbar = () => {
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 H1B Sponsors
+              </Link>
+              <Link
+                to="/ats-optimizer"
+                className={`block px-3 py-2 text-sm font-medium rounded-lg ${isActive('/ats-optimizer') ? 'text-[#0d6d6e] bg-[#e6f3f3]' : 'text-gray-600 hover:bg-gray-50'}`}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                ATS Optimizer
               </Link>
 
               {userRole === "hiring" && (
