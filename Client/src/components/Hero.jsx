@@ -6,7 +6,8 @@ import {
   FaFilter,
   FaLocationArrow,
   FaGlobe,
-  FaClock
+  FaClock,
+  FaPassport
 } from "react-icons/fa";
 
 const Hero = ({ onSearch, onViewAllJobs, showCompactMode, onCompanyClick }) => {
@@ -16,6 +17,7 @@ const Hero = ({ onSearch, onViewAllJobs, showCompactMode, onCompanyClick }) => {
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
   const [jobType, setJobType] = useState("");
   const [salaryRange, setSalaryRange] = useState("");
+  const [visaSponsorship, setVisaSponsorship] = useState("");
 
   const popularSearches = [
     "Software Engineer", "Data Scientist", "Product Manager", "Designer", "Marketing", "Sales Manager"
@@ -24,8 +26,8 @@ const Hero = ({ onSearch, onViewAllJobs, showCompactMode, onCompanyClick }) => {
   const quickFilters = [
     { label: "Remote", value: "remote", icon: <FaGlobe /> },
     { label: "Full-time", value: "full-time", icon: <FaClock /> },
+    { label: "Visa Sponsors", value: "visa", icon: <FaPassport /> },
     { label: "Senior Level", value: "senior", icon: <FaBriefcase /> },
-    { label: "Startup", value: "startup", icon: <FaBriefcase /> },
   ];
 
   const featuredCompanies = [
@@ -41,7 +43,7 @@ const Hero = ({ onSearch, onViewAllJobs, showCompactMode, onCompanyClick }) => {
     e.preventDefault();
     setIsLoading(true);
     if (onSearch) {
-      onSearch({ title, location, jobType, salaryRange });
+      onSearch({ title, location, jobType, salaryRange, visaSponsorship });
     }
     setTimeout(() => {
       setIsLoading(false);
@@ -149,7 +151,7 @@ const Hero = ({ onSearch, onViewAllJobs, showCompactMode, onCompanyClick }) => {
               {/* Advanced Search Options */}
               {showAdvancedSearch && (
                 <div className="mt-3 pt-3 border-t border-gray-100">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <select
                       value={jobType}
                       onChange={(e) => setJobType(e.target.value)}
@@ -172,6 +174,15 @@ const Hero = ({ onSearch, onViewAllJobs, showCompactMode, onCompanyClick }) => {
                       <option value="100000-150000">$100k - $150k</option>
                       <option value="150000+">$150k+</option>
                     </select>
+                    <select
+                      value={visaSponsorship}
+                      onChange={(e) => setVisaSponsorship(e.target.value)}
+                      className="px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none text-gray-700"
+                    >
+                      <option value="">Any visa status</option>
+                      <option value="sponsors">Sponsors H1B/Visa</option>
+                      <option value="no-requirement">No visa required</option>
+                    </select>
                   </div>
                 </div>
               )}
@@ -189,11 +200,26 @@ const Hero = ({ onSearch, onViewAllJobs, showCompactMode, onCompanyClick }) => {
                         setLocation('Remote');
                       } else if (filter.value === 'full-time') {
                         setJobType('full-time');
+                      } else if (filter.value === 'visa') {
+                        setVisaSponsorship('sponsors');
+                        setShowAdvancedSearch(true);
                       }
                     }}
-                    className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-600 hover:border-[#0d6d6e] hover:text-[#0d6d6e] transition-colors flex items-center space-x-2"
+                    className={`px-4 py-2 bg-white border rounded-lg text-sm transition-colors flex items-center space-x-2 ${
+                      (filter.value === 'visa' && visaSponsorship === 'sponsors') ||
+                      (filter.value === 'remote' && location === 'Remote') ||
+                      (filter.value === 'full-time' && jobType === 'full-time')
+                        ? 'border-[#0d6d6e] text-[#0d6d6e] bg-[#e6f3f3]'
+                        : 'border-gray-200 text-gray-600 hover:border-[#0d6d6e] hover:text-[#0d6d6e]'
+                    }`}
                   >
-                    <span className="text-gray-400">{filter.icon}</span>
+                    <span className={`${
+                      (filter.value === 'visa' && visaSponsorship === 'sponsors') ||
+                      (filter.value === 'remote' && location === 'Remote') ||
+                      (filter.value === 'full-time' && jobType === 'full-time')
+                        ? 'text-[#0d6d6e]'
+                        : 'text-gray-400'
+                    }`}>{filter.icon}</span>
                     <span>{filter.label}</span>
                   </button>
                 ))}
@@ -209,7 +235,7 @@ const Hero = ({ onSearch, onViewAllJobs, showCompactMode, onCompanyClick }) => {
                     key={index}
                     onClick={() => {
                       setTitle(search);
-                      onSearch({ title: search, location, jobType, salaryRange });
+                      onSearch({ title: search, location, jobType, salaryRange, visaSponsorship });
                     }}
                     className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-100 hover:border-gray-300 transition-colors"
                   >

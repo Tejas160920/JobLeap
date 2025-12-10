@@ -1,5 +1,6 @@
 const Job = require("../models/job");
 const connectDB = require("../config/db");
+const h1bSponsors = require("../data/h1bSponsors");
 
 // Cache for external job APIs (refresh every 30 minutes)
 let jobCache = {
@@ -7,6 +8,39 @@ let jobCache = {
   adzuna: { jobs: [], lastFetch: 0 }
 };
 const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
+
+// Helper function to check if a company sponsors H1B visas
+const checkVisaSponsorship = (companyName) => {
+  if (!companyName) return { sponsors: false, sponsorData: null };
+
+  const companyLower = companyName.toLowerCase().trim();
+
+  // Check against H1B sponsors database
+  const sponsor = h1bSponsors.find(s => {
+    const sponsorLower = s.name.toLowerCase();
+    // Check various matching patterns
+    return sponsorLower.includes(companyLower) ||
+           companyLower.includes(sponsorLower) ||
+           sponsorLower.split(' ')[0] === companyLower.split(' ')[0] ||
+           // Handle common company name variations
+           companyLower.includes(sponsorLower.replace(/,?\s*(inc|llc|corp|ltd|co)\.?$/i, '').trim()) ||
+           sponsorLower.includes(companyLower.replace(/,?\s*(inc|llc|corp|ltd|co)\.?$/i, '').trim());
+  });
+
+  if (sponsor) {
+    return {
+      sponsors: true,
+      sponsorData: {
+        name: sponsor.name,
+        totalLCAs: sponsor.totalLCAs,
+        approvalRate: sponsor.approvalRate,
+        avgSalary: sponsor.avgSalary
+      }
+    };
+  }
+
+  return { sponsors: false, sponsorData: null };
+};
 
 // Fetch jobs from JoinRise API (free, no auth required)
 const fetchJoinRiseJobs = async () => {
@@ -171,7 +205,7 @@ exports.getJobs = async (req, res) => {
     // Ensure DB is connected (important for serverless)
     await connectDB();
 
-    const { title, location, source } = req.query;
+    const { title, location, source, visaSponsorship } = req.query;
 
     // Fetch from all sources in parallel
     const [dbJobs, joinriseJobs, adzunaJobs] = await Promise.all([
@@ -229,6 +263,21 @@ exports.getJobs = async (req, res) => {
       allJobs = filteredJoinrise;
     } else if (source === 'adzuna') {
       allJobs = filteredAdzuna;
+    }
+
+    // Add visa sponsorship data to all jobs
+    allJobs = allJobs.map(job => {
+      const visaInfo = checkVisaSponsorship(job.company);
+      return {
+        ...job,
+        sponsorsVisa: visaInfo.sponsors,
+        sponsorData: visaInfo.sponsorData
+      };
+    });
+
+    // Filter by visa sponsorship if specified
+    if (visaSponsorship === 'sponsors') {
+      allJobs = allJobs.filter(job => job.sponsorsVisa === true);
     }
 
     // Sort by posted date (newest first)

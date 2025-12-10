@@ -21,6 +21,7 @@ const JobSection = ({ filters, showAll, onBackToHome }) => {
         const params = new URLSearchParams();
         if (filters.title) params.append('title', filters.title);
         if (filters.location) params.append('location', filters.location);
+        if (filters.visaSponsorship) params.append('visaSponsorship', filters.visaSponsorship);
 
         // Fetch from real API (local DB + RemoteOK)
         const response = await fetch(`${API_BASE_URL}/jobs?${params.toString()}`);

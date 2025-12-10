@@ -101,6 +101,9 @@ const Navbar = () => {
             <Link to="/ats-optimizer" className={navLinkClass("/ats-optimizer")}>
               ATS Optimizer
             </Link>
+            <Link to="/cover-letter" className={navLinkClass("/cover-letter")}>
+              Cover Letter
+            </Link>
           </div>
 
           {/* Right Side - Desktop */}
@@ -271,6 +274,13 @@ const Navbar = () => {
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 ATS Optimizer
+              </Link>
+              <Link
+                to="/cover-letter"
+                className={`block px-3 py-2 text-sm font-medium rounded-lg ${isActive('/cover-letter') ? 'text-[#0d6d6e] bg-[#e6f3f3]' : 'text-gray-600 hover:bg-gray-50'}`}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Cover Letter
               </Link>
 
               {userRole === "hiring" && (

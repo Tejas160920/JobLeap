@@ -393,7 +393,37 @@ const JobDetails = ({ job }) => {
             <FaClock className="mr-1" />
             Remote Friendly
           </div>
+          {job.sponsorsVisa && (
+            <div className="flex items-center bg-green-100 text-green-700 px-3 py-1.5 rounded text-sm font-medium">
+              <FaCheckCircle className="mr-1" />
+              Sponsors H1B Visa
+            </div>
+          )}
         </div>
+
+        {/* Visa Sponsorship Info Box */}
+        {job.sponsorsVisa && job.sponsorData && (
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <FaCheckCircle className="text-green-600" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-green-800 mb-1">H1B Visa Sponsorship Available</h4>
+                <p className="text-green-700 text-sm mb-2">
+                  {job.sponsorData.name} has a history of sponsoring H1B visas for international candidates.
+                </p>
+                <div className="flex flex-wrap gap-4 text-xs text-green-600">
+                  <span><strong>{job.sponsorData.totalLCAs?.toLocaleString()}</strong> LCAs filed</span>
+                  <span><strong>{job.sponsorData.approvalRate}%</strong> approval rate</span>
+                  {job.sponsorData.avgSalary && (
+                    <span><strong>${job.sponsorData.avgSalary?.toLocaleString()}</strong> avg salary</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Action buttons */}
         <div className="flex space-x-3">

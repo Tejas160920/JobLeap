@@ -1,5 +1,5 @@
 import React from "react";
-import { FaMapMarkerAlt, FaClock, FaDollarSign, FaBriefcase, FaBookmark, FaRegBookmark } from "react-icons/fa";
+import { FaMapMarkerAlt, FaClock, FaDollarSign, FaBriefcase, FaBookmark, FaRegBookmark, FaCheckCircle } from "react-icons/fa";
 
 const JobCard = ({ job, isSelected, onSelect }) => {
   const [isBookmarked, setIsBookmarked] = React.useState(false);
@@ -70,6 +70,12 @@ const JobCard = ({ job, isSelected, onSelect }) => {
           <FaBriefcase className="mr-1 text-xs" />
           {job.jobType || job.type || "Full-time"}
         </div>
+        {job.sponsorsVisa && (
+          <div className="flex items-center bg-green-100 text-green-700 px-3 py-1 rounded text-sm font-medium">
+            <FaCheckCircle className="mr-1 text-xs" />
+            Sponsors Visa
+          </div>
+        )}
       </div>
 
       <div className="flex items-center justify-between pt-3 border-t border-gray-100">

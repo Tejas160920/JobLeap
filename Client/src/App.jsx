@@ -16,6 +16,7 @@ import CareerAdvice from './components/CareerAdvice';
 import ResumeBuilder from './components/ResumeBuilder';
 import H1BSponsors from './components/H1BSponsors';
 import ATSOptimizer from './components/ATSOptimizer';
+import CoverLetterGenerator from './components/CoverLetterGenerator';
 import SignupModal from './components/SignupModal';
 import OAuthCallback from './components/OAuthCallback';
 import RoleSelection from './components/RoleSelection';
@@ -125,6 +126,7 @@ function AppContent() {
           <Route path="/resume-builder" element={<ResumeBuilder />} />
           <Route path="/h1b-sponsors" element={<H1BSponsors />} />
           <Route path="/ats-optimizer" element={<ATSOptimizer />} />
+          <Route path="/cover-letter" element={<CoverLetterGenerator />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/complete-profile" element={<ProfileCompletion />} />

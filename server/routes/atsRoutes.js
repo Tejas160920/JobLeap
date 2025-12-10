@@ -660,6 +660,141 @@ Respond with a comma-separated list of 5-8 related skills/technologies that are 
   }
 });
 
+// POST /api/ats/generate-cover-letter - AI-powered cover letter generation
+router.post('/generate-cover-letter', async (req, res) => {
+  try {
+    const { jobDescription, jobTitle, company, resumeText, tone = 'professional' } = req.body;
+
+    if (!jobDescription || !jobDescription.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Job description is required'
+      });
+    }
+
+    if (!jobTitle || !jobTitle.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Job title is required'
+      });
+    }
+
+    if (!company || !company.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Company name is required'
+      });
+    }
+
+    const apiKey = process.env.GROQ_API_KEY;
+    if (!apiKey) {
+      return res.status(503).json({
+        success: false,
+        message: 'Cover letter generation service is not configured'
+      });
+    }
+
+    const groq = new Groq({ apiKey });
+
+    // Tone-specific instructions
+    const toneInstructions = {
+      professional: 'Use a formal, business-appropriate tone. Be polished and respectful.',
+      friendly: 'Use a warm, personable tone while remaining professional. Show genuine enthusiasm.',
+      confident: 'Use a bold, assertive tone. Highlight achievements confidently without being arrogant.',
+      enthusiastic: 'Use a passionate, energetic tone. Show genuine excitement about the opportunity.'
+    };
+
+    const toneGuide = toneInstructions[tone] || toneInstructions.professional;
+
+    const prompt = `You are an expert career coach and professional cover letter writer. Generate a compelling, ATS-optimized cover letter for a job application.
+
+=== JOB DETAILS ===
+Job Title: ${jobTitle}
+Company: ${company}
+Job Description:
+${jobDescription}
+
+${resumeText ? `=== CANDIDATE BACKGROUND ===
+${resumeText}` : ''}
+
+=== TONE ===
+${toneGuide}
+
+=== COVER LETTER REQUIREMENTS ===
+
+1. STRUCTURE (3-4 paragraphs):
+   - Opening: Hook that shows enthusiasm and states the position. Don't use generic openings like "I am writing to apply for..."
+   - Body (1-2 paragraphs): Match your skills/experience to key requirements. Use specific examples from the resume if provided.
+   - Closing: Strong call to action expressing interest in discussing the role further.
+
+2. CONTENT RULES:
+   - Address the letter to "Hiring Manager" (not "To Whom It May Concern")
+   - Mention the company name at least twice naturally
+   - Include 3-5 keywords from the job description
+   - Reference specific achievements with numbers if the candidate background is provided
+   - Show knowledge of the company or role (based on the job description)
+   - Keep total length to 250-350 words
+
+3. STYLE RULES:
+   - No clichés or generic phrases
+   - Active voice, strong verbs
+   - Specific and concrete, not vague
+   - Match the tone specified above
+   - Professional formatting with proper spacing
+
+4. DO NOT:
+   - Start with "I am writing to apply for..."
+   - Use phrases like "I believe I would be a great fit"
+   - Include salary expectations
+   - Mention that you're "excited to apply"
+   - Use bullet points (write in paragraph form)
+
+Generate ONLY the cover letter text, nothing else. No explanations before or after. Start directly with "Dear Hiring Manager,"`;
+
+    const completion = await groq.chat.completions.create({
+      messages: [
+        {
+          role: 'system',
+          content: 'You are an expert cover letter writer. Generate professional, compelling cover letters that are ATS-optimized and tailored to specific job descriptions. Always output only the cover letter text, no additional commentary.'
+        },
+        { role: 'user', content: prompt }
+      ],
+      model: 'llama-3.3-70b-versatile',
+      temperature: 0.7,
+      max_tokens: 800,
+    });
+
+    const coverLetter = completion.choices[0]?.message?.content?.trim() || '';
+
+    if (!coverLetter) {
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to generate cover letter'
+      });
+    }
+
+    res.json({
+      success: true,
+      coverLetter
+    });
+
+  } catch (error) {
+    console.error('Cover letter generation error:', error);
+
+    if (error.status === 429) {
+      return res.status(429).json({
+        success: false,
+        message: 'Rate limit reached. Please try again in a moment.'
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to generate cover letter'
+    });
+  }
+});
+
 // Handle multer errors
 router.use((error, req, res, next) => {
   if (error instanceof multer.MulterError) {
