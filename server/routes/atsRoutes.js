@@ -660,10 +660,66 @@ Respond with a comma-separated list of 5-8 related skills/technologies that are 
   }
 });
 
-// POST /api/ats/generate-cover-letter - AI-powered cover letter generation
-router.post('/generate-cover-letter', async (req, res) => {
+// Helper function to extract contact info from resume text
+function extractContactInfo(resumeText) {
+  const contact = {
+    name: null,
+    email: null,
+    phone: null,
+    linkedin: null,
+    github: null,
+    portfolio: null
+  };
+
+  // Extract email
+  const emailMatch = resumeText.match(/[\w.-]+@[\w.-]+\.\w+/);
+  if (emailMatch) contact.email = emailMatch[0];
+
+  // Extract phone (various formats)
+  const phoneMatch = resumeText.match(/(?:\+?1[-.\s]?)?\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}/);
+  if (phoneMatch) contact.phone = phoneMatch[0];
+
+  // Extract LinkedIn
+  const linkedinMatch = resumeText.match(/linkedin\.com\/in\/[\w-]+/i);
+  if (linkedinMatch) contact.linkedin = 'https://' + linkedinMatch[0];
+
+  // Extract GitHub
+  const githubMatch = resumeText.match(/github\.com\/[\w-]+/i);
+  if (githubMatch) contact.github = 'https://' + githubMatch[0];
+
+  // Extract portfolio/website
+  const portfolioMatch = resumeText.match(/(?:portfolio|website|site)[\s:]*(?:https?:\/\/)?[\w.-]+\.\w+/i);
+  if (portfolioMatch) {
+    const url = portfolioMatch[0].replace(/(?:portfolio|website|site)[\s:]*/i, '');
+    contact.portfolio = url.startsWith('http') ? url : 'https://' + url;
+  }
+
+  // Extract name (usually first line or first capitalized words)
+  const lines = resumeText.split('\n').filter(line => line.trim());
+  if (lines.length > 0) {
+    // First non-empty line is usually the name
+    const firstLine = lines[0].trim();
+    // Check if it looks like a name (not an email, phone, or URL)
+    if (firstLine.length < 50 && !firstLine.includes('@') && !firstLine.match(/^[\d(+]/)) {
+      contact.name = firstLine;
+    }
+  }
+
+  return contact;
+}
+
+// POST /api/ats/generate-cover-letter - AI-powered cover letter generation with resume upload
+router.post('/generate-cover-letter', upload.single('resume'), async (req, res) => {
   try {
-    const { jobDescription, jobTitle, company, resumeText, tone = 'professional' } = req.body;
+    const { jobDescription, jobTitle, company, tone = 'professional', length = 'standard' } = req.body;
+
+    // Validate required fields
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please upload your resume'
+      });
+    }
 
     if (!jobDescription || !jobDescription.trim()) {
       return res.status(400).json({
@@ -694,6 +750,24 @@ router.post('/generate-cover-letter', async (req, res) => {
       });
     }
 
+    // Extract text from resume
+    let resumeText;
+    if (req.file.mimetype === 'application/pdf') {
+      resumeText = await extractTextFromPDF(req.file.buffer);
+    } else {
+      resumeText = await extractTextFromDOCX(req.file.buffer);
+    }
+
+    if (!resumeText || resumeText.trim().length < 50) {
+      return res.status(400).json({
+        success: false,
+        message: 'Could not extract enough text from the resume. Please ensure the file contains readable text.'
+      });
+    }
+
+    // Extract contact info from resume
+    const contactInfo = extractContactInfo(resumeText);
+
     const groq = new Groq({ apiKey });
 
     // Tone-specific instructions
@@ -704,9 +778,36 @@ router.post('/generate-cover-letter', async (req, res) => {
       enthusiastic: 'Use a passionate, energetic tone. Show genuine excitement about the opportunity.'
     };
 
+    // Length-specific instructions
+    const lengthInstructions = {
+      short: { words: '200-250', paragraphs: '2-3' },
+      standard: { words: '300-350', paragraphs: '3-4' },
+      detailed: { words: '400-500', paragraphs: '4-5' }
+    };
+
     const toneGuide = toneInstructions[tone] || toneInstructions.professional;
+    const lengthGuide = lengthInstructions[length] || lengthInstructions.standard;
+
+    // Get today's date formatted
+    const today = new Date().toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+
+    // Build header with contact info
+    let headerSection = '';
+    if (contactInfo.name) headerSection += contactInfo.name + '\n';
+    if (contactInfo.email) headerSection += contactInfo.email;
+    if (contactInfo.phone) headerSection += (contactInfo.email ? ' | ' : '') + contactInfo.phone;
+    if (contactInfo.linkedin) headerSection += '\n' + contactInfo.linkedin;
+    if (contactInfo.github) headerSection += (contactInfo.linkedin ? ' | ' : '\n') + contactInfo.github;
+    if (contactInfo.portfolio) headerSection += '\n' + contactInfo.portfolio;
 
     const prompt = `You are an expert career coach and professional cover letter writer. Generate a compelling, ATS-optimized cover letter for a job application.
+
+=== CANDIDATE'S RESUME ===
+${resumeText}
 
 === JOB DETAILS ===
 Job Title: ${jobTitle}
@@ -714,54 +815,56 @@ Company: ${company}
 Job Description:
 ${jobDescription}
 
-${resumeText ? `=== CANDIDATE BACKGROUND ===
-${resumeText}` : ''}
+=== FORMATTING REQUIREMENTS ===
+The cover letter MUST start with this exact header format:
+
+${headerSection || '[Candidate Name]'}
+${today}
+
+Dear Hiring Manager,
 
 === TONE ===
 ${toneGuide}
 
-=== COVER LETTER REQUIREMENTS ===
+=== LENGTH ===
+Target ${lengthGuide.words} words with ${lengthGuide.paragraphs} paragraphs (not counting header).
 
-1. STRUCTURE (3-4 paragraphs):
-   - Opening: Hook that shows enthusiasm and states the position. Don't use generic openings like "I am writing to apply for..."
-   - Body (1-2 paragraphs): Match your skills/experience to key requirements. Use specific examples from the resume if provided.
-   - Closing: Strong call to action expressing interest in discussing the role further.
+=== COVER LETTER CONTENT REQUIREMENTS ===
+
+1. STRUCTURE:
+   - Opening paragraph: Engaging hook mentioning the specific role and company. NO generic openings.
+   - Body paragraph(s): Match candidate's specific experience and skills from their resume to the job requirements. Include specific achievements with numbers/metrics from the resume.
+   - Closing paragraph: Strong call to action, express interest in interview.
 
 2. CONTENT RULES:
-   - Address the letter to "Hiring Manager" (not "To Whom It May Concern")
-   - Mention the company name at least twice naturally
+   - Reference SPECIFIC experiences, projects, and achievements from the candidate's resume
+   - Include numbers and metrics from their resume (e.g., "increased sales by 30%", "managed team of 5")
+   - Mention the company name naturally 2-3 times
    - Include 3-5 keywords from the job description
-   - Reference specific achievements with numbers if the candidate background is provided
-   - Show knowledge of the company or role (based on the job description)
-   - Keep total length to 250-350 words
+   - Show genuine knowledge of the role requirements
 
 3. STYLE RULES:
-   - No clichés or generic phrases
-   - Active voice, strong verbs
-   - Specific and concrete, not vague
-   - Match the tone specified above
-   - Professional formatting with proper spacing
+   - NO clichés like "I am writing to apply" or "I believe I would be a great fit"
+   - Active voice, strong action verbs
+   - Specific and concrete examples, not vague claims
+   - Professional but engaging
 
-4. DO NOT:
-   - Start with "I am writing to apply for..."
-   - Use phrases like "I believe I would be a great fit"
-   - Include salary expectations
-   - Mention that you're "excited to apply"
-   - Use bullet points (write in paragraph form)
+4. CLOSING:
+   - End with: "Sincerely," followed by the candidate's name
 
-Generate ONLY the cover letter text, nothing else. No explanations before or after. Start directly with "Dear Hiring Manager,"`;
+Generate the complete cover letter starting with the header. Output ONLY the cover letter, no explanations.`;
 
     const completion = await groq.chat.completions.create({
       messages: [
         {
           role: 'system',
-          content: 'You are an expert cover letter writer. Generate professional, compelling cover letters that are ATS-optimized and tailored to specific job descriptions. Always output only the cover letter text, no additional commentary.'
+          content: 'You are an expert cover letter writer. Generate professional, personalized cover letters using specific details from the candidate\'s resume. Always include the proper header with contact info and date. Output only the cover letter text.'
         },
         { role: 'user', content: prompt }
       ],
       model: 'llama-3.3-70b-versatile',
       temperature: 0.7,
-      max_tokens: 800,
+      max_tokens: 1200,
     });
 
     const coverLetter = completion.choices[0]?.message?.content?.trim() || '';
@@ -775,7 +878,8 @@ Generate ONLY the cover letter text, nothing else. No explanations before or aft
 
     res.json({
       success: true,
-      coverLetter
+      coverLetter,
+      contactInfo
     });
 
   } catch (error) {
@@ -785,6 +889,13 @@ Generate ONLY the cover letter text, nothing else. No explanations before or aft
       return res.status(429).json({
         success: false,
         message: 'Rate limit reached. Please try again in a moment.'
+      });
+    }
+
+    if (error.message?.includes('PDF') || error.message?.includes('DOCX')) {
+      return res.status(400).json({
+        success: false,
+        message: error.message
       });
     }
 
