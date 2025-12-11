@@ -70,13 +70,34 @@ const calculateSimilarity = (str1, str2) => {
 };
 
 /**
+ * Fetch with timeout helper
+ */
+const fetchWithTimeout = async (url, options = {}, timeout = 10000) => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+    return response;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    throw error;
+  }
+};
+
+/**
  * Fetch jobs from SimplifyJobs Summer Internships
  */
 const fetchSimplifyInternships = async () => {
   try {
-    const response = await fetch(
+    const response = await fetchWithTimeout(
       'https://raw.githubusercontent.com/SimplifyJobs/Summer2025-Internships/dev/.github/scripts/listings.json',
-      { headers: { 'User-Agent': 'JobLeap/1.0' } }
+      { headers: { 'User-Agent': 'JobLeap/1.0' } },
+      15000 // 15 second timeout
     );
 
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -115,9 +136,10 @@ const fetchSimplifyInternships = async () => {
  */
 const fetchSimplifyNewGrad = async () => {
   try {
-    const response = await fetch(
+    const response = await fetchWithTimeout(
       'https://raw.githubusercontent.com/SimplifyJobs/New-Grad-Positions/dev/.github/scripts/listings.json',
-      { headers: { 'User-Agent': 'JobLeap/1.0' } }
+      { headers: { 'User-Agent': 'JobLeap/1.0' } },
+      15000
     );
 
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -156,12 +178,16 @@ const fetchSimplifyNewGrad = async () => {
  */
 const fetchRemoteOK = async () => {
   try {
-    const response = await fetch('https://remoteok.com/api', {
-      headers: {
-        'User-Agent': 'JobLeap/1.0',
-        'Accept': 'application/json'
-      }
-    });
+    const response = await fetchWithTimeout(
+      'https://remoteok.com/api',
+      {
+        headers: {
+          'User-Agent': 'JobLeap/1.0',
+          'Accept': 'application/json'
+        }
+      },
+      10000
+    );
 
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
@@ -205,9 +231,10 @@ const fetchRemoteOK = async () => {
 const fetchSpeedyApplyJobs = async () => {
   try {
     // Fetch the main README which contains USA internships
-    const response = await fetch(
+    const response = await fetchWithTimeout(
       'https://raw.githubusercontent.com/speedyapply/2026-SWE-College-Jobs/main/README.md',
-      { headers: { 'User-Agent': 'JobLeap/1.0' } }
+      { headers: { 'User-Agent': 'JobLeap/1.0' } },
+      10000
     );
 
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -353,6 +380,7 @@ const deduplicateJobs = (jobs) => {
 
 /**
  * Main function to fetch and aggregate all jobs
+ * Uses progressive loading - returns fast sources first, loads others in background
  */
 const fetchAllJobs = async (forceRefresh = false) => {
   const now = Date.now();
@@ -365,68 +393,101 @@ const fetchAllJobs = async (forceRefresh = false) => {
     return aggregatedJobsCache.jobs;
   }
 
-  // If already loading, wait for that to complete
+  // If already loading, return partial cache if available, or wait
   if (initialFetchPromise && !forceRefresh) {
+    if (aggregatedJobsCache.jobs.length > 0) {
+      console.log(`[JobAggregator] Returning ${aggregatedJobsCache.jobs.length} partial cached jobs while loading...`);
+      return aggregatedJobsCache.jobs;
+    }
     console.log('[JobAggregator] Waiting for ongoing fetch...');
     return initialFetchPromise;
   }
 
   // Mark as loading
   aggregatedJobsCache.isLoading = true;
-  console.log('[JobAggregator] Fetching fresh jobs from all sources...');
+  console.log('[JobAggregator] Starting progressive job fetch...');
 
-  // Fetch from all sources in parallel
-  const [
-    simplifyInternships,
-    simplifyNewGrad,
-    remoteOKJobs,
-    speedyApplyJobs
-  ] = await Promise.all([
+  // PHASE 1: Fetch fastest sources first (SimplifyJobs has JSON - very fast)
+  // These typically load in 2-4 seconds
+  const fastSources = await Promise.all([
     fetchSimplifyInternships(),
-    fetchSimplifyNewGrad(),
-    fetchRemoteOK(),
-    fetchSpeedyApplyJobs()
+    fetchSimplifyNewGrad()
   ]);
 
-  // Combine all jobs
-  const allJobs = [
-    ...simplifyInternships,
-    ...simplifyNewGrad,
-    ...remoteOKJobs,
-    ...speedyApplyJobs
-  ];
+  const fastJobs = [...fastSources[0], ...fastSources[1]];
+  const fastActiveJobs = fastJobs.filter(job => job.active !== false);
+  const fastDeduplicated = deduplicateJobs(fastActiveJobs);
+  fastDeduplicated.sort((a, b) => new Date(b.postedAt) - new Date(a.postedAt));
 
-  // Filter out inactive jobs
-  const activeJobs = allJobs.filter(job => job.active !== false);
-
-  // Deduplicate
-  const deduplicated = deduplicateJobs(activeJobs);
-
-  // Sort by date (newest first)
-  deduplicated.sort((a, b) => new Date(b.postedAt) - new Date(a.postedAt));
-
-  // Update cache
+  // Update cache with fast results immediately
   aggregatedJobsCache = {
-    jobs: deduplicated,
+    jobs: fastDeduplicated,
     lastFetch: now,
     sources: {
-      simplify_internships: simplifyInternships.length,
-      simplify_newgrad: simplifyNewGrad.length,
-      remoteok: remoteOKJobs.length,
-      speedyapply: speedyApplyJobs.length,
-      total_before_dedup: allJobs.length,
-      total_after_dedup: deduplicated.length
+      simplify_internships: fastSources[0].length,
+      simplify_newgrad: fastSources[1].length,
+      remoteok: 0,
+      speedyapply: 0,
+      total_before_dedup: fastJobs.length,
+      total_after_dedup: fastDeduplicated.length,
+      loading_complete: false
     },
-    isLoading: false
+    isLoading: true
   };
 
-  // Clear the promise
-  initialFetchPromise = null;
+  console.log(`[JobAggregator] Phase 1 complete: ${fastDeduplicated.length} jobs from fast sources`);
 
-  console.log(`[JobAggregator] Aggregated ${deduplicated.length} unique jobs from ${allJobs.length} total`);
-  console.log('[JobAggregator] Sources:', aggregatedJobsCache.sources);
+  // PHASE 2: Fetch slower sources in background (don't await)
+  const loadSlowSources = async () => {
+    try {
+      const [remoteOKJobs, speedyApplyJobs] = await Promise.all([
+        fetchRemoteOK(),
+        fetchSpeedyApplyJobs()
+      ]);
 
-  return deduplicated;
+      // Combine with existing jobs
+      const allJobs = [
+        ...aggregatedJobsCache.jobs,
+        ...remoteOKJobs,
+        ...speedyApplyJobs
+      ];
+
+      // Filter and deduplicate
+      const activeJobs = allJobs.filter(job => job.active !== false);
+      const deduplicated = deduplicateJobs(activeJobs);
+      deduplicated.sort((a, b) => new Date(b.postedAt) - new Date(a.postedAt));
+
+      // Update cache with all results
+      aggregatedJobsCache = {
+        jobs: deduplicated,
+        lastFetch: Date.now(),
+        sources: {
+          simplify_internships: fastSources[0].length,
+          simplify_newgrad: fastSources[1].length,
+          remoteok: remoteOKJobs.length,
+          speedyapply: speedyApplyJobs.length,
+          total_before_dedup: allJobs.length,
+          total_after_dedup: deduplicated.length,
+          loading_complete: true
+        },
+        isLoading: false
+      };
+
+      initialFetchPromise = null;
+      console.log(`[JobAggregator] Phase 2 complete: ${deduplicated.length} total jobs`);
+    } catch (error) {
+      console.error('[JobAggregator] Phase 2 error:', error.message);
+      aggregatedJobsCache.isLoading = false;
+      aggregatedJobsCache.sources.loading_complete = true;
+      initialFetchPromise = null;
+    }
+  };
+
+  // Start background loading (don't wait for it)
+  loadSlowSources();
+
+  // Return fast results immediately
+  return fastDeduplicated;
 };
 
 /**

@@ -205,10 +205,10 @@ exports.getJobs = async (req, res) => {
     // Ensure DB is connected (important for serverless)
     await connectDB();
 
-    const { title, location, source, visaSponsorship, jobType, page = 1, limit = 50 } = req.query;
+    const { title, location, source, visaSponsorship, jobType } = req.query;
 
     // Fetch from all sources in parallel
-    const [dbJobs, aggregatedJobs, joinriseJobs] = await Promise.all([
+    const [dbJobs, aggregatedJobs] = await Promise.all([
       // Database jobs (user-posted)
       (async () => {
         const filter = {};
@@ -221,10 +221,8 @@ exports.getJobs = async (req, res) => {
         const jobs = await Job.find(filter).sort({ postedAt: -1 });
         return jobs.map(job => ({ ...job.toObject(), source: 'local' }));
       })(),
-      // Aggregated jobs from GitHub repos & APIs
-      fetchAllJobs(),
-      // JoinRise jobs (keeping for variety)
-      fetchJoinRiseJobs()
+      // Aggregated jobs from GitHub repos & APIs (cached for 6 hours)
+      fetchAllJobs()
     ]);
 
     // Filter external jobs based on search criteria
@@ -258,10 +256,9 @@ exports.getJobs = async (req, res) => {
     };
 
     const filteredAggregated = filterExternalJobs(aggregatedJobs);
-    const filteredJoinrise = filterExternalJobs(joinriseJobs);
 
     // Combine all jobs
-    let allJobs = [...dbJobs, ...filteredAggregated, ...filteredJoinrise];
+    let allJobs = [...dbJobs, ...filteredAggregated];
 
     // Filter by source if specified
     if (source === 'local') {
@@ -272,8 +269,6 @@ exports.getJobs = async (req, res) => {
       );
     } else if (source === 'remoteok') {
       allJobs = filteredAggregated.filter(j => j.source === 'remoteok');
-    } else if (source === 'joinrise') {
-      allJobs = filteredJoinrise;
     }
 
     // Remove duplicates by _id (in case of overlap between sources)
@@ -312,17 +307,10 @@ exports.getJobs = async (req, res) => {
     // Sort by posted date (newest first)
     allJobs.sort((a, b) => new Date(b.postedAt) - new Date(a.postedAt));
 
-    // Pagination
-    const startIndex = (parseInt(page) - 1) * parseInt(limit);
-    const endIndex = startIndex + parseInt(limit);
-    const paginatedJobs = allJobs.slice(startIndex, endIndex);
-
+    // Return all jobs (frontend handles pagination)
     res.status(200).json({
-      jobs: paginatedJobs,
-      totalJobs: allJobs.length,
-      currentPage: parseInt(page),
-      totalPages: Math.ceil(allJobs.length / parseInt(limit)),
-      sources: getCacheStats()
+      jobs: allJobs,
+      totalJobs: allJobs.length
     });
   } catch (err) {
     console.error("Error fetching jobs:", err.message, err.stack);
