@@ -158,11 +158,11 @@ const CareerAdvice = () => {
               <div className="grid grid-cols-1 lg:grid-cols-2">
                 {/* Image */}
                 {featuredArticle.cover_image && (
-                  <div className="relative h-64 lg:h-auto lg:min-h-[400px]">
+                  <div className="relative h-64 lg:h-[400px] overflow-hidden">
                     <img
                       src={featuredArticle.cover_image}
                       alt={featuredArticle.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent lg:bg-gradient-to-r lg:from-transparent lg:to-[#0d6d6e]/90" />
                   </div>
