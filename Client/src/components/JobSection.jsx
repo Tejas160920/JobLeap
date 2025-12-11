@@ -31,6 +31,14 @@ const JobSection = ({ filters, showAll, onBackToHome, onFiltersChange, triggerAl
   const [alertSuccess, setAlertSuccess] = useState(false);
   const token = localStorage.getItem("token");
 
+  // Alert modal editable filters
+  const [alertFilters, setAlertFilters] = useState({
+    title: '',
+    location: '',
+    jobType: '',
+    visaSponsorship: ''
+  });
+
   // Sync local filters when props change
   useEffect(() => {
     setLocalFilters({
@@ -41,13 +49,13 @@ const JobSection = ({ filters, showAll, onBackToHome, onFiltersChange, triggerAl
   }, [filters]);
 
   // Generate alert name from filters
-  const generateAlertName = () => {
+  const generateAlertName = (filterSet) => {
     const parts = [];
-    if (filters.title) parts.push(filters.title);
-    if (filters.location) parts.push(filters.location);
-    if (filters.jobType) parts.push(filters.jobType);
-    if (filters.visaSponsorship) parts.push('Visa Sponsorship');
-    return parts.length > 0 ? parts.join(' - ') : 'All Jobs';
+    if (filterSet.title) parts.push(filterSet.title);
+    if (filterSet.location) parts.push(filterSet.location);
+    if (filterSet.jobType) parts.push(filterSet.jobType);
+    if (filterSet.visaSponsorship) parts.push('Visa Sponsorship');
+    return parts.length > 0 ? parts.join(' - ') : 'My Job Alert';
   };
 
   // Open alert modal (for manual creation or after applying filters)
@@ -57,8 +65,16 @@ const JobSection = ({ filters, showAll, onBackToHome, onFiltersChange, triggerAl
       navigate('/login');
       return;
     }
+    // Pre-fill alert filters with current search filters
+    const currentFilters = {
+      title: filters.title || '',
+      location: filters.location || '',
+      jobType: filters.jobType || '',
+      visaSponsorship: filters.visaSponsorship || ''
+    };
+    setAlertFilters(currentFilters);
     if (autoGenName) {
-      setAlertName(generateAlertName());
+      setAlertName(generateAlertName(currentFilters));
     }
     setAlertSuccess(false);
     setShowAlertModal(true);
@@ -79,10 +95,10 @@ const JobSection = ({ filters, showAll, onBackToHome, onFiltersChange, triggerAl
         body: JSON.stringify({
           name: alertName.trim(),
           filters: {
-            title: filters.title || '',
-            location: filters.location || '',
-            jobType: filters.jobType || '',
-            visaSponsorship: filters.visaSponsorship || ''
+            title: alertFilters.title || '',
+            location: alertFilters.location || '',
+            jobType: alertFilters.jobType || '',
+            visaSponsorship: alertFilters.visaSponsorship || ''
           },
           frequency: alertFrequency
         })
@@ -262,15 +278,13 @@ const JobSection = ({ filters, showAll, onBackToHome, onFiltersChange, triggerAl
           
           <div className="flex items-center space-x-3">
             {/* Create Alert Button - always visible */}
-            {token && hasActiveFilters && (
-              <button
-                onClick={() => openAlertModal()}
-                className="flex items-center space-x-2 border border-[#0d6d6e] text-[#0d6d6e] rounded-lg px-4 py-2 hover:bg-[#e6f3f3] transition-colors"
-              >
-                <FaBell />
-                <span className="hidden sm:inline">Create Alert</span>
-              </button>
-            )}
+            <button
+              onClick={() => openAlertModal()}
+              className="flex items-center space-x-2 border border-[#0d6d6e] text-[#0d6d6e] rounded-lg px-4 py-2 hover:bg-[#e6f3f3] transition-colors"
+            >
+              <FaBell />
+              <span className="hidden sm:inline">Create Alert</span>
+            </button>
             <div className="flex items-center space-x-2">
               <FaSort className="text-gray-400" />
               <select
@@ -540,36 +554,7 @@ const JobSection = ({ filters, showAll, onBackToHome, onFiltersChange, triggerAl
                   </button>
                 </div>
 
-                <div className="px-6 py-4 space-y-4">
-                  {/* Current filters summary */}
-                  {hasActiveFilters && (
-                    <div className="p-3 bg-gray-50 rounded-lg">
-                      <p className="text-xs text-gray-500 mb-1">Alert will match jobs with:</p>
-                      <div className="flex flex-wrap gap-2">
-                        {filters.title && (
-                          <span className="px-2 py-1 bg-white border border-gray-200 rounded text-sm text-gray-700">
-                            {filters.title}
-                          </span>
-                        )}
-                        {filters.location && (
-                          <span className="px-2 py-1 bg-white border border-gray-200 rounded text-sm text-gray-700">
-                            {filters.location}
-                          </span>
-                        )}
-                        {filters.jobType && (
-                          <span className="px-2 py-1 bg-white border border-gray-200 rounded text-sm text-gray-700">
-                            {filters.jobType}
-                          </span>
-                        )}
-                        {filters.visaSponsorship && (
-                          <span className="px-2 py-1 bg-white border border-gray-200 rounded text-sm text-gray-700">
-                            Visa Sponsorship
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
+                <div className="px-6 py-4 space-y-4 max-h-[60vh] overflow-y-auto">
                   {/* Alert Name */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -585,7 +570,77 @@ const JobSection = ({ filters, showAll, onBackToHome, onFiltersChange, triggerAl
                     />
                   </div>
 
+                  {/* Editable Filters */}
+                  <div className="border-t border-gray-100 pt-4">
+                    <p className="text-sm font-medium text-gray-700 mb-3">Alert Filters</p>
+
+                    {/* Job Title / Keywords */}
+                    <div className="mb-3">
+                      <label className="flex items-center text-xs text-gray-500 mb-1">
+                        <FaSearch className="mr-1" />
+                        Job Title / Keywords
+                      </label>
+                      <input
+                        type="text"
+                        value={alertFilters.title}
+                        onChange={(e) => setAlertFilters(prev => ({ ...prev, title: e.target.value }))}
+                        placeholder="e.g., Software Engineer, Data Analyst"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e]"
+                      />
+                    </div>
+
+                    {/* Location */}
+                    <div className="mb-3">
+                      <label className="flex items-center text-xs text-gray-500 mb-1">
+                        <FaMapMarkerAlt className="mr-1" />
+                        Location
+                      </label>
+                      <input
+                        type="text"
+                        value={alertFilters.location}
+                        onChange={(e) => setAlertFilters(prev => ({ ...prev, location: e.target.value }))}
+                        placeholder="e.g., New York, Remote, San Francisco"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e]"
+                      />
+                    </div>
+
+                    {/* Job Type and Visa Sponsorship in a row */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="flex items-center text-xs text-gray-500 mb-1">
+                          <FaBriefcase className="mr-1" />
+                          Job Type
+                        </label>
+                        <select
+                          value={alertFilters.jobType}
+                          onChange={(e) => setAlertFilters(prev => ({ ...prev, jobType: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e]"
+                        >
+                          <option value="">All Types</option>
+                          <option value="full-time">Full-time</option>
+                          <option value="part-time">Part-time</option>
+                          <option value="internship">Internship</option>
+                          <option value="contract">Contract</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="flex items-center text-xs text-gray-500 mb-1">
+                          <FaPassport className="mr-1" />
+                          Visa Sponsorship
+                        </label>
+                        <select
+                          value={alertFilters.visaSponsorship}
+                          onChange={(e) => setAlertFilters(prev => ({ ...prev, visaSponsorship: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e]"
+                        >
+                          <option value="">Any</option>
+                          <option value="sponsors">Required</option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
+                </div>
 
                 <div className="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
                   <button
