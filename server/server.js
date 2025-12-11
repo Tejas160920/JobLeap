@@ -151,24 +151,8 @@ const bookmarkRoutes = require("./routes/bookmarkRoutes");
 const applicationRoutes = require("./routes/applicationRoutes");
 const atsRoutes = require("./routes/atsRoutes");
 const h1bRoutes = require("./routes/h1bRoutes");
-
-// Load notification and job alert routes with error handling
-let notificationRoutes, jobAlertRoutes;
-try {
-  notificationRoutes = require("./routes/notificationRoutes");
-  console.log("Notification routes loaded successfully");
-} catch (err) {
-  console.error("Failed to load notification routes:", err.message);
-  notificationRoutes = require("express").Router();
-}
-
-try {
-  jobAlertRoutes = require("./routes/jobAlertRoutes");
-  console.log("Job alert routes loaded successfully");
-} catch (err) {
-  console.error("Failed to load job alert routes:", err.message);
-  jobAlertRoutes = require("express").Router();
-}
+const notificationRoutes = require("./routes/notificationRoutes");
+const jobAlertRoutes = require("./routes/jobAlertRoutes");
 
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api", jobRoutes);
