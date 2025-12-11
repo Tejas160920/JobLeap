@@ -7,12 +7,16 @@
 let aggregatedJobsCache = {
   jobs: [],
   lastFetch: 0,
-  sources: {}
+  sources: {},
+  isLoading: false
 };
 
 // Cache duration: 6 hours for GitHub repos, 4 hours for APIs
 const GITHUB_CACHE_DURATION = 6 * 60 * 60 * 1000; // 6 hours
 const API_CACHE_DURATION = 4 * 60 * 60 * 1000; // 4 hours
+
+// Flag to track if initial fetch is in progress
+let initialFetchPromise = null;
 
 /**
  * Normalize company name for deduplication
@@ -221,6 +225,7 @@ const fetchSpeedyApplyJobs = async () => {
 
 /**
  * Parse markdown table to extract jobs (handles HTML in markdown)
+ * Table structure: | Company | Position | Location | Salary | Apply Link | Age |
  */
 const parseMarkdownTable = (markdown, source) => {
   const jobs = [];
@@ -237,37 +242,49 @@ const parseMarkdownTable = (markdown, source) => {
     // Split by | and clean up
     const cells = line.split('|').map(c => c.trim()).filter(c => c);
 
-    if (cells.length < 4) continue;
+    if (cells.length < 5) continue;
 
-    // Extract company name from markdown/HTML link
+    // Extract company name from first cell (has company homepage link)
     let company = cells[0];
     const companyMatch = company.match(/\*\*([^*]+)\*\*/) || // **Company**
-                         company.match(/>([^<]+)<\//) || // >Company</
+                         company.match(/>([^<]+)<\/strong/) || // >Company</strong
                          company.match(/\[([^\]]+)\]/); // [Company]
     if (companyMatch) company = companyMatch[1];
-    company = company.replace(/<[^>]+>/g, '').trim(); // Remove any remaining HTML
+    company = company.replace(/<[^>]+>/g, '').trim();
 
-    // Extract position
+    // Extract position from second cell
     let position = cells[1];
     position = position.replace(/<[^>]+>/g, '').replace(/\*\*/g, '').trim();
 
-    // Extract location
+    // Extract location from third cell
     let location = cells[2];
     location = location.replace(/<[^>]+>/g, '').trim();
 
-    // Extract salary if present
-    let salary = cells.length > 3 ? cells[3] : '';
+    // Extract salary from fourth cell
+    let salary = cells[3] || '';
     salary = salary.replace(/<[^>]+>/g, '').trim();
 
-    // Extract URL from any cell
+    // Extract APPLY URL from fifth cell (this is the job posting link, not company homepage)
     let url = '';
-    const urlMatch = line.match(/href="([^"]+)"/) || line.match(/\]\(([^)]+)\)/);
-    if (urlMatch) url = urlMatch[1];
+    const applyCell = cells[4] || '';
+    const applyUrlMatch = applyCell.match(/href="([^"]+)"/);
+    if (applyUrlMatch) {
+      url = applyUrlMatch[1];
+    }
+
+    // Skip if URL is just an image or missing
+    if (!url || url.includes('imgur.com')) {
+      // Try to find any other URL in the apply cell
+      const altUrlMatch = applyCell.match(/https?:\/\/[^\s"<>]+/);
+      if (altUrlMatch) url = altUrlMatch[0];
+    }
 
     // Validate we have meaningful data
-    if (company && position && company.length > 1 && position.length > 1 &&
+    if (company && position && url &&
+        company.length > 1 && position.length > 1 &&
         !company.startsWith('$') && !position.startsWith('$') &&
-        !company.includes('img src')) {
+        !company.includes('img src') &&
+        !url.includes('imgur.com')) {
       jobs.push({
         _id: `${source}_${Buffer.from(company + position).toString('base64').slice(0, 12)}`,
         title: position,
@@ -348,6 +365,14 @@ const fetchAllJobs = async (forceRefresh = false) => {
     return aggregatedJobsCache.jobs;
   }
 
+  // If already loading, wait for that to complete
+  if (initialFetchPromise && !forceRefresh) {
+    console.log('[JobAggregator] Waiting for ongoing fetch...');
+    return initialFetchPromise;
+  }
+
+  // Mark as loading
+  aggregatedJobsCache.isLoading = true;
   console.log('[JobAggregator] Fetching fresh jobs from all sources...');
 
   // Fetch from all sources in parallel
@@ -391,8 +416,12 @@ const fetchAllJobs = async (forceRefresh = false) => {
       speedyapply: speedyApplyJobs.length,
       total_before_dedup: allJobs.length,
       total_after_dedup: deduplicated.length
-    }
+    },
+    isLoading: false
   };
+
+  // Clear the promise
+  initialFetchPromise = null;
 
   console.log(`[JobAggregator] Aggregated ${deduplicated.length} unique jobs from ${allJobs.length} total`);
   console.log('[JobAggregator] Sources:', aggregatedJobsCache.sources);
@@ -423,15 +452,46 @@ const clearCache = () => {
   aggregatedJobsCache = {
     jobs: [],
     lastFetch: 0,
-    sources: {}
+    sources: {},
+    isLoading: false
   };
+  initialFetchPromise = null;
   console.log('[JobAggregator] Cache cleared');
+};
+
+/**
+ * Pre-fetch jobs in background (call on server startup)
+ */
+const prefetchJobs = () => {
+  console.log('[JobAggregator] Starting background pre-fetch...');
+  initialFetchPromise = fetchAllJobs(true).catch(err => {
+    console.error('[JobAggregator] Pre-fetch error:', err.message);
+    initialFetchPromise = null;
+  });
+  return initialFetchPromise;
+};
+
+/**
+ * Check if cache has jobs
+ */
+const hasCachedJobs = () => {
+  return aggregatedJobsCache.jobs.length > 0;
+};
+
+/**
+ * Get cached jobs immediately (without fetching)
+ */
+const getCachedJobs = () => {
+  return aggregatedJobsCache.jobs;
 };
 
 module.exports = {
   fetchAllJobs,
   getCacheStats,
   clearCache,
+  prefetchJobs,
+  hasCachedJobs,
+  getCachedJobs,
   // Export individual fetchers for testing
   fetchSimplifyInternships,
   fetchSimplifyNewGrad,

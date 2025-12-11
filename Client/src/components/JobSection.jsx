@@ -12,8 +12,7 @@ const JobSection = ({ filters, showAll, onBackToHome }) => {
   const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalJobs, setTotalJobs] = useState(0);
-  const [sourceStats, setSourceStats] = useState(null);
-  const JOBS_PER_PAGE = 12;
+  const JOBS_PER_PAGE = 20;
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -40,8 +39,7 @@ const JobSection = ({ filters, showAll, onBackToHome }) => {
         }
 
         setJobs(jobsData);
-        setTotalJobs(data.totalJobs || jobsData.length);
-        setSourceStats(data.sources || null);
+        setTotalJobs(jobsData.length);
         setCurrentPage(1);
         setSelectedJob(jobsData[0] || null);
       } catch (error) {
@@ -152,11 +150,6 @@ const JobSection = ({ filters, showAll, onBackToHome }) => {
               {filters.title && `For "${filters.title}"`}
               {filters.title && filters.location && " in "}
               {filters.location && `"${filters.location}"`}
-              {!filters.title && !filters.location && sourceStats && (
-                <span className="text-sm">
-                  From GitHub repos, RemoteOK & more • Updated {sourceStats.cacheAge}
-                </span>
-              )}
             </p>
           </div>
           
@@ -209,16 +202,31 @@ const JobSection = ({ filters, showAll, onBackToHome }) => {
                 <span>Previous</span>
               </button>
               
-              <div className="flex items-center space-x-2">
-                {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                  const pageNum = i + 1;
+              <div className="flex items-center space-x-1">
+                {/* First page */}
+                {currentPage > 3 && (
+                  <>
+                    <button
+                      onClick={() => setCurrentPage(1)}
+                      className="px-3 py-2 rounded-lg font-medium bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                    >
+                      1
+                    </button>
+                    {currentPage > 4 && <span className="text-gray-500 px-1">...</span>}
+                  </>
+                )}
+
+                {/* Page numbers around current */}
+                {Array.from({ length: 5 }, (_, i) => {
+                  const pageNum = Math.max(1, Math.min(currentPage - 2, totalPages - 4)) + i;
+                  if (pageNum < 1 || pageNum > totalPages) return null;
                   return (
                     <button
                       key={pageNum}
                       onClick={() => setCurrentPage(pageNum)}
                       className={`px-3 py-2 rounded-lg font-medium transition-colors ${
                         currentPage === pageNum
-                          ? 'bg-blue-600 text-white'
+                          ? 'bg-[#0d6d6e] text-white'
                           : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
                       }`}
                     >
@@ -226,7 +234,19 @@ const JobSection = ({ filters, showAll, onBackToHome }) => {
                     </button>
                   );
                 })}
-                {totalPages > 5 && <span className="text-gray-500">...</span>}
+
+                {/* Last page */}
+                {currentPage < totalPages - 2 && (
+                  <>
+                    {currentPage < totalPages - 3 && <span className="text-gray-500 px-1">...</span>}
+                    <button
+                      onClick={() => setCurrentPage(totalPages)}
+                      className="px-3 py-2 rounded-lg font-medium bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                    >
+                      {totalPages}
+                    </button>
+                  </>
+                )}
               </div>
               
               <button

@@ -5,6 +5,7 @@ const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const passport = require("passport");
 const connectDB = require("./config/db");
+const { prefetchJobs } = require("./services/jobAggregator");
 
 // Load environment variables
 dotenv.config();
@@ -182,7 +183,14 @@ if (!isVercel) {
     console.log(`Server running on port ${PORT}`);
     console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
     console.log(`CORS enabled for: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
+
+    // Pre-fetch jobs in background on server startup
+    console.log('Starting job pre-fetch in background...');
+    prefetchJobs();
   });
+} else {
+  // On Vercel, pre-fetch on cold start
+  prefetchJobs();
 }
 
 // Export for Vercel
