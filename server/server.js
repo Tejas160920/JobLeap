@@ -139,7 +139,8 @@ app.get("/", (req, res) => {
   res.json({
     message: "JobLeap API is running",
     status: "healthy",
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    version: "2.0.1" // Add version to verify deployment
   });
 });
 
@@ -150,8 +151,24 @@ const bookmarkRoutes = require("./routes/bookmarkRoutes");
 const applicationRoutes = require("./routes/applicationRoutes");
 const atsRoutes = require("./routes/atsRoutes");
 const h1bRoutes = require("./routes/h1bRoutes");
-const notificationRoutes = require("./routes/notificationRoutes");
-const jobAlertRoutes = require("./routes/jobAlertRoutes");
+
+// Load notification and job alert routes with error handling
+let notificationRoutes, jobAlertRoutes;
+try {
+  notificationRoutes = require("./routes/notificationRoutes");
+  console.log("Notification routes loaded successfully");
+} catch (err) {
+  console.error("Failed to load notification routes:", err.message);
+  notificationRoutes = require("express").Router();
+}
+
+try {
+  jobAlertRoutes = require("./routes/jobAlertRoutes");
+  console.log("Job alert routes loaded successfully");
+} catch (err) {
+  console.error("Failed to load job alert routes:", err.message);
+  jobAlertRoutes = require("express").Router();
+}
 
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api", jobRoutes);
