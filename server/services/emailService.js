@@ -2,7 +2,7 @@ const { Resend } = require("resend");
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const FROM_EMAIL = "JobLeap <notifications@jobleap.com>";
+const FROM_EMAIL = "JobLeap <notifications@jobleap.work>";
 
 // Send job alert email with matching jobs
 const sendJobAlertEmail = async (user, jobs, alertName) => {
