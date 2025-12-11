@@ -73,9 +73,7 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-[#0d6d6e] rounded-lg flex items-center justify-center">
-              <FaBriefcase className="text-white text-sm" />
-            </div>
+            <img src="/Logo-Icon.png" alt="JobLeap" className="w-8 h-8 object-contain" />
             <span className="text-xl font-bold text-gray-900">
               JobLeap
             </span>
