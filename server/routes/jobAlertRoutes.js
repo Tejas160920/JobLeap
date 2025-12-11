@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const auth = require("../middleware/authMiddleware");
+const { verifyToken } = require("../middleware/authMiddleware");
 const jobAlertController = require("../controllers/jobAlertController");
 
 // All routes require authentication
-router.use(auth);
+router.use(verifyToken);
 
 // Get user's job alerts
 router.get("/", jobAlertController.getJobAlerts);
