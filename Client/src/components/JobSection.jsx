@@ -4,7 +4,7 @@ import JobDetails from "./JobDetails";
 import { FaSearch, FaFilter, FaSort, FaSpinner, FaArrowLeft, FaChevronLeft, FaChevronRight, FaTimes, FaPassport, FaBriefcase, FaMapMarkerAlt, FaBell, FaCheck } from "react-icons/fa";
 import { API_BASE_URL } from '../config/api';
 
-const JobSection = ({ filters, showAll, onBackToHome, onFiltersChange }) => {
+const JobSection = ({ filters, showAll, onBackToHome, onFiltersChange, triggerAlertPopup, onAlertPopupShown }) => {
   const [jobs, setJobs] = useState([]);
   const [selectedJob, setSelectedJob] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -107,6 +107,16 @@ const JobSection = ({ filters, showAll, onBackToHome, onFiltersChange }) => {
 
   // Check if any filters are active
   const hasActiveFilters = filters.title || filters.location || filters.jobType || filters.visaSponsorship;
+
+  // Trigger alert popup from parent (after search from Hero)
+  useEffect(() => {
+    if (triggerAlertPopup && token && hasActiveFilters) {
+      openAlertModal();
+      if (onAlertPopupShown) {
+        onAlertPopupShown();
+      }
+    }
+  }, [triggerAlertPopup]);
 
   useEffect(() => {
     const fetchJobs = async () => {

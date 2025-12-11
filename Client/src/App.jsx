@@ -37,6 +37,7 @@ function AppContent() {
   const [showJobs, setShowJobs] = useState(true);  // Show jobs by default
   const [viewAllJobs, setViewAllJobs] = useState(true);  // View all jobs by default
   const [showSignupModal, setShowSignupModal] = useState(false);
+  const [triggerAlertPopup, setTriggerAlertPopup] = useState(false);
 
   useEffect(() => {
     // Show signup modal for new users
@@ -59,15 +60,22 @@ function AppContent() {
 
   const handleSearch = (searchFilters) => {
     // Merge with default empty values for all filter fields
-    setFilters({
+    const newFilters = {
       title: searchFilters.title || '',
       location: searchFilters.location || '',
       jobType: searchFilters.jobType || '',
       visaSponsorship: searchFilters.visaSponsorship || '',
       salaryRange: searchFilters.salaryRange || ''
-    });
+    };
+    setFilters(newFilters);
     setShowJobs(true);
     setViewAllJobs(false);
+
+    // Trigger alert popup if user is logged in and has filters
+    const token = localStorage.getItem("token");
+    if (token && (newFilters.title || newFilters.location || newFilters.jobType || newFilters.visaSponsorship)) {
+      setTimeout(() => setTriggerAlertPopup(true), 1000);
+    }
   };
 
   const handleViewAllJobs = () => {
@@ -116,6 +124,8 @@ function AppContent() {
                       showAll={viewAllJobs}
                       onBackToHome={() => setShowJobs(false)}
                       onFiltersChange={setFilters}
+                      triggerAlertPopup={triggerAlertPopup}
+                      onAlertPopupShown={() => setTriggerAlertPopup(false)}
                     />
                   </div>
                 )}
