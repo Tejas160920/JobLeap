@@ -1,6 +1,13 @@
 const { Resend } = require("resend");
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy initialize Resend to avoid crashing if API key is missing
+let resend = null;
+const getResend = () => {
+  if (!resend && process.env.RESEND_API_KEY) {
+    resend = new Resend(process.env.RESEND_API_KEY);
+  }
+  return resend;
+};
 
 const FROM_EMAIL = "JobLeap <notifications@jobleap.work>";
 const FRONTEND_URL = process.env.FRONTEND_URL || 'https://job-leap-wokg.vercel.app';
@@ -168,7 +175,13 @@ const sendJobAlertEmail = async (user, jobs, alertName) => {
   const preheader = `${jobs.length} new jobs matching "${alertName}" - Don't miss out!`;
 
   try {
-    const { data, error } = await resend.emails.send({
+    const resendClient = getResend();
+    if (!resendClient) {
+      console.warn("Email not sent - Resend API key not configured");
+      return { success: false, error: "Email service not configured" };
+    }
+
+    const { data, error } = await resendClient.emails.send({
       from: FROM_EMAIL,
       to: user.email,
       subject: `🔥 ${jobs.length} new job${jobs.length > 1 ? 's' : ''} matching "${alertName}"`,
@@ -252,7 +265,13 @@ const sendApplicationUpdateEmail = async (user, jobTitle, company, newStatus) =>
   const preheader = `Your application for ${jobTitle} at ${company} ${config.message}`;
 
   try {
-    const { data, error } = await resend.emails.send({
+    const resendClient = getResend();
+    if (!resendClient) {
+      console.warn("Email not sent - Resend API key not configured");
+      return { success: false, error: "Email service not configured" };
+    }
+
+    const { data, error } = await resendClient.emails.send({
       from: FROM_EMAIL,
       to: user.email,
       subject: `${config.emoji} Application Update: ${jobTitle} at ${company}`,
@@ -349,7 +368,13 @@ const sendWelcomeEmail = async (user) => {
   const preheader = "Your journey to landing your dream job starts now!";
 
   try {
-    const { data, error } = await resend.emails.send({
+    const resendClient = getResend();
+    if (!resendClient) {
+      console.warn("Email not sent - Resend API key not configured");
+      return { success: false, error: "Email service not configured" };
+    }
+
+    const { data, error } = await resendClient.emails.send({
       from: FROM_EMAIL,
       to: user.email,
       subject: "🚀 Welcome to JobLeap - Let's find your dream job!",
