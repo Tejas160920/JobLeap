@@ -9,6 +9,60 @@ let jobCache = {
 };
 const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
 
+// US State abbreviations mapping
+const stateAbbreviations = {
+  'alabama': 'al', 'alaska': 'ak', 'arizona': 'az', 'arkansas': 'ar',
+  'california': 'ca', 'colorado': 'co', 'connecticut': 'ct', 'delaware': 'de',
+  'florida': 'fl', 'georgia': 'ga', 'hawaii': 'hi', 'idaho': 'id',
+  'illinois': 'il', 'indiana': 'in', 'iowa': 'ia', 'kansas': 'ks',
+  'kentucky': 'ky', 'louisiana': 'la', 'maine': 'me', 'maryland': 'md',
+  'massachusetts': 'ma', 'michigan': 'mi', 'minnesota': 'mn', 'mississippi': 'ms',
+  'missouri': 'mo', 'montana': 'mt', 'nebraska': 'ne', 'nevada': 'nv',
+  'new hampshire': 'nh', 'new jersey': 'nj', 'new mexico': 'nm', 'new york': 'ny',
+  'north carolina': 'nc', 'north dakota': 'nd', 'ohio': 'oh', 'oklahoma': 'ok',
+  'oregon': 'or', 'pennsylvania': 'pa', 'rhode island': 'ri', 'south carolina': 'sc',
+  'south dakota': 'sd', 'tennessee': 'tn', 'texas': 'tx', 'utah': 'ut',
+  'vermont': 'vt', 'virginia': 'va', 'washington': 'wa', 'west virginia': 'wv',
+  'wisconsin': 'wi', 'wyoming': 'wy', 'district of columbia': 'dc'
+};
+
+// Reverse mapping (abbreviation to full name)
+const stateFullNames = Object.fromEntries(
+  Object.entries(stateAbbreviations).map(([name, abbr]) => [abbr, name])
+);
+
+// Helper function to get location search terms (handles state abbreviations)
+const getLocationSearchTerms = (location) => {
+  const locationLower = location.toLowerCase().trim();
+  const terms = [locationLower];
+
+  // Check if it's a state abbreviation
+  if (stateFullNames[locationLower]) {
+    terms.push(stateFullNames[locationLower]);
+  }
+
+  // Check if it's a full state name
+  if (stateAbbreviations[locationLower]) {
+    terms.push(stateAbbreviations[locationLower]);
+  }
+
+  // Handle common variations
+  if (locationLower === 'remote') {
+    terms.push('work from home', 'wfh', 'anywhere');
+  }
+  if (locationLower === 'nyc') {
+    terms.push('new york', 'ny');
+  }
+  if (locationLower === 'sf' || locationLower === 'san francisco') {
+    terms.push('sf', 'san francisco', 'bay area');
+  }
+  if (locationLower === 'la' || locationLower === 'los angeles') {
+    terms.push('la', 'los angeles');
+  }
+
+  return terms;
+};
+
 // Helper function to check if a company sponsors H1B visas
 const checkVisaSponsorship = (companyName) => {
   if (!companyName) return { sponsors: false, sponsorData: null };
@@ -239,10 +293,12 @@ exports.getJobs = async (req, res) => {
       }
 
       if (location) {
-        const locationLower = location.toLowerCase();
-        filtered = filtered.filter(job =>
-          job.location?.toLowerCase().includes(locationLower)
-        );
+        const searchTerms = getLocationSearchTerms(location);
+        filtered = filtered.filter(job => {
+          const jobLocation = job.location?.toLowerCase() || '';
+          // Check if any search term matches the job location
+          return searchTerms.some(term => jobLocation.includes(term));
+        });
       }
 
       if (jobType) {

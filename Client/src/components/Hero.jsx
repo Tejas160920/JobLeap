@@ -192,37 +192,47 @@ const Hero = ({ onSearch, onViewAllJobs, showCompactMode, onCompanyClick }) => {
             <div className="mt-6">
               <p className="text-gray-500 mb-3 text-sm">Quick filters:</p>
               <div className="flex flex-wrap justify-center gap-2">
-                {quickFilters.map((filter, index) => (
-                  <button
-                    key={index}
-                    onClick={() => {
-                      if (filter.value === 'remote') {
-                        setLocation('Remote');
-                      } else if (filter.value === 'full-time') {
-                        setJobType('full-time');
-                      } else if (filter.value === 'visa') {
-                        setVisaSponsorship('sponsors');
-                        setShowAdvancedSearch(true);
-                      }
-                    }}
-                    className={`px-4 py-2 bg-white border rounded-lg text-sm transition-colors flex items-center space-x-2 ${
-                      (filter.value === 'visa' && visaSponsorship === 'sponsors') ||
-                      (filter.value === 'remote' && location === 'Remote') ||
-                      (filter.value === 'full-time' && jobType === 'full-time')
-                        ? 'border-[#0d6d6e] text-[#0d6d6e] bg-[#e6f3f3]'
-                        : 'border-gray-200 text-gray-600 hover:border-[#0d6d6e] hover:text-[#0d6d6e]'
-                    }`}
-                  >
-                    <span className={`${
-                      (filter.value === 'visa' && visaSponsorship === 'sponsors') ||
-                      (filter.value === 'remote' && location === 'Remote') ||
-                      (filter.value === 'full-time' && jobType === 'full-time')
-                        ? 'text-[#0d6d6e]'
-                        : 'text-gray-400'
-                    }`}>{filter.icon}</span>
-                    <span>{filter.label}</span>
-                  </button>
-                ))}
+                {quickFilters.map((filter, index) => {
+                  const isActive =
+                    (filter.value === 'visa' && visaSponsorship === 'sponsors') ||
+                    (filter.value === 'remote' && location.toLowerCase() === 'remote') ||
+                    (filter.value === 'full-time' && jobType === 'full-time') ||
+                    (filter.value === 'senior' && title.toLowerCase().includes('senior'));
+
+                  return (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        if (filter.value === 'remote') {
+                          // Toggle remote
+                          setLocation(location.toLowerCase() === 'remote' ? '' : 'Remote');
+                        } else if (filter.value === 'full-time') {
+                          // Toggle full-time
+                          setJobType(jobType === 'full-time' ? '' : 'full-time');
+                        } else if (filter.value === 'visa') {
+                          // Toggle visa sponsorship
+                          setVisaSponsorship(visaSponsorship === 'sponsors' ? '' : 'sponsors');
+                          if (visaSponsorship !== 'sponsors') {
+                            setShowAdvancedSearch(true);
+                          }
+                        } else if (filter.value === 'senior') {
+                          // Toggle senior level
+                          setTitle(title.toLowerCase().includes('senior') ? '' : 'Senior');
+                        }
+                      }}
+                      className={`px-4 py-2 bg-white border rounded-lg text-sm transition-colors flex items-center space-x-2 ${
+                        isActive
+                          ? 'border-[#0d6d6e] text-[#0d6d6e] bg-[#e6f3f3]'
+                          : 'border-gray-200 text-gray-600 hover:border-[#0d6d6e] hover:text-[#0d6d6e]'
+                      }`}
+                    >
+                      <span className={isActive ? 'text-[#0d6d6e]' : 'text-gray-400'}>
+                        {filter.icon}
+                      </span>
+                      <span>{filter.label}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
