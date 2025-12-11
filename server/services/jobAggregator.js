@@ -85,6 +85,9 @@ const fetchWithTimeout = async (url, options = {}, timeout = 10000) => {
     return response;
   } catch (error) {
     clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      throw new Error(`Request timed out after ${timeout}ms`);
+    }
     throw error;
   }
 };
@@ -94,11 +97,14 @@ const fetchWithTimeout = async (url, options = {}, timeout = 10000) => {
  */
 const fetchSimplifyInternships = async () => {
   try {
+    console.log('[JobAggregator] Fetching SimplifyJobs Internships...');
+    const startTime = Date.now();
     const response = await fetchWithTimeout(
       'https://raw.githubusercontent.com/SimplifyJobs/Summer2025-Internships/dev/.github/scripts/listings.json',
       { headers: { 'User-Agent': 'JobLeap/1.0' } },
-      15000 // 15 second timeout
+      25000 // 25 second timeout for large JSON file (~9MB)
     );
+    console.log(`[JobAggregator] SimplifyJobs Internships response in ${Date.now() - startTime}ms`);
 
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
@@ -136,11 +142,14 @@ const fetchSimplifyInternships = async () => {
  */
 const fetchSimplifyNewGrad = async () => {
   try {
+    console.log('[JobAggregator] Fetching SimplifyJobs New Grad...');
+    const startTime = Date.now();
     const response = await fetchWithTimeout(
       'https://raw.githubusercontent.com/SimplifyJobs/New-Grad-Positions/dev/.github/scripts/listings.json',
       { headers: { 'User-Agent': 'JobLeap/1.0' } },
-      15000
+      25000 // 25 second timeout for large JSON file (~5MB)
     );
+    console.log(`[JobAggregator] SimplifyJobs New Grad response in ${Date.now() - startTime}ms`);
 
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
@@ -380,7 +389,7 @@ const deduplicateJobs = (jobs) => {
 
 /**
  * Main function to fetch and aggregate all jobs
- * Uses progressive loading - returns fast sources first, loads others in background
+ * Fetches all sources in parallel for fastest first load
  */
 const fetchAllJobs = async (forceRefresh = false) => {
   const now = Date.now();
@@ -405,89 +414,66 @@ const fetchAllJobs = async (forceRefresh = false) => {
 
   // Mark as loading
   aggregatedJobsCache.isLoading = true;
-  console.log('[JobAggregator] Starting progressive job fetch...');
+  console.log('[JobAggregator] Starting job fetch from all sources...');
+  const startTime = Date.now();
 
-  // PHASE 1: Fetch fastest sources first (SimplifyJobs has JSON - very fast)
-  // These typically load in 2-4 seconds
-  const fastSources = await Promise.all([
+  // Fetch ALL sources in parallel for maximum speed
+  // Use Promise.allSettled to handle individual failures gracefully
+  const results = await Promise.allSettled([
     fetchSimplifyInternships(),
-    fetchSimplifyNewGrad()
+    fetchSimplifyNewGrad(),
+    fetchRemoteOK(),
+    fetchSpeedyApplyJobs()
   ]);
 
-  const fastJobs = [...fastSources[0], ...fastSources[1]];
-  const fastActiveJobs = fastJobs.filter(job => job.active !== false);
-  const fastDeduplicated = deduplicateJobs(fastActiveJobs);
-  fastDeduplicated.sort((a, b) => new Date(b.postedAt) - new Date(a.postedAt));
+  // Extract successful results, use empty array for failed ones
+  const [internshipsResult, newGradResult, remoteOKResult, speedyApplyResult] = results;
 
-  // Update cache with fast results immediately
+  const internships = internshipsResult.status === 'fulfilled' ? internshipsResult.value : [];
+  const newGrad = newGradResult.status === 'fulfilled' ? newGradResult.value : [];
+  const remoteOK = remoteOKResult.status === 'fulfilled' ? remoteOKResult.value : [];
+  const speedyApply = speedyApplyResult.status === 'fulfilled' ? speedyApplyResult.value : [];
+
+  // Log any failures
+  if (internshipsResult.status === 'rejected') {
+    console.error('[JobAggregator] SimplifyJobs Internships failed:', internshipsResult.reason?.message);
+  }
+  if (newGradResult.status === 'rejected') {
+    console.error('[JobAggregator] SimplifyJobs New Grad failed:', newGradResult.reason?.message);
+  }
+  if (remoteOKResult.status === 'rejected') {
+    console.error('[JobAggregator] RemoteOK failed:', remoteOKResult.reason?.message);
+  }
+  if (speedyApplyResult.status === 'rejected') {
+    console.error('[JobAggregator] SpeedyApply failed:', speedyApplyResult.reason?.message);
+  }
+
+  // Combine all jobs
+  const allJobs = [...internships, ...newGrad, ...remoteOK, ...speedyApply];
+  const activeJobs = allJobs.filter(job => job.active !== false);
+  const deduplicated = deduplicateJobs(activeJobs);
+  deduplicated.sort((a, b) => new Date(b.postedAt) - new Date(a.postedAt));
+
+  // Update cache
   aggregatedJobsCache = {
-    jobs: fastDeduplicated,
+    jobs: deduplicated,
     lastFetch: now,
     sources: {
-      simplify_internships: fastSources[0].length,
-      simplify_newgrad: fastSources[1].length,
-      remoteok: 0,
-      speedyapply: 0,
-      total_before_dedup: fastJobs.length,
-      total_after_dedup: fastDeduplicated.length,
-      loading_complete: false
+      simplify_internships: internships.length,
+      simplify_newgrad: newGrad.length,
+      remoteok: remoteOK.length,
+      speedyapply: speedyApply.length,
+      total_before_dedup: allJobs.length,
+      total_after_dedup: deduplicated.length,
+      loading_complete: true
     },
-    isLoading: true
+    isLoading: false
   };
 
-  console.log(`[JobAggregator] Phase 1 complete: ${fastDeduplicated.length} jobs from fast sources`);
+  initialFetchPromise = null;
+  console.log(`[JobAggregator] Fetch complete in ${Date.now() - startTime}ms: ${deduplicated.length} jobs from all sources`);
 
-  // PHASE 2: Fetch slower sources in background (don't await)
-  const loadSlowSources = async () => {
-    try {
-      const [remoteOKJobs, speedyApplyJobs] = await Promise.all([
-        fetchRemoteOK(),
-        fetchSpeedyApplyJobs()
-      ]);
-
-      // Combine with existing jobs
-      const allJobs = [
-        ...aggregatedJobsCache.jobs,
-        ...remoteOKJobs,
-        ...speedyApplyJobs
-      ];
-
-      // Filter and deduplicate
-      const activeJobs = allJobs.filter(job => job.active !== false);
-      const deduplicated = deduplicateJobs(activeJobs);
-      deduplicated.sort((a, b) => new Date(b.postedAt) - new Date(a.postedAt));
-
-      // Update cache with all results
-      aggregatedJobsCache = {
-        jobs: deduplicated,
-        lastFetch: Date.now(),
-        sources: {
-          simplify_internships: fastSources[0].length,
-          simplify_newgrad: fastSources[1].length,
-          remoteok: remoteOKJobs.length,
-          speedyapply: speedyApplyJobs.length,
-          total_before_dedup: allJobs.length,
-          total_after_dedup: deduplicated.length,
-          loading_complete: true
-        },
-        isLoading: false
-      };
-
-      initialFetchPromise = null;
-      console.log(`[JobAggregator] Phase 2 complete: ${deduplicated.length} total jobs`);
-    } catch (error) {
-      console.error('[JobAggregator] Phase 2 error:', error.message);
-      aggregatedJobsCache.isLoading = false;
-      aggregatedJobsCache.sources.loading_complete = true;
-      initialFetchPromise = null;
-    }
-  };
-
-  // Start background loading (don't wait for it)
-  loadSlowSources();
-
-  // Return fast results immediately
-  return fastDeduplicated;
+  return deduplicated;
 };
 
 /**
