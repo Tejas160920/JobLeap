@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import JobCard from "./JobCard";
 import JobDetails from "./JobDetails";
 import { FaSearch, FaFilter, FaSort, FaSpinner, FaArrowLeft, FaChevronLeft, FaChevronRight, FaTimes, FaPassport, FaBriefcase, FaMapMarkerAlt, FaBell, FaCheck } from "react-icons/fa";
 import { API_BASE_URL } from '../config/api';
 
 const JobSection = ({ filters, showAll, onBackToHome, onFiltersChange, triggerAlertPopup, onAlertPopupShown }) => {
+  const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
   const [selectedJob, setSelectedJob] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -52,7 +54,7 @@ const JobSection = ({ filters, showAll, onBackToHome, onFiltersChange, triggerAl
   const openAlertModal = (autoGenName = true) => {
     if (!token) {
       // Redirect to login if not logged in
-      window.location.href = '/login';
+      navigate('/login');
       return;
     }
     if (autoGenName) {
