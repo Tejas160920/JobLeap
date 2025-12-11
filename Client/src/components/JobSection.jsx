@@ -11,7 +11,9 @@ const JobSection = ({ filters, showAll, onBackToHome }) => {
   const [sortBy, setSortBy] = useState("recent");
   const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const JOBS_PER_PAGE = 8;
+  const [totalJobs, setTotalJobs] = useState(0);
+  const [sourceStats, setSourceStats] = useState(null);
+  const JOBS_PER_PAGE = 12;
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -23,24 +25,29 @@ const JobSection = ({ filters, showAll, onBackToHome }) => {
         if (filters.location) params.append('location', filters.location);
         if (filters.visaSponsorship) params.append('visaSponsorship', filters.visaSponsorship);
 
-        // Fetch from real API (local DB + RemoteOK)
+        // Fetch from real API (local DB + GitHub repos + APIs)
         const response = await fetch(`${API_BASE_URL}/jobs?${params.toString()}`);
         const data = await response.json();
 
+        // Handle both old format (array) and new format (object with jobs array)
+        let jobsData = Array.isArray(data) ? data : (data.jobs || []);
+
         // Sort jobs based on selected criteria
-        let sortedData = [...data];
         if (sortBy === "recent") {
-          sortedData.sort((a, b) => new Date(b.postedAt) - new Date(a.postedAt));
+          jobsData.sort((a, b) => new Date(b.postedAt) - new Date(a.postedAt));
         } else if (sortBy === "title") {
-          sortedData.sort((a, b) => a.title.localeCompare(b.title));
+          jobsData.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
         }
 
-        setJobs(sortedData);
+        setJobs(jobsData);
+        setTotalJobs(data.totalJobs || jobsData.length);
+        setSourceStats(data.sources || null);
         setCurrentPage(1);
-        setSelectedJob(sortedData[0] || null);
+        setSelectedJob(jobsData[0] || null);
       } catch (error) {
         console.error("Error fetching jobs:", error);
         setJobs([]);
+        setTotalJobs(0);
       } finally {
         setIsLoading(false);
       }
@@ -134,7 +141,7 @@ const JobSection = ({ filters, showAll, onBackToHome }) => {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between">
           <div className="mb-4 md:mb-0">
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              {jobs.length} Job{jobs.length !== 1 ? 's' : ''} Found
+              {totalJobs.toLocaleString()} Job{totalJobs !== 1 ? 's' : ''} Found
               {totalPages > 1 && (
                 <span className="text-lg font-normal text-gray-600 ml-2">
                   (Page {currentPage} of {totalPages})
@@ -145,6 +152,11 @@ const JobSection = ({ filters, showAll, onBackToHome }) => {
               {filters.title && `For "${filters.title}"`}
               {filters.title && filters.location && " in "}
               {filters.location && `"${filters.location}"`}
+              {!filters.title && !filters.location && sourceStats && (
+                <span className="text-sm">
+                  From GitHub repos, RemoteOK & more • Updated {sourceStats.cacheAge}
+                </span>
+              )}
             </p>
           </div>
           

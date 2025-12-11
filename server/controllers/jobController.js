@@ -1,11 +1,11 @@
 const Job = require("../models/job");
 const connectDB = require("../config/db");
 const h1bSponsors = require("../data/h1bSponsors");
+const { fetchAllJobs, getCacheStats, clearCache } = require("../services/jobAggregator");
 
-// Cache for external job APIs (refresh every 30 minutes)
+// Cache for JoinRise API (kept for backwards compatibility)
 let jobCache = {
-  joinrise: { jobs: [], lastFetch: 0 },
-  adzuna: { jobs: [], lastFetch: 0 }
+  joinrise: { jobs: [], lastFetch: 0 }
 };
 const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
 
@@ -205,11 +205,11 @@ exports.getJobs = async (req, res) => {
     // Ensure DB is connected (important for serverless)
     await connectDB();
 
-    const { title, location, source, visaSponsorship } = req.query;
+    const { title, location, source, visaSponsorship, jobType, page = 1, limit = 50 } = req.query;
 
     // Fetch from all sources in parallel
-    const [dbJobs, joinriseJobs, adzunaJobs] = await Promise.all([
-      // Database jobs
+    const [dbJobs, aggregatedJobs, joinriseJobs] = await Promise.all([
+      // Database jobs (user-posted)
       (async () => {
         const filter = {};
         if (title) {
@@ -221,10 +221,10 @@ exports.getJobs = async (req, res) => {
         const jobs = await Job.find(filter).sort({ postedAt: -1 });
         return jobs.map(job => ({ ...job.toObject(), source: 'local' }));
       })(),
-      // JoinRise jobs
-      fetchJoinRiseJobs(),
-      // Adzuna jobs
-      fetchAdzunaJobs()
+      // Aggregated jobs from GitHub repos & APIs
+      fetchAllJobs(),
+      // JoinRise jobs (keeping for variety)
+      fetchJoinRiseJobs()
     ]);
 
     // Filter external jobs based on search criteria
@@ -234,43 +234,72 @@ exports.getJobs = async (req, res) => {
       if (title) {
         const titleLower = title.toLowerCase();
         filtered = filtered.filter(job =>
-          job.title.toLowerCase().includes(titleLower) ||
-          job.company.toLowerCase().includes(titleLower) ||
-          (job.tags && job.tags.some(tag => tag.toLowerCase().includes(titleLower)))
+          job.title?.toLowerCase().includes(titleLower) ||
+          job.company?.toLowerCase().includes(titleLower) ||
+          (job.tags && job.tags.some(tag => tag?.toLowerCase().includes(titleLower)))
         );
       }
 
       if (location) {
         const locationLower = location.toLowerCase();
         filtered = filtered.filter(job =>
-          job.location.toLowerCase().includes(locationLower)
+          job.location?.toLowerCase().includes(locationLower)
+        );
+      }
+
+      if (jobType) {
+        const typeLower = jobType.toLowerCase();
+        filtered = filtered.filter(job =>
+          job.jobType?.toLowerCase().includes(typeLower)
         );
       }
 
       return filtered;
     };
 
+    const filteredAggregated = filterExternalJobs(aggregatedJobs);
     const filteredJoinrise = filterExternalJobs(joinriseJobs);
-    const filteredAdzuna = filterExternalJobs(adzunaJobs);
 
-    // Combine and sort by date
-    let allJobs = [...dbJobs, ...filteredJoinrise, ...filteredAdzuna];
+    // Combine all jobs
+    let allJobs = [...dbJobs, ...filteredAggregated, ...filteredJoinrise];
 
     // Filter by source if specified
     if (source === 'local') {
       allJobs = dbJobs;
+    } else if (source === 'github') {
+      allJobs = filteredAggregated.filter(j =>
+        j.source?.includes('simplify') || j.source?.includes('speedyapply')
+      );
+    } else if (source === 'remoteok') {
+      allJobs = filteredAggregated.filter(j => j.source === 'remoteok');
     } else if (source === 'joinrise') {
       allJobs = filteredJoinrise;
-    } else if (source === 'adzuna') {
-      allJobs = filteredAdzuna;
     }
+
+    // Remove duplicates by _id (in case of overlap between sources)
+    const seenIds = new Set();
+    allJobs = allJobs.filter(job => {
+      const id = job._id?.toString();
+      if (seenIds.has(id)) return false;
+      seenIds.add(id);
+      return true;
+    });
 
     // Add visa sponsorship data to all jobs
     allJobs = allJobs.map(job => {
       const visaInfo = checkVisaSponsorship(job.company);
+
+      // Also check if job has sponsorship info from source
+      let sponsorsVisa = visaInfo.sponsors;
+      if (job.sponsorship === 'Offers Sponsorship') {
+        sponsorsVisa = true;
+      } else if (job.sponsorship === 'U.S. Citizenship Required' || job.sponsorship === 'Does Not Offer Sponsorship') {
+        sponsorsVisa = false;
+      }
+
       return {
         ...job,
-        sponsorsVisa: visaInfo.sponsors,
+        sponsorsVisa,
         sponsorData: visaInfo.sponsorData
       };
     });
@@ -283,7 +312,18 @@ exports.getJobs = async (req, res) => {
     // Sort by posted date (newest first)
     allJobs.sort((a, b) => new Date(b.postedAt) - new Date(a.postedAt));
 
-    res.status(200).json(allJobs);
+    // Pagination
+    const startIndex = (parseInt(page) - 1) * parseInt(limit);
+    const endIndex = startIndex + parseInt(limit);
+    const paginatedJobs = allJobs.slice(startIndex, endIndex);
+
+    res.status(200).json({
+      jobs: paginatedJobs,
+      totalJobs: allJobs.length,
+      currentPage: parseInt(page),
+      totalPages: Math.ceil(allJobs.length / parseInt(limit)),
+      sources: getCacheStats()
+    });
   } catch (err) {
     console.error("Error fetching jobs:", err.message, err.stack);
     res.status(500).json({ error: "Failed to fetch jobs" });
@@ -436,6 +476,44 @@ exports.deleteJob = async (req, res) => {
       success: false,
       message: "Failed to delete job",
       error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
+    });
+  }
+};
+
+// Get job aggregation stats
+exports.getJobStats = async (req, res) => {
+  try {
+    const stats = getCacheStats();
+    res.status(200).json({
+      success: true,
+      stats
+    });
+  } catch (err) {
+    console.error("Error getting job stats:", err);
+    res.status(500).json({
+      success: false,
+      message: "Failed to get job stats"
+    });
+  }
+};
+
+// Refresh job cache (force fetch from all sources)
+exports.refreshJobCache = async (req, res) => {
+  try {
+    clearCache();
+    const jobs = await fetchAllJobs(true);
+    const stats = getCacheStats();
+
+    res.status(200).json({
+      success: true,
+      message: `Successfully refreshed cache with ${jobs.length} jobs`,
+      stats
+    });
+  } catch (err) {
+    console.error("Error refreshing job cache:", err);
+    res.status(500).json({
+      success: false,
+      message: "Failed to refresh job cache"
     });
   }
 };

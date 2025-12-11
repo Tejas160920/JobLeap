@@ -5,8 +5,10 @@ const { verifyToken, requireHiringRole } = require("../middleware/authMiddleware
 const { validateJobCreation } = require("../middleware/validation");
 
 // Job routes
-router.get("/jobs", jobController.getJobs);     // Get all jobs (public) - combines local + external APIs
+router.get("/jobs", jobController.getJobs);     // Get all jobs (public) - combines local + GitHub repos + APIs
 router.get("/jobs/remote", jobController.getRemoteJobs); // Get remote jobs only from external APIs
+router.get("/jobs/stats", jobController.getJobStats); // Get job aggregation stats (public)
+router.get("/jobs/refresh", jobController.refreshJobCache); // Force refresh job cache (public - can be protected if needed)
 router.get("/jobs/my-jobs", verifyToken, requireHiringRole, jobController.getMyJobs); // Get jobs posted by current user
 router.get("/jobs/:id", jobController.getJobById); // Get a single job by ID (public)
 router.post("/jobs", verifyToken, requireHiringRole, validateJobCreation, jobController.createJob); // Create a job
