@@ -256,10 +256,6 @@ const JobAlertsPage = () => {
                         {formatFilters(alert.filters)}
                       </p>
                       <div className="flex items-center space-x-4 mt-2 text-xs text-gray-400">
-                        <span className="flex items-center space-x-1">
-                          <FaClock />
-                          <span>Twice daily</span>
-                        </span>
                         {alert.matchCount > 0 && (
                           <span>{alert.matchCount} jobs matched</span>
                         )}
@@ -318,7 +314,7 @@ const JobAlertsPage = () => {
             </div>
             <div className="flex items-start space-x-3">
               <span className="flex-shrink-0 w-6 h-6 bg-[#e6f3f3] text-[#0d6d6e] rounded-full flex items-center justify-center text-xs font-medium">2</span>
-              <p>We check for new matching jobs twice daily at 11 AM and 8 PM</p>
+              <p>We check for new matching jobs and notify you</p>
             </div>
             <div className="flex items-start space-x-3">
               <span className="flex-shrink-0 w-6 h-6 bg-[#e6f3f3] text-[#0d6d6e] rounded-full flex items-center justify-center text-xs font-medium">3</span>
@@ -435,10 +431,7 @@ const JobAlertsPage = () => {
                 </select>
               </div>
 
-              <p className="text-sm text-gray-500 bg-gray-50 p-3 rounded-lg">
-                You'll receive notifications twice daily (11 AM & 8 PM) when new matching jobs are posted.
-              </p>
-            </div>
+              </div>
 
             <div className="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
               <button

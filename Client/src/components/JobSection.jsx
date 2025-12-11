@@ -258,7 +258,17 @@ const JobSection = ({ filters, showAll, onBackToHome, onFiltersChange, triggerAl
             </p>
           </div>
           
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3">
+            {/* Create Alert Button - always visible */}
+            {token && hasActiveFilters && (
+              <button
+                onClick={() => openAlertModal()}
+                className="flex items-center space-x-2 border border-[#0d6d6e] text-[#0d6d6e] rounded-lg px-4 py-2 hover:bg-[#e6f3f3] transition-colors"
+              >
+                <FaBell />
+                <span className="hidden sm:inline">Create Alert</span>
+              </button>
+            )}
             <div className="flex items-center space-x-2">
               <FaSort className="text-gray-400" />
               <select
@@ -498,8 +508,8 @@ const JobSection = ({ filters, showAll, onBackToHome, onFiltersChange, triggerAl
 
       {/* Job Alert Modal */}
       {showAlertModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md animate-in fade-in zoom-in duration-200">
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
             {alertSuccess ? (
               <div className="p-8 text-center">
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -573,10 +583,7 @@ const JobSection = ({ filters, showAll, onBackToHome, onFiltersChange, triggerAl
                     />
                   </div>
 
-                  <p className="text-sm text-gray-500 bg-gray-50 p-3 rounded-lg">
-                    You'll receive notifications twice daily (11 AM & 8 PM) when new matching jobs are posted.
-                  </p>
-                </div>
+                  </div>
 
                 <div className="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
                   <button
