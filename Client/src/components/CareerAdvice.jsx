@@ -8,7 +8,9 @@ import {
   FaExternalLinkAlt,
   FaSpinner,
   FaHeart,
-  FaComment
+  FaComment,
+  FaStar,
+  FaFire
 } from "react-icons/fa";
 
 const CareerAdvice = () => {
@@ -58,7 +60,19 @@ const CareerAdvice = () => {
     }
   };
 
-  const filteredArticles = articles.filter(article => {
+  // Get featured article (highest engagement)
+  const featuredArticle = articles.length > 0
+    ? articles.reduce((max, article) => {
+        const maxScore = (max.public_reactions_count || 0) + (max.comments_count || 0) * 2;
+        const articleScore = (article.public_reactions_count || 0) + (article.comments_count || 0) * 2;
+        return articleScore > maxScore ? article : max;
+      }, articles[0])
+    : null;
+
+  // Filter out featured article from the grid
+  const regularArticles = articles.filter(article => article.id !== featuredArticle?.id);
+
+  const filteredArticles = regularArticles.filter(article => {
     if (!searchTerm) return true;
     const search = searchTerm.toLowerCase();
     return (
@@ -68,14 +82,10 @@ const CareerAdvice = () => {
     );
   });
 
-  const formatDate = (dateString) => {
-    if (!dateString) return "";
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
-  };
+  // Check if featured article matches search
+  const showFeatured = featuredArticle && (!searchTerm ||
+    featuredArticle.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    featuredArticle.description?.toLowerCase().includes(searchTerm.toLowerCase()));
 
   const openArticle = (url) => {
     window.open(url, '_blank', 'noopener,noreferrer');
@@ -131,6 +141,120 @@ const CareerAdvice = () => {
           </div>
         </div>
       </section>
+
+      {/* Featured Article */}
+      {!isLoading && !error && showFeatured && (
+        <section className="py-12 bg-white">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="flex items-center gap-2 mb-6">
+              <FaFire className="text-orange-500 text-xl" />
+              <h2 className="text-2xl font-bold text-gray-900">Featured Article</h2>
+            </div>
+
+            <article
+              onClick={() => openArticle(featuredArticle.url)}
+              className="relative bg-gradient-to-r from-[#0d6d6e] to-[#095555] rounded-2xl overflow-hidden cursor-pointer group"
+            >
+              <div className="grid grid-cols-1 lg:grid-cols-2">
+                {/* Image */}
+                {featuredArticle.cover_image && (
+                  <div className="relative h-64 lg:h-auto lg:min-h-[400px]">
+                    <img
+                      src={featuredArticle.cover_image}
+                      alt={featuredArticle.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent lg:bg-gradient-to-r lg:from-transparent lg:to-[#0d6d6e]/90" />
+                  </div>
+                )}
+
+                {/* Content */}
+                <div className="p-8 lg:p-12 flex flex-col justify-center">
+                  {/* Badge */}
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm font-medium">
+                      <FaStar className="text-yellow-400" />
+                      Editor's Pick
+                    </span>
+                    {featuredArticle.reading_time_minutes && (
+                      <span className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm">
+                        <FaClock />
+                        {featuredArticle.reading_time_minutes} min read
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Tags */}
+                  {featuredArticle.tag_list && featuredArticle.tag_list.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {featuredArticle.tag_list.slice(0, 4).map((tag, index) => (
+                        <span
+                          key={index}
+                          className="text-xs font-medium text-white/80 bg-white/10 px-2 py-1 rounded"
+                        >
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Title */}
+                  <h3 className="text-2xl lg:text-3xl font-bold text-white mb-4 group-hover:text-yellow-200 transition-colors">
+                    {featuredArticle.title}
+                  </h3>
+
+                  {/* Description */}
+                  {featuredArticle.description && (
+                    <p className="text-white/80 text-lg mb-6 line-clamp-3">
+                      {featuredArticle.description}
+                    </p>
+                  )}
+
+                  {/* Author & Stats */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      {featuredArticle.user?.profile_image_90 && (
+                        <img
+                          src={featuredArticle.user.profile_image_90}
+                          alt={featuredArticle.user.name}
+                          className="w-10 h-10 rounded-full border-2 border-white/30"
+                        />
+                      )}
+                      <div>
+                        <p className="text-white font-medium">{featuredArticle.user?.name}</p>
+                        <p className="text-white/60 text-sm">{featuredArticle.readable_publish_date}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-4 text-white/80">
+                      {featuredArticle.public_reactions_count > 0 && (
+                        <span className="flex items-center gap-1.5">
+                          <FaHeart className="text-red-400" />
+                          <span>{featuredArticle.public_reactions_count}</span>
+                        </span>
+                      )}
+                      {featuredArticle.comments_count > 0 && (
+                        <span className="flex items-center gap-1.5">
+                          <FaComment />
+                          <span>{featuredArticle.comments_count}</span>
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* CTA */}
+                  <div className="mt-6">
+                    <span className="inline-flex items-center gap-2 bg-white text-[#0d6d6e] px-6 py-3 rounded-lg font-semibold group-hover:bg-yellow-400 group-hover:text-gray-900 transition-colors">
+                      Read Full Article
+                      <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+      )}
 
       {/* Articles */}
       <section className="py-16">
