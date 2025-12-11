@@ -68,10 +68,16 @@ const processAlert = async (alert) => {
       `/?title=${encodeURIComponent(alert.filters.title || '')}&location=${encodeURIComponent(alert.filters.location || '')}`
     );
 
-    // Send email if user has email notifications enabled
+    // Send email if user has email notifications AND job alerts enabled
     const userSettings = user.settings || {};
-    if (userSettings.emailNotifications !== false && userSettings.jobAlertEmails !== false) {
+    const emailEnabled = userSettings.emailNotifications !== false;
+    const jobAlertsEnabled = userSettings.jobAlerts !== false;
+
+    if (emailEnabled && jobAlertsEnabled) {
       await sendJobAlertEmail(user, matchingJobs, alert.name);
+      console.log(`Email sent to ${user.email} for alert "${alert.name}"`);
+    } else {
+      console.log(`Email skipped for ${user.email} - emailNotifications: ${emailEnabled}, jobAlerts: ${jobAlertsEnabled}`);
     }
 
     // Update alert

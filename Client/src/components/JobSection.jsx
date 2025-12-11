@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import JobCard from "./JobCard";
 import JobDetails from "./JobDetails";
-import { FaSearch, FaFilter, FaSort, FaSpinner, FaArrowLeft, FaChevronLeft, FaChevronRight, FaTimes, FaPassport, FaBriefcase, FaMapMarkerAlt } from "react-icons/fa";
+import { FaSearch, FaFilter, FaSort, FaSpinner, FaArrowLeft, FaChevronLeft, FaChevronRight, FaTimes, FaPassport, FaBriefcase, FaMapMarkerAlt, FaBell, FaCheck } from "react-icons/fa";
 import { API_BASE_URL } from '../config/api';
 
 const JobSection = ({ filters, showAll, onBackToHome, onFiltersChange }) => {
@@ -21,6 +21,14 @@ const JobSection = ({ filters, showAll, onBackToHome, onFiltersChange }) => {
     location: filters.location || ''
   });
 
+  // Job Alert Modal state
+  const [showAlertModal, setShowAlertModal] = useState(false);
+  const [alertName, setAlertName] = useState('');
+  const [alertFrequency, setAlertFrequency] = useState('daily');
+  const [alertSaving, setAlertSaving] = useState(false);
+  const [alertSuccess, setAlertSuccess] = useState(false);
+  const token = localStorage.getItem("token");
+
   // Sync local filters when props change
   useEffect(() => {
     setLocalFilters({
@@ -29,6 +37,76 @@ const JobSection = ({ filters, showAll, onBackToHome, onFiltersChange }) => {
       location: filters.location || ''
     });
   }, [filters]);
+
+  // Generate alert name from filters
+  const generateAlertName = () => {
+    const parts = [];
+    if (filters.title) parts.push(filters.title);
+    if (filters.location) parts.push(filters.location);
+    if (filters.jobType) parts.push(filters.jobType);
+    if (filters.visaSponsorship) parts.push('Visa Sponsorship');
+    return parts.length > 0 ? parts.join(' - ') : 'All Jobs';
+  };
+
+  // Open alert modal (for manual creation or after applying filters)
+  const openAlertModal = (autoGenName = true) => {
+    if (!token) {
+      // Redirect to login if not logged in
+      window.location.href = '/login';
+      return;
+    }
+    if (autoGenName) {
+      setAlertName(generateAlertName());
+    }
+    setAlertSuccess(false);
+    setShowAlertModal(true);
+  };
+
+  // Save job alert
+  const saveJobAlert = async () => {
+    if (!token || !alertName.trim()) return;
+
+    setAlertSaving(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/job-alerts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          name: alertName.trim(),
+          filters: {
+            title: filters.title || '',
+            location: filters.location || '',
+            jobType: filters.jobType || '',
+            visaSponsorship: filters.visaSponsorship || ''
+          },
+          frequency: alertFrequency
+        })
+      });
+
+      if (response.ok) {
+        setAlertSuccess(true);
+        setTimeout(() => {
+          setShowAlertModal(false);
+          setAlertSuccess(false);
+          setAlertName('');
+        }, 2000);
+      } else {
+        const data = await response.json();
+        alert(data.message || 'Failed to create alert');
+      }
+    } catch (error) {
+      console.error('Error creating alert:', error);
+      alert('Failed to create alert');
+    } finally {
+      setAlertSaving(false);
+    }
+  };
+
+  // Check if any filters are active
+  const hasActiveFilters = filters.title || filters.location || filters.jobType || filters.visaSponsorship;
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -267,34 +345,47 @@ const JobSection = ({ filters, showAll, onBackToHome, onFiltersChange }) => {
             </div>
 
             {/* Filter Actions */}
-            <div className="flex items-center justify-end gap-3 mt-4 pt-4 border-t border-gray-200">
+            <div className="flex items-center justify-between gap-3 mt-4 pt-4 border-t border-gray-200">
               <button
-                onClick={() => {
-                  setLocalFilters({ jobType: '', visaSponsorship: '', location: '' });
-                  if (onFiltersChange) {
-                    onFiltersChange({ ...filters, jobType: '', visaSponsorship: '', location: '' });
-                  }
-                }}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                onClick={() => openAlertModal()}
+                className="flex items-center space-x-2 px-4 py-2 text-[#0d6d6e] hover:bg-[#e6f3f3] rounded-lg transition-colors"
               >
-                Clear Filters
+                <FaBell />
+                <span>Create Job Alert</span>
               </button>
-              <button
-                onClick={() => {
-                  if (onFiltersChange) {
-                    onFiltersChange({
-                      ...filters,
-                      jobType: localFilters.jobType,
-                      visaSponsorship: localFilters.visaSponsorship,
-                      location: localFilters.location || filters.location
-                    });
-                  }
-                  setShowFilters(false);
-                }}
-                className="px-4 py-2 bg-[#0d6d6e] text-white rounded-lg hover:bg-[#095555] transition-colors"
-              >
-                Apply Filters
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => {
+                    setLocalFilters({ jobType: '', visaSponsorship: '', location: '' });
+                    if (onFiltersChange) {
+                      onFiltersChange({ ...filters, jobType: '', visaSponsorship: '', location: '' });
+                    }
+                  }}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                >
+                  Clear Filters
+                </button>
+                <button
+                  onClick={() => {
+                    if (onFiltersChange) {
+                      onFiltersChange({
+                        ...filters,
+                        jobType: localFilters.jobType,
+                        visaSponsorship: localFilters.visaSponsorship,
+                        location: localFilters.location || filters.location
+                      });
+                    }
+                    setShowFilters(false);
+                    // Show alert popup if filters are applied and user is logged in
+                    if (token && (localFilters.jobType || localFilters.visaSponsorship || localFilters.location || filters.title)) {
+                      setTimeout(() => openAlertModal(), 500);
+                    }
+                  }}
+                  className="px-4 py-2 bg-[#0d6d6e] text-white rounded-lg hover:bg-[#095555] transition-colors"
+                >
+                  Apply Filters
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -394,6 +485,144 @@ const JobSection = ({ filters, showAll, onBackToHome, onFiltersChange }) => {
           </div>
         </div>
       </div>
+
+      {/* Job Alert Modal */}
+      {showAlertModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md animate-in fade-in zoom-in duration-200">
+            {alertSuccess ? (
+              <div className="p-8 text-center">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <FaCheck className="text-green-500 text-2xl" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Alert Created!</h3>
+                <p className="text-gray-600">You'll be notified when new matching jobs are posted.</p>
+              </div>
+            ) : (
+              <>
+                <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-[#e6f3f3] rounded-full flex items-center justify-center">
+                      <FaBell className="text-[#0d6d6e]" />
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-semibold text-gray-900">Create Job Alert</h2>
+                      <p className="text-sm text-gray-500">Get notified about new matching jobs</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowAlertModal(false)}
+                    className="text-gray-400 hover:text-gray-600 p-1"
+                  >
+                    <FaTimes />
+                  </button>
+                </div>
+
+                <div className="px-6 py-4 space-y-4">
+                  {/* Current filters summary */}
+                  {hasActiveFilters && (
+                    <div className="p-3 bg-gray-50 rounded-lg">
+                      <p className="text-xs text-gray-500 mb-1">Alert will match jobs with:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {filters.title && (
+                          <span className="px-2 py-1 bg-white border border-gray-200 rounded text-sm text-gray-700">
+                            {filters.title}
+                          </span>
+                        )}
+                        {filters.location && (
+                          <span className="px-2 py-1 bg-white border border-gray-200 rounded text-sm text-gray-700">
+                            {filters.location}
+                          </span>
+                        )}
+                        {filters.jobType && (
+                          <span className="px-2 py-1 bg-white border border-gray-200 rounded text-sm text-gray-700">
+                            {filters.jobType}
+                          </span>
+                        )}
+                        {filters.visaSponsorship && (
+                          <span className="px-2 py-1 bg-white border border-gray-200 rounded text-sm text-gray-700">
+                            Visa Sponsorship
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Alert Name */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Alert Name
+                    </label>
+                    <input
+                      type="text"
+                      value={alertName}
+                      onChange={(e) => setAlertName(e.target.value)}
+                      placeholder="e.g., Remote Software Engineer"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0d6d6e] focus:border-transparent"
+                      maxLength={100}
+                    />
+                  </div>
+
+                  {/* Frequency */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      How often should we notify you?
+                    </label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        onClick={() => setAlertFrequency('daily')}
+                        className={`px-4 py-3 rounded-lg border text-sm font-medium transition-colors ${
+                          alertFrequency === 'daily'
+                            ? 'border-[#0d6d6e] bg-[#e6f3f3] text-[#0d6d6e]'
+                            : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                        }`}
+                      >
+                        Daily
+                      </button>
+                      <button
+                        onClick={() => setAlertFrequency('weekly')}
+                        className={`px-4 py-3 rounded-lg border text-sm font-medium transition-colors ${
+                          alertFrequency === 'weekly'
+                            ? 'border-[#0d6d6e] bg-[#e6f3f3] text-[#0d6d6e]'
+                            : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                        }`}
+                      >
+                        Weekly
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+                  <button
+                    onClick={() => setShowAlertModal(false)}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    Maybe Later
+                  </button>
+                  <button
+                    onClick={saveJobAlert}
+                    disabled={!alertName.trim() || alertSaving}
+                    className="px-4 py-2 bg-[#0d6d6e] text-white text-sm font-medium rounded-lg hover:bg-[#095555] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                  >
+                    {alertSaving ? (
+                      <>
+                        <FaSpinner className="animate-spin" />
+                        <span>Creating...</span>
+                      </>
+                    ) : (
+                      <>
+                        <FaBell />
+                        <span>Create Alert</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </section>
   );
 };
