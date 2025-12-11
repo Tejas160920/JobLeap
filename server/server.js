@@ -6,6 +6,7 @@ const rateLimit = require("express-rate-limit");
 const passport = require("passport");
 const connectDB = require("./config/db");
 const { prefetchJobs } = require("./services/jobAggregator");
+const { initCronJobs } = require("./jobs/jobAlertCron");
 
 // Load environment variables
 dotenv.config();
@@ -149,6 +150,8 @@ const bookmarkRoutes = require("./routes/bookmarkRoutes");
 const applicationRoutes = require("./routes/applicationRoutes");
 const atsRoutes = require("./routes/atsRoutes");
 const h1bRoutes = require("./routes/h1bRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
+const jobAlertRoutes = require("./routes/jobAlertRoutes");
 
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api", jobRoutes);
@@ -156,6 +159,8 @@ app.use("/api/bookmarks", bookmarkRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/api/ats", atsRoutes);
 app.use("/api/h1b", h1bRoutes);
+app.use("/api/notifications", notificationRoutes);
+app.use("/api/job-alerts", jobAlertRoutes);
 
 // Global error handler
 app.use((err, req, res, next) => {
@@ -187,6 +192,9 @@ if (!isVercel) {
     // Pre-fetch jobs in background on server startup
     console.log('Starting job pre-fetch in background...');
     prefetchJobs();
+
+    // Initialize cron jobs for job alerts
+    initCronJobs();
   });
 } else {
   // On Vercel, pre-fetch on cold start

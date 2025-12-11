@@ -27,6 +27,8 @@ import VerifyEmail from './components/VerifyEmail';
 import NotFound from './components/NotFound';
 import ErrorBoundary from './components/ErrorBoundary';
 import Footer from './components/Footer';
+import NotificationsPage from './components/NotificationsPage';
+import JobAlertsPage from './components/JobAlertsPage';
 
 // Create a separate component for the main app logic to use useLocation
 function AppContent() {
@@ -134,6 +136,8 @@ function AppContent() {
           <Route path="/complete-profile" element={<ProfileCompletion />} />
           <Route path="/my-applications" element={<MyApplications />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/notifications" element={<NotificationsPage />} />
+          <Route path="/job-alerts" element={<JobAlertsPage />} />
           <Route path="/auth/callback" element={<OAuthCallback />} />
           <Route path="/select-role" element={<RoleSelection />} />
           <Route path="/terms" element={<TermsOfService />} />

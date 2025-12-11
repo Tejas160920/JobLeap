@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { FaBars, FaTimes, FaBriefcase, FaUser, FaSignOutAlt, FaEdit, FaCog, FaFileAlt, FaChartBar } from "react-icons/fa";
+import { FaBars, FaTimes, FaBriefcase, FaUser, FaSignOutAlt, FaEdit, FaCog, FaFileAlt, FaChartBar, FaBell } from "react-icons/fa";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import NotificationBell from "./NotificationBell";
 
 const Navbar = () => {
   const location = useLocation();
@@ -110,6 +111,9 @@ const Navbar = () => {
                 </button>
               </Link>
             )}
+
+            {/* Notification Bell */}
+            {token && <NotificationBell />}
 
             {token ? (
               <div className="relative">
@@ -306,6 +310,22 @@ const Navbar = () => {
                       <span className="block text-xs text-amber-600 mt-1">Profile incomplete</span>
                     )}
                   </div>
+                  <Link
+                    to="/notifications"
+                    className="flex items-center space-x-2 px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg text-sm"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <FaBell className="text-xs text-gray-400" />
+                    <span>Notifications</span>
+                  </Link>
+                  <Link
+                    to="/job-alerts"
+                    className="flex items-center space-x-2 px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg text-sm"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <FaBriefcase className="text-xs text-gray-400" />
+                    <span>Job Alerts</span>
+                  </Link>
                   <Link
                     to="/complete-profile"
                     className="flex items-center space-x-2 px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg text-sm"
