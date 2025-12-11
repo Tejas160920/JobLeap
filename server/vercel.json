@@ -1,24 +1,14 @@
 {
   "version": 2,
   "installCommand": "npm install",
-  "builds": [
+  "rewrites": [
     {
-      "src": "api/index.js",
-      "use": "@vercel/node"
+      "source": "/api/cron/job-alerts",
+      "destination": "/api/cron/job-alerts"
     },
     {
-      "src": "api/cron/job-alerts.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/cron/job-alerts",
-      "dest": "api/cron/job-alerts.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "api/index.js"
+      "source": "/(.*)",
+      "destination": "/api/index.js"
     }
   ],
   "functions": {
