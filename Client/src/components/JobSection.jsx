@@ -563,34 +563,9 @@ const JobSection = ({ filters, showAll, onBackToHome, onFiltersChange }) => {
                     />
                   </div>
 
-                  {/* Frequency */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      How often should we notify you?
-                    </label>
-                    <div className="grid grid-cols-2 gap-3">
-                      <button
-                        onClick={() => setAlertFrequency('daily')}
-                        className={`px-4 py-3 rounded-lg border text-sm font-medium transition-colors ${
-                          alertFrequency === 'daily'
-                            ? 'border-[#0d6d6e] bg-[#e6f3f3] text-[#0d6d6e]'
-                            : 'border-gray-200 text-gray-600 hover:bg-gray-50'
-                        }`}
-                      >
-                        Daily
-                      </button>
-                      <button
-                        onClick={() => setAlertFrequency('weekly')}
-                        className={`px-4 py-3 rounded-lg border text-sm font-medium transition-colors ${
-                          alertFrequency === 'weekly'
-                            ? 'border-[#0d6d6e] bg-[#e6f3f3] text-[#0d6d6e]'
-                            : 'border-gray-200 text-gray-600 hover:bg-gray-50'
-                        }`}
-                      >
-                        Weekly
-                      </button>
-                    </div>
-                  </div>
+                  <p className="text-sm text-gray-500 bg-gray-50 p-3 rounded-lg">
+                    You'll receive notifications twice daily (11 AM & 8 PM) when new matching jobs are posted.
+                  </p>
                 </div>
 
                 <div className="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">

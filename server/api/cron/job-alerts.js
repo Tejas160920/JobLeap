@@ -123,44 +123,23 @@ module.exports = async (req, res) => {
     // Get current day of week (0 = Sunday, 1 = Monday, etc.)
     const dayOfWeek = new Date().getDay();
 
-    // Process daily alerts
-    const dailyCutoff = new Date(Date.now() - 23 * 60 * 60 * 1000);
-    const dailyAlerts = await JobAlert.find({
+    // Process alerts - runs twice daily (11 AM and 8 PM)
+    // Only notify if not notified in the last 8 hours
+    const cutoff = new Date(Date.now() - 8 * 60 * 60 * 1000);
+    const alerts = await JobAlert.find({
       isActive: true,
-      frequency: "daily",
       $or: [
         { lastNotified: null },
-        { lastNotified: { $lt: dailyCutoff } }
+        { lastNotified: { $lt: cutoff } }
       ]
     });
 
-    console.log(`Found ${dailyAlerts.length} daily alerts to process`);
+    console.log(`Found ${alerts.length} alerts to process`);
 
-    const dailyResults = [];
-    for (const alert of dailyAlerts) {
+    const results = [];
+    for (const alert of alerts) {
       const result = await processAlert(alert, models);
-      if (result) dailyResults.push(result);
-    }
-
-    // Process weekly alerts only on Mondays
-    let weeklyResults = [];
-    if (dayOfWeek === 1) {
-      const weeklyCutoff = new Date(Date.now() - 6.5 * 24 * 60 * 60 * 1000);
-      const weeklyAlerts = await JobAlert.find({
-        isActive: true,
-        frequency: "weekly",
-        $or: [
-          { lastNotified: null },
-          { lastNotified: { $lt: weeklyCutoff } }
-        ]
-      });
-
-      console.log(`Found ${weeklyAlerts.length} weekly alerts to process`);
-
-      for (const alert of weeklyAlerts) {
-        const result = await processAlert(alert, models);
-        if (result) weeklyResults.push(result);
-      }
+      if (result) results.push(result);
     }
 
     console.log("Job alerts cron completed");
@@ -168,13 +147,9 @@ module.exports = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Job alerts processed",
-      daily: {
-        count: dailyAlerts.length,
-        results: dailyResults
-      },
-      weekly: {
-        count: weeklyResults.length,
-        results: weeklyResults
+      alerts: {
+        count: alerts.length,
+        results: results
       }
     });
   } catch (error) {
