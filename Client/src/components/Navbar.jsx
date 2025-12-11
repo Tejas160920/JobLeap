@@ -72,8 +72,13 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center">
-            <img src="/Logo.png" alt="JobLeap" className="h-10 object-contain" />
+          <Link to="/" className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-[#0d6d6e] rounded-lg flex items-center justify-center">
+              <FaBriefcase className="text-white text-sm" />
+            </div>
+            <span className="text-xl font-bold text-gray-900">
+              JobLeap
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
