@@ -31,7 +31,7 @@ import Footer from './components/Footer';
 // Create a separate component for the main app logic to use useLocation
 function AppContent() {
   const location = useLocation();
-  const [filters, setFilters] = useState({ title: "", location: "" });
+  const [filters, setFilters] = useState({ title: "", location: "", jobType: "", visaSponsorship: "", salaryRange: "" });
   const [showJobs, setShowJobs] = useState(true);  // Show jobs by default
   const [viewAllJobs, setViewAllJobs] = useState(true);  // View all jobs by default
   const [showSignupModal, setShowSignupModal] = useState(false);
@@ -49,34 +49,41 @@ function AppContent() {
   // Handle navigation with filters
   useEffect(() => {
     if (location.state?.industryFilter) {
-      setFilters({ title: location.state.industryFilter, location: "" });
+      setFilters({ title: location.state.industryFilter, location: "", jobType: "", visaSponsorship: "", salaryRange: "" });
       setShowJobs(true);
       setViewAllJobs(false);
     }
   }, [location.state]);
 
   const handleSearch = (searchFilters) => {
-    setFilters(searchFilters);
+    // Merge with default empty values for all filter fields
+    setFilters({
+      title: searchFilters.title || '',
+      location: searchFilters.location || '',
+      jobType: searchFilters.jobType || '',
+      visaSponsorship: searchFilters.visaSponsorship || '',
+      salaryRange: searchFilters.salaryRange || ''
+    });
     setShowJobs(true);
     setViewAllJobs(false);
   };
 
   const handleViewAllJobs = () => {
-    setFilters({ title: "", location: "" });
+    setFilters({ title: "", location: "", jobType: "", visaSponsorship: "", salaryRange: "" });
     setShowJobs(true);
     setViewAllJobs(true);
   };
 
   const handleCompanyClick = (companyName) => {
     // Set filters to show jobs for the specific company
-    setFilters({ title: companyName, location: "" });
+    setFilters({ title: companyName, location: "", jobType: "", visaSponsorship: "", salaryRange: "" });
     setShowJobs(true);
     setViewAllJobs(false);
   };
 
   const handleIndustryClick = (industry) => {
     // Set filters to show jobs for the specific industry
-    setFilters({ title: industry, location: "" });
+    setFilters({ title: industry, location: "", jobType: "", visaSponsorship: "", salaryRange: "" });
     setShowJobs(true);
     setViewAllJobs(false);
   };
@@ -102,10 +109,11 @@ function AppContent() {
                 />
                 {(showJobs || viewAllJobs) && (
                   <div id="jobs-section">
-                    <JobSection 
-                      filters={filters} 
+                    <JobSection
+                      filters={filters}
                       showAll={viewAllJobs}
                       onBackToHome={() => setShowJobs(false)}
+                      onFiltersChange={setFilters}
                     />
                   </div>
                 )}

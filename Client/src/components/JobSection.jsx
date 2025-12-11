@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import JobCard from "./JobCard";
 import JobDetails from "./JobDetails";
-import { FaSearch, FaFilter, FaSort, FaSpinner, FaArrowLeft, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { FaSearch, FaFilter, FaSort, FaSpinner, FaArrowLeft, FaChevronLeft, FaChevronRight, FaTimes, FaPassport, FaBriefcase, FaMapMarkerAlt } from "react-icons/fa";
 import { API_BASE_URL } from '../config/api';
 
-const JobSection = ({ filters, showAll, onBackToHome }) => {
+const JobSection = ({ filters, showAll, onBackToHome, onFiltersChange }) => {
   const [jobs, setJobs] = useState([]);
   const [selectedJob, setSelectedJob] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -14,14 +14,31 @@ const JobSection = ({ filters, showAll, onBackToHome }) => {
   const [totalJobs, setTotalJobs] = useState(0);
   const JOBS_PER_PAGE = 20;
 
+  // Local filter state for the filter panel
+  const [localFilters, setLocalFilters] = useState({
+    jobType: filters.jobType || '',
+    visaSponsorship: filters.visaSponsorship || '',
+    location: filters.location || ''
+  });
+
+  // Sync local filters when props change
+  useEffect(() => {
+    setLocalFilters({
+      jobType: filters.jobType || '',
+      visaSponsorship: filters.visaSponsorship || '',
+      location: filters.location || ''
+    });
+  }, [filters]);
+
   useEffect(() => {
     const fetchJobs = async () => {
       setIsLoading(true);
       try {
-        // Build query string
+        // Build query string with ALL filter params
         const params = new URLSearchParams();
         if (filters.title) params.append('title', filters.title);
         if (filters.location) params.append('location', filters.location);
+        if (filters.jobType) params.append('jobType', filters.jobType);
         if (filters.visaSponsorship) params.append('visaSponsorship', filters.visaSponsorship);
 
         // Fetch from real API (local DB + GitHub repos + APIs)
@@ -159,7 +176,7 @@ const JobSection = ({ filters, showAll, onBackToHome }) => {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#0d6d6e] focus:border-transparent"
               >
                 <option value="recent">Most Recent</option>
                 <option value="title">Job Title A-Z</option>
@@ -167,13 +184,120 @@ const JobSection = ({ filters, showAll, onBackToHome }) => {
             </div>
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center space-x-2 border border-gray-300 rounded-lg px-4 py-2 hover:bg-gray-50 transition-colors"
+              className={`flex items-center space-x-2 border rounded-lg px-4 py-2 transition-colors ${
+                showFilters || filters.jobType || filters.visaSponsorship
+                  ? 'border-[#0d6d6e] bg-[#e6f3f3] text-[#0d6d6e]'
+                  : 'border-gray-300 hover:bg-gray-50'
+              }`}
             >
               <FaFilter />
               <span>Filters</span>
+              {(filters.jobType || filters.visaSponsorship) && (
+                <span className="bg-[#0d6d6e] text-white text-xs px-1.5 py-0.5 rounded-full">
+                  {[filters.jobType, filters.visaSponsorship].filter(Boolean).length}
+                </span>
+              )}
             </button>
           </div>
         </div>
+
+        {/* Filter Panel */}
+        {showFilters && (
+          <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold text-gray-900">Filter Jobs</h3>
+              <button
+                onClick={() => setShowFilters(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <FaTimes />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Job Type Filter */}
+              <div>
+                <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
+                  <FaBriefcase className="mr-2 text-gray-400" />
+                  Job Type
+                </label>
+                <select
+                  value={localFilters.jobType}
+                  onChange={(e) => setLocalFilters(prev => ({ ...prev, jobType: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none"
+                >
+                  <option value="">All Types</option>
+                  <option value="full-time">Full-time</option>
+                  <option value="part-time">Part-time</option>
+                  <option value="internship">Internship</option>
+                  <option value="contract">Contract</option>
+                </select>
+              </div>
+
+              {/* Visa Sponsorship Filter */}
+              <div>
+                <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
+                  <FaPassport className="mr-2 text-gray-400" />
+                  Visa Sponsorship
+                </label>
+                <select
+                  value={localFilters.visaSponsorship}
+                  onChange={(e) => setLocalFilters(prev => ({ ...prev, visaSponsorship: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none"
+                >
+                  <option value="">Any</option>
+                  <option value="sponsors">Sponsors H1B/Visa</option>
+                </select>
+              </div>
+
+              {/* Location Filter */}
+              <div>
+                <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
+                  <FaMapMarkerAlt className="mr-2 text-gray-400" />
+                  Location
+                </label>
+                <input
+                  type="text"
+                  value={localFilters.location}
+                  onChange={(e) => setLocalFilters(prev => ({ ...prev, location: e.target.value }))}
+                  placeholder="City, state, or remote"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Filter Actions */}
+            <div className="flex items-center justify-end gap-3 mt-4 pt-4 border-t border-gray-200">
+              <button
+                onClick={() => {
+                  setLocalFilters({ jobType: '', visaSponsorship: '', location: '' });
+                  if (onFiltersChange) {
+                    onFiltersChange({ ...filters, jobType: '', visaSponsorship: '', location: '' });
+                  }
+                }}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+              >
+                Clear Filters
+              </button>
+              <button
+                onClick={() => {
+                  if (onFiltersChange) {
+                    onFiltersChange({
+                      ...filters,
+                      jobType: localFilters.jobType,
+                      visaSponsorship: localFilters.visaSponsorship,
+                      location: localFilters.location || filters.location
+                    });
+                  }
+                  setShowFilters(false);
+                }}
+                className="px-4 py-2 bg-[#0d6d6e] text-white rounded-lg hover:bg-[#095555] transition-colors"
+              >
+                Apply Filters
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Main content */}
