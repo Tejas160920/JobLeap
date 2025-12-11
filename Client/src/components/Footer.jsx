@@ -70,14 +70,6 @@ const Footer = () => {
               </li>
               <li>
                 <button
-                  onClick={() => handleNavigation('/company-reviews')}
-                  className="text-gray-500 hover:text-white transition-colors text-left"
-                >
-                  Company Reviews
-                </button>
-              </li>
-              <li>
-                <button
                   onClick={() => handleNavigation('/career-advice')}
                   className="text-gray-500 hover:text-white transition-colors text-left"
                 >

@@ -86,9 +86,6 @@ const Navbar = () => {
             <Link to="/" className={navLinkClass("/")}>
               Find Jobs
             </Link>
-            <Link to="/company-reviews" className={navLinkClass("/company-reviews")}>
-              Companies
-            </Link>
             <Link to="/career-advice" className={navLinkClass("/career-advice")}>
               Career Advice
             </Link>
@@ -239,13 +236,6 @@ const Navbar = () => {
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Find Jobs
-              </Link>
-              <Link
-                to="/company-reviews"
-                className={`block px-3 py-2 text-sm font-medium rounded-lg ${isActive('/company-reviews') ? 'text-[#0d6d6e] bg-[#e6f3f3]' : 'text-gray-600 hover:bg-gray-50'}`}
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Companies
               </Link>
               <Link
                 to="/career-advice"

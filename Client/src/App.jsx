@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import JobSection from './components/JobSection';
-import CompanyReviews from './components/CompanyReviews';
 import Login from './components/Login';
 import JobForm from './components/JobForm';
 import Signup from './components/Signup';
@@ -47,13 +46,9 @@ function AppContent() {
     }
   }, []);
 
-  // Handle navigation from CompanyReviews
+  // Handle navigation with filters
   useEffect(() => {
-    if (location.state?.companyFilter) {
-      setFilters({ title: location.state.companyFilter, location: "" });
-      setShowJobs(true);
-      setViewAllJobs(false);
-    } else if (location.state?.industryFilter) {
+    if (location.state?.industryFilter) {
       setFilters({ title: location.state.industryFilter, location: "" });
       setShowJobs(true);
       setViewAllJobs(false);
@@ -121,7 +116,6 @@ function AppContent() {
           <Route path="/post-job" element={<JobForm />} />
           <Route path="/my-jobs" element={<MyJobs />} />
           <Route path="/edit-job/:id" element={<EditJob />} />
-          <Route path="/company-reviews" element={<CompanyReviews />} />
           <Route path="/career-advice" element={<CareerAdvice />} />
           <Route path="/resume-builder" element={<ResumeBuilder />} />
           <Route path="/h1b-sponsors" element={<H1BSponsors />} />
