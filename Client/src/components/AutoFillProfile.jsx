@@ -97,6 +97,8 @@ const AutoFillProfile = () => {
   const [saveMessage, setSaveMessage] = useState("");
   const [skillSearch, setSkillSearch] = useState("");
   const [isCompleted, setIsCompleted] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [profileExists, setProfileExists] = useState(false);
 
   // Form data state
   const [formData, setFormData] = useState({
@@ -167,7 +169,7 @@ const AutoFillProfile = () => {
     otherWebsite: "",
   });
 
-  // Load existing profile data on mount (non-blocking)
+  // Load existing profile data on mount
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -175,13 +177,13 @@ const AutoFillProfile = () => {
       return;
     }
 
-    // Load profile in background without blocking UI
     const loadProfile = async () => {
+      setIsLoading(true);
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
+        const timeoutId = setTimeout(() => controller.abort(), 8000); // 8s timeout
 
-        const response = await fetch(`${API_URL}/api/extension/profile`, {
+        const response = await fetch(`${API_URL}/api/auth/autofill-profile`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -192,34 +194,67 @@ const AutoFillProfile = () => {
 
         if (response.ok) {
           const data = await response.json();
-          if (data.profile) {
+          const raw = data.raw; // Raw autofillProfile data from server
+
+          if (raw && raw.firstName) {
+            // Profile exists - load it into form data
+            setProfileExists(true);
+
             // Map backend profile to form data
             setFormData((prev) => ({
               ...prev,
-              firstName: data.profile.personal?.firstName || prev.firstName,
-              lastName: data.profile.personal?.lastName || prev.lastName,
-              phone: data.profile.personal?.phone || prev.phone,
-              currentLocation: data.profile.personal?.address?.city
-                ? `${data.profile.personal.address.city}, ${data.profile.personal.address.state || ""}`
-                : prev.currentLocation,
-              linkedIn: data.profile.personal?.linkedIn || prev.linkedIn,
-              github: data.profile.personal?.github || prev.github,
-              portfolio: data.profile.personal?.portfolio || prev.portfolio,
-              skills: data.profile.skills?.length ? data.profile.skills : prev.skills,
-              education: data.profile.education?.length
-                ? data.profile.education
+              firstName: raw.firstName || "",
+              lastName: raw.lastName || "",
+              phone: raw.personal?.phone || "",
+              dateOfBirth: raw.personal?.dateOfBirth || "",
+              currentLocation: raw.personal?.location || "",
+              linkedIn: raw.links?.linkedin || "",
+              github: raw.links?.github || "",
+              portfolio: raw.links?.portfolio || "",
+              skills: raw.skills || [],
+              education: raw.education?.length
+                ? raw.education.map((edu) => ({
+                    schoolName: edu.school || "",
+                    degreeType: edu.degree || "",
+                    major: edu.major || "",
+                    gpa: edu.gpa || "",
+                    startMonth: edu.startDate?.split("-")[1] || "",
+                    startYear: edu.startDate?.split("-")[0] || "",
+                    endMonth: edu.endDate?.split("-")[1] || "",
+                    endYear: edu.endDate?.split("-")[0] || "",
+                  }))
                 : prev.education,
-              experience: data.profile.experience?.length
-                ? data.profile.experience
+              noExperience: raw.lookingForFirstJob || false,
+              experience: raw.experience?.length
+                ? raw.experience.map((exp) => ({
+                    positionTitle: exp.position || "",
+                    companyName: exp.company || "",
+                    location: exp.location || "",
+                    startMonth: exp.startDate?.split("-")[1] || "",
+                    startYear: exp.startDate?.split("-")[0] || "",
+                    endMonth: exp.endDate?.split("-")[1] || "",
+                    endYear: exp.endDate?.split("-")[0] || "",
+                    currentlyWorking: exp.current || false,
+                  }))
                 : prev.experience,
-              authorizedUS: data.profile.preferences?.authorizedToWork ?? prev.authorizedUS,
-              requiresSponsorship: data.profile.preferences?.requiresSponsorship ?? prev.requiresSponsorship,
+              authorizedUS: raw.workAuthorization?.authorizedUS || null,
+              authorizedCanada: raw.workAuthorization?.authorizedCanada || null,
+              authorizedUK: raw.workAuthorization?.authorizedUK || null,
+              requiresSponsorship: raw.workAuthorization?.requireSponsorship || null,
+              gender: raw.eeo?.gender || "",
+              ethnicity: raw.eeo?.ethnicity ? [raw.eeo.ethnicity] : [],
+              isVeteran: raw.eeo?.veteranStatus || null,
+              hasDisability: raw.eeo?.disabilityStatus || null,
             }));
+
+            // Show the completed profile view
+            setIsCompleted(true);
           }
         }
       } catch (error) {
-        // Silently fail - user can still fill the form
         console.log("Could not load existing profile:", error.message);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -457,8 +492,9 @@ const AutoFillProfile = () => {
   const handleSubmit = async () => {
     if (validateStep(currentStep)) {
       await saveProgress();
+      setProfileExists(true); // Now the profile exists in database
       setIsCompleted(true);
-      setSaveMessage("Profile completed successfully!");
+      setSaveMessage(profileExists ? "Profile updated successfully!" : "Profile completed successfully!");
     }
   };
 
@@ -478,10 +514,19 @@ const AutoFillProfile = () => {
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <FaCheck className="w-8 h-8 text-green-600" />
             </div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Profile Complete!</h1>
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+              {profileExists ? "Your AutoFill Profile" : "Profile Complete!"}
+            </h1>
             <p className="text-lg text-gray-600">
-              Your profile is ready to autofill job applications.
+              {profileExists
+                ? "Your profile is saved and ready to autofill job applications."
+                : "Your profile is ready to autofill job applications."}
             </p>
+            {profileExists && (
+              <p className="text-sm text-gray-500 mt-2">
+                Last updated: {new Date().toLocaleDateString()}
+              </p>
+            )}
           </div>
 
           {/* Profile Summary Card */}
@@ -1958,6 +2003,18 @@ const AutoFillProfile = () => {
     }
   };
 
+  // Show loading spinner while checking for existing profile
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 pt-24 pb-8 flex items-center justify-center">
+        <div className="text-center">
+          <FaSpinner className="animate-spin text-4xl text-[#0d6d6e] mx-auto mb-4" />
+          <p className="text-gray-600">Loading your profile...</p>
+        </div>
+      </div>
+    );
+  }
+
   // Show profile summary if completed
   if (isCompleted) {
     return renderProfileSummary();
@@ -2032,14 +2089,14 @@ const AutoFillProfile = () => {
                   type="button"
                   onClick={handleSubmit}
                   disabled={isSaving}
-                  className="flex items-center px-8 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-all disabled:opacity-50 shadow-md"
+                  className="flex items-center px-8 py-3 bg-[#0d6d6e] text-white rounded-lg font-medium hover:bg-[#095555] transition-all disabled:opacity-50 shadow-md"
                 >
                   {isSaving ? (
                     <FaSpinner className="w-4 h-4 mr-2 animate-spin" />
                   ) : (
                     <FaCheck className="w-4 h-4 mr-2" />
                   )}
-                  Complete Profile
+                  {profileExists ? "Update Profile" : "Complete Profile"}
                 </button>
               )}
             </div>
