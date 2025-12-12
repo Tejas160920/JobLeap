@@ -298,12 +298,13 @@ module.exports = async (req, res) => {
       }
     }
 
-    // Mark old jobs as expired (not seen in 7 days)
-    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    // Mark old jobs as expired (not seen in the last 2 hours)
+    // This ensures only freshly refreshed jobs remain active
+    const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
     const expiredResult = await Job.updateMany(
       {
         source: { $ne: 'local' },
-        lastSeenAt: { $lt: sevenDaysAgo },
+        lastSeenAt: { $lt: twoHoursAgo },
         status: 'active'
       },
       { $set: { status: 'expired' } }
