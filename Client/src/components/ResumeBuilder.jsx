@@ -20,6 +20,7 @@ import {
   FaCheck
 } from "react-icons/fa";
 import axios from "axios";
+import LoginRequiredModal from "./LoginRequiredModal";
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL + "/api" || "http://localhost:5000/api";
 
@@ -41,6 +42,9 @@ const ResumeBuilder = () => {
   // Validation state
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
+
+  // Login modal state
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   // Action verbs for suggestions
   const actionVerbs = [
@@ -528,6 +532,13 @@ const ResumeBuilder = () => {
   };
 
   const downloadResume = () => {
+    // Check if user is logged in
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setShowLoginModal(true);
+      return;
+    }
+
     if (!validateStep2()) {
       alert('Please fill in all required personal information fields.');
       return;
@@ -544,6 +555,13 @@ const ResumeBuilder = () => {
   };
 
   const generatePDF = () => {
+    // Check if user is logged in
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setShowLoginModal(true);
+      return;
+    }
+
     if (!validateStep2()) {
       alert('Please fill in all required personal information fields.');
       return;
@@ -1449,6 +1467,13 @@ const ResumeBuilder = () => {
           </div>
         </div>
       </div>
+
+      {/* Login Required Modal */}
+      <LoginRequiredModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        feature="Resume Builder downloads"
+      />
     </div>
   );
 };

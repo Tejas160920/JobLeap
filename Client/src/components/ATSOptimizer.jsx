@@ -18,6 +18,7 @@ import {
   FaGlobe
 } from "react-icons/fa";
 import axios from "axios";
+import LoginRequiredModal from "./LoginRequiredModal";
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL + "/api" || "http://localhost:5000/api";
 
@@ -31,6 +32,7 @@ const ATSOptimizer = () => {
   const [error, setError] = useState("");
   const [analysis, setAnalysis] = useState(null);
   const fileInputRef = useRef(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const visaOptions = [
     { value: "", label: "Select your visa status" },
@@ -91,6 +93,13 @@ const ATSOptimizer = () => {
   };
 
   const analyzeResume = async () => {
+    // Check if user is logged in
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setShowLoginModal(true);
+      return;
+    }
+
     if (!resumeFile) {
       setError("Please upload your resume");
       return;
@@ -680,6 +689,13 @@ const ATSOptimizer = () => {
           </div>
         </section>
       )}
+
+      {/* Login Required Modal */}
+      <LoginRequiredModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        feature="the ATS Optimizer"
+      />
     </main>
   );
 };

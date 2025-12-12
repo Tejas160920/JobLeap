@@ -18,6 +18,7 @@ import {
   FaCheckCircle
 } from "react-icons/fa";
 import axios from "axios";
+import LoginRequiredModal from "./LoginRequiredModal";
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 
@@ -43,6 +44,7 @@ const CoverLetterGenerator = () => {
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState("");
   const [showTips, setShowTips] = useState(true);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   // Handle file selection
   const handleFileSelect = (file) => {
@@ -99,6 +101,13 @@ const CoverLetterGenerator = () => {
 
   // Generate cover letter
   const generateCoverLetter = async () => {
+    // Check if user is logged in
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setShowLoginModal(true);
+      return;
+    }
+
     if (!resumeFile) {
       setError("Please upload your resume");
       return;
@@ -601,6 +610,13 @@ const CoverLetterGenerator = () => {
           </div>
         </div>
       </div>
+
+      {/* Login Required Modal */}
+      <LoginRequiredModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        feature="the Cover Letter Generator"
+      />
     </div>
   );
 };
