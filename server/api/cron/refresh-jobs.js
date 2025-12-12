@@ -69,7 +69,13 @@ const fetchSimplifyInternships = async () => {
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const jobs = await response.json();
 
-    return jobs.slice(0, 2000).map(job => ({
+    // Sort by date_posted descending (newest first), then take first 2000
+    const sortedJobs = jobs
+      .filter(job => job.active !== false) // Only active jobs
+      .sort((a, b) => (b.date_posted || 0) - (a.date_posted || 0))
+      .slice(0, 2000);
+
+    return sortedJobs.map(job => ({
       externalId: `simplify_${job.id || job.url || Math.random().toString(36).substr(2, 9)}`,
       title: job.title || 'Software Engineering Intern',
       company: job.company_name || 'Unknown Company',
@@ -100,7 +106,13 @@ const fetchSimplifyNewGrad = async () => {
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const jobs = await response.json();
 
-    return jobs.slice(0, 2000).map(job => ({
+    // Sort by date_posted descending (newest first), then take first 2000
+    const sortedJobs = jobs
+      .filter(job => job.active !== false) // Only active jobs
+      .sort((a, b) => (b.date_posted || 0) - (a.date_posted || 0))
+      .slice(0, 2000);
+
+    return sortedJobs.map(job => ({
       externalId: `simplify_ng_${job.id || job.url || Math.random().toString(36).substr(2, 9)}`,
       title: job.title || 'Software Engineer',
       company: job.company_name || 'Unknown Company',
