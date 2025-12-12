@@ -94,6 +94,7 @@ const AutoFillProfile = () => {
   const [errors, setErrors] = useState({});
   const [saveMessage, setSaveMessage] = useState("");
   const [skillSearch, setSkillSearch] = useState("");
+  const [isCompleted, setIsCompleted] = useState(false);
 
   // Form data state
   const [formData, setFormData] = useState({
@@ -432,11 +433,351 @@ const AutoFillProfile = () => {
   const handleSubmit = async () => {
     if (validateStep(currentStep)) {
       await saveProgress();
+      setIsCompleted(true);
       setSaveMessage("Profile completed successfully!");
-      setTimeout(() => {
-        navigate("/");
-      }, 1500);
     }
+  };
+
+  // Edit a specific section
+  const editSection = (stepIndex) => {
+    setIsCompleted(false);
+    setCurrentStep(stepIndex);
+  };
+
+  // Render profile summary after completion
+  const renderProfileSummary = () => {
+    return (
+      <div className="min-h-screen bg-gray-50 pt-24 pb-8">
+        <div className="max-w-4xl mx-auto px-4">
+          {/* Success Header */}
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <FaCheck className="w-8 h-8 text-green-600" />
+            </div>
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">Profile Complete!</h1>
+            <p className="text-lg text-gray-600">
+              Your profile is ready to autofill job applications.
+            </p>
+          </div>
+
+          {/* Profile Summary Card */}
+          <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+            {/* Section: Basics */}
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-gray-900 flex items-center mb-3">
+                    <FaUser className="w-5 h-5 mr-2 text-indigo-600" />
+                    Basic Information
+                  </h3>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-gray-500">Name:</span>
+                      <p className="font-medium text-gray-900">{formData.firstName} {formData.lastName}</p>
+                    </div>
+                    {formData.resumeFileName && (
+                      <div>
+                        <span className="text-gray-500">Resume:</span>
+                        <p className="font-medium text-gray-900">{formData.resumeFileName}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <button
+                  onClick={() => editSection(0)}
+                  className="text-indigo-600 hover:text-indigo-700 text-sm font-medium flex items-center"
+                >
+                  Edit <FaArrowRight className="w-3 h-3 ml-1" />
+                </button>
+              </div>
+            </div>
+
+            {/* Section: Education */}
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-gray-900 flex items-center mb-3">
+                    <FaGraduationCap className="w-5 h-5 mr-2 text-indigo-600" />
+                    Education
+                  </h3>
+                  {formData.education.filter(e => e.schoolName).length > 0 ? (
+                    <div className="space-y-3">
+                      {formData.education.filter(e => e.schoolName).map((edu, i) => (
+                        <div key={i} className="text-sm">
+                          <p className="font-medium text-gray-900">{edu.schoolName}</p>
+                          <p className="text-gray-600">
+                            {edu.degreeType} {edu.major && `in ${edu.major}`}
+                            {edu.gpa && ` • GPA: ${edu.gpa}`}
+                          </p>
+                          {edu.startYear && (
+                            <p className="text-gray-500 text-xs">
+                              {edu.startMonth}/{edu.startYear} - {edu.endMonth}/{edu.endYear || 'Present'}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 text-sm italic">No education added</p>
+                  )}
+                </div>
+                <button
+                  onClick={() => editSection(1)}
+                  className="text-indigo-600 hover:text-indigo-700 text-sm font-medium flex items-center"
+                >
+                  Edit <FaArrowRight className="w-3 h-3 ml-1" />
+                </button>
+              </div>
+            </div>
+
+            {/* Section: Experience */}
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-gray-900 flex items-center mb-3">
+                    <FaBriefcase className="w-5 h-5 mr-2 text-indigo-600" />
+                    Work Experience
+                  </h3>
+                  {formData.noExperience ? (
+                    <p className="text-gray-500 text-sm italic">Looking for first job</p>
+                  ) : formData.experience.filter(e => e.positionTitle).length > 0 ? (
+                    <div className="space-y-3">
+                      {formData.experience.filter(e => e.positionTitle).map((exp, i) => (
+                        <div key={i} className="text-sm">
+                          <p className="font-medium text-gray-900">{exp.positionTitle}</p>
+                          <p className="text-gray-600">
+                            {exp.company} {exp.location && `• ${exp.location}`}
+                          </p>
+                          {exp.startYear && (
+                            <p className="text-gray-500 text-xs">
+                              {exp.startMonth}/{exp.startYear} - {exp.currentlyWorking ? 'Present' : `${exp.endMonth}/${exp.endYear}`}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 text-sm italic">No experience added</p>
+                  )}
+                </div>
+                <button
+                  onClick={() => editSection(2)}
+                  className="text-indigo-600 hover:text-indigo-700 text-sm font-medium flex items-center"
+                >
+                  Edit <FaArrowRight className="w-3 h-3 ml-1" />
+                </button>
+              </div>
+            </div>
+
+            {/* Section: Work Authorization */}
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-gray-900 flex items-center mb-3">
+                    <FaPassport className="w-5 h-5 mr-2 text-indigo-600" />
+                    Work Authorization
+                  </h3>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div className="flex items-center">
+                      <span className={`w-2 h-2 rounded-full mr-2 ${formData.authorizedUS === true ? 'bg-green-500' : formData.authorizedUS === false ? 'bg-red-500' : 'bg-gray-300'}`}></span>
+                      <span className="text-gray-600">US: </span>
+                      <span className="font-medium ml-1">{formData.authorizedUS === true ? 'Yes' : formData.authorizedUS === false ? 'No' : 'Not set'}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <span className={`w-2 h-2 rounded-full mr-2 ${formData.authorizedCanada === true ? 'bg-green-500' : formData.authorizedCanada === false ? 'bg-red-500' : 'bg-gray-300'}`}></span>
+                      <span className="text-gray-600">Canada: </span>
+                      <span className="font-medium ml-1">{formData.authorizedCanada === true ? 'Yes' : formData.authorizedCanada === false ? 'No' : 'Not set'}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <span className={`w-2 h-2 rounded-full mr-2 ${formData.authorizedUK === true ? 'bg-green-500' : formData.authorizedUK === false ? 'bg-red-500' : 'bg-gray-300'}`}></span>
+                      <span className="text-gray-600">UK: </span>
+                      <span className="font-medium ml-1">{formData.authorizedUK === true ? 'Yes' : formData.authorizedUK === false ? 'No' : 'Not set'}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <span className={`w-2 h-2 rounded-full mr-2 ${formData.requiresSponsorship === true ? 'bg-yellow-500' : formData.requiresSponsorship === false ? 'bg-green-500' : 'bg-gray-300'}`}></span>
+                      <span className="text-gray-600">Sponsorship: </span>
+                      <span className="font-medium ml-1">{formData.requiresSponsorship === true ? 'Required' : formData.requiresSponsorship === false ? 'Not needed' : 'Not set'}</span>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => editSection(3)}
+                  className="text-indigo-600 hover:text-indigo-700 text-sm font-medium flex items-center"
+                >
+                  Edit <FaArrowRight className="w-3 h-3 ml-1" />
+                </button>
+              </div>
+            </div>
+
+            {/* Section: EEO */}
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-gray-900 flex items-center mb-3">
+                    <FaUsers className="w-5 h-5 mr-2 text-indigo-600" />
+                    Equal Employment Opportunity
+                  </h3>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <span className="text-gray-500">Gender:</span>
+                      <p className="font-medium text-gray-900">{formData.gender || 'Not set'}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">Ethnicity:</span>
+                      <p className="font-medium text-gray-900">
+                        {formData.declineEthnicity ? 'Declined' : formData.ethnicity.length > 0 ? formData.ethnicity.join(', ') : 'Not set'}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">Veteran:</span>
+                      <p className="font-medium text-gray-900">{formData.isVeteran === true ? 'Yes' : formData.isVeteran === false ? 'No' : 'Not set'}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">Disability:</span>
+                      <p className="font-medium text-gray-900">{formData.hasDisability === true ? 'Yes' : formData.hasDisability === false ? 'No' : 'Not set'}</p>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => editSection(4)}
+                  className="text-indigo-600 hover:text-indigo-700 text-sm font-medium flex items-center"
+                >
+                  Edit <FaArrowRight className="w-3 h-3 ml-1" />
+                </button>
+              </div>
+            </div>
+
+            {/* Section: Skills */}
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-gray-900 flex items-center mb-3">
+                    <FaTools className="w-5 h-5 mr-2 text-indigo-600" />
+                    Skills
+                  </h3>
+                  {formData.skills.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {formData.skills.map((skill, i) => (
+                        <span key={i} className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm">
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 text-sm italic">No skills added</p>
+                  )}
+                </div>
+                <button
+                  onClick={() => editSection(5)}
+                  className="text-indigo-600 hover:text-indigo-700 text-sm font-medium flex items-center"
+                >
+                  Edit <FaArrowRight className="w-3 h-3 ml-1" />
+                </button>
+              </div>
+            </div>
+
+            {/* Section: Personal */}
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-gray-900 flex items-center mb-3">
+                    <FaMapMarkerAlt className="w-5 h-5 mr-2 text-indigo-600" />
+                    Personal Information
+                  </h3>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <span className="text-gray-500">Location:</span>
+                      <p className="font-medium text-gray-900">{formData.currentLocation || 'Not set'}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">Phone:</span>
+                      <p className="font-medium text-gray-900">{formData.phone ? `${formData.phoneCountryCode} ${formData.phone}` : 'Not set'}</p>
+                    </div>
+                    {formData.dateOfBirth && (
+                      <div>
+                        <span className="text-gray-500">Date of Birth:</span>
+                        <p className="font-medium text-gray-900">{formData.dateOfBirth}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <button
+                  onClick={() => editSection(6)}
+                  className="text-indigo-600 hover:text-indigo-700 text-sm font-medium flex items-center"
+                >
+                  Edit <FaArrowRight className="w-3 h-3 ml-1" />
+                </button>
+              </div>
+            </div>
+
+            {/* Section: Links */}
+            <div className="p-6">
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-gray-900 flex items-center mb-3">
+                    <FaLink className="w-5 h-5 mr-2 text-indigo-600" />
+                    Links
+                  </h3>
+                  <div className="space-y-2 text-sm">
+                    {formData.linkedIn && (
+                      <div className="flex items-center">
+                        <FaLinkedin className="w-4 h-4 mr-2 text-blue-600" />
+                        <a href={formData.linkedIn} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline truncate">
+                          {formData.linkedIn}
+                        </a>
+                      </div>
+                    )}
+                    {formData.github && (
+                      <div className="flex items-center">
+                        <FaGithub className="w-4 h-4 mr-2" />
+                        <a href={formData.github} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline truncate">
+                          {formData.github}
+                        </a>
+                      </div>
+                    )}
+                    {formData.portfolio && (
+                      <div className="flex items-center">
+                        <FaGlobe className="w-4 h-4 mr-2 text-green-600" />
+                        <a href={formData.portfolio} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline truncate">
+                          {formData.portfolio}
+                        </a>
+                      </div>
+                    )}
+                    {formData.otherWebsite && (
+                      <div className="flex items-center">
+                        <FaGlobe className="w-4 h-4 mr-2 text-gray-500" />
+                        <a href={formData.otherWebsite} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline truncate">
+                          {formData.otherWebsite}
+                        </a>
+                      </div>
+                    )}
+                    {!formData.linkedIn && !formData.github && !formData.portfolio && !formData.otherWebsite && (
+                      <p className="text-gray-500 italic">No links added</p>
+                    )}
+                  </div>
+                </div>
+                <button
+                  onClick={() => editSection(7)}
+                  className="text-indigo-600 hover:text-indigo-700 text-sm font-medium flex items-center"
+                >
+                  Edit <FaArrowRight className="w-3 h-3 ml-1" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="mt-8 flex justify-center gap-4">
+            <button
+              onClick={() => navigate("/")}
+              className="px-8 py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-all shadow-md"
+            >
+              Start Applying to Jobs
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   // Render step navigation
@@ -1560,6 +1901,11 @@ const AutoFillProfile = () => {
         return null;
     }
   };
+
+  // Show profile summary if completed
+  if (isCompleted) {
+    return renderProfileSummary();
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 pt-24 pb-8">
