@@ -11,7 +11,7 @@ import MyApplications from './components/MyApplications';
 import MyJobs from './components/MyJobs';
 import EditJob from './components/EditJob';
 import Settings from './components/Settings';
-import CareerAdvice from './components/CareerAdvice';
+import AutoFillProfile from './components/AutoFillProfile';
 import ResumeBuilder from './components/ResumeBuilder';
 import H1BSponsors from './components/H1BSponsors';
 import ATSOptimizer from './components/ATSOptimizer';
@@ -136,7 +136,7 @@ function AppContent() {
           <Route path="/post-job" element={<JobForm />} />
           <Route path="/my-jobs" element={<MyJobs />} />
           <Route path="/edit-job/:id" element={<EditJob />} />
-          <Route path="/career-advice" element={<CareerAdvice />} />
+          <Route path="/autofill-profile" element={<AutoFillProfile />} />
           <Route path="/resume-builder" element={<ResumeBuilder />} />
           <Route path="/h1b-sponsors" element={<H1BSponsors />} />
           <Route path="/ats-optimizer" element={<ATSOptimizer />} />

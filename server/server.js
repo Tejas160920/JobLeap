@@ -100,6 +100,11 @@ const corsOptions = {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
 
+    // Allow Chrome extension origins
+    if (origin.startsWith('chrome-extension://')) {
+      return callback(null, true);
+    }
+
     // In development, allow all localhost origins
     if (!isProduction && (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:'))) {
       return callback(null, true);
@@ -153,6 +158,7 @@ const atsRoutes = require("./routes/atsRoutes");
 const h1bRoutes = require("./routes/h1bRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const jobAlertRoutes = require("./routes/jobAlertRoutes");
+const extensionRoutes = require("./routes/extensionRoutes");
 
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api", jobRoutes);
@@ -162,6 +168,7 @@ app.use("/api/ats", atsRoutes);
 app.use("/api/h1b", h1bRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/job-alerts", jobAlertRoutes);
+app.use("/api/extension", extensionRoutes);
 
 // Global error handler
 app.use((err, req, res, next) => {

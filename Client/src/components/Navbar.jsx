@@ -85,8 +85,8 @@ const Navbar = () => {
             <Link to="/" className={navLinkClass("/")}>
               Find Jobs
             </Link>
-            <Link to="/career-advice" className={navLinkClass("/career-advice")}>
-              Career Advice
+            <Link to="/autofill-profile" className={navLinkClass("/autofill-profile")}>
+              AutoFill Profile
             </Link>
             <Link to="/resume-builder" className={navLinkClass("/resume-builder")}>
               Resume Builder
@@ -240,11 +240,11 @@ const Navbar = () => {
                 Find Jobs
               </Link>
               <Link
-                to="/career-advice"
-                className={`block px-3 py-2 text-sm font-medium rounded-lg ${isActive('/career-advice') ? 'text-[#0d6d6e] bg-[#e6f3f3]' : 'text-gray-600 hover:bg-gray-50'}`}
+                to="/autofill-profile"
+                className={`block px-3 py-2 text-sm font-medium rounded-lg ${isActive('/autofill-profile') ? 'text-[#0d6d6e] bg-[#e6f3f3]' : 'text-gray-600 hover:bg-gray-50'}`}
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                Career Advice
+                AutoFill Profile
               </Link>
               <Link
                 to="/resume-builder"

@@ -70,10 +70,10 @@ const Footer = () => {
               </li>
               <li>
                 <button
-                  onClick={() => handleNavigation('/career-advice')}
+                  onClick={() => handleNavigation('/autofill-profile')}
                   className="text-gray-500 hover:text-white transition-colors text-left"
                 >
-                  Career Advice
+                  AutoFill Profile
                 </button>
               </li>
               <li>
