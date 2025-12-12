@@ -1,7 +1,7 @@
 const cron = require("node-cron");
 const JobAlert = require("../models/JobAlert");
 const User = require("../models/User");
-const Job = require("../models/Job");
+const Job = require("../models/job");
 const { createJobAlertNotification } = require("../services/notificationService");
 const { sendJobAlertEmail } = require("../services/emailService");
 
