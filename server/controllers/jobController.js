@@ -164,7 +164,8 @@ exports.getJobs = async (req, res) => {
 
     // Execute query with pagination
     // Prioritize GitHub sources (quality tech jobs) over RemoteOK, then sort by date
-    const [jobs, totalJobs] = await Promise.all([
+    // Also deduplicate by company+title combination
+    const [jobs, totalCount] = await Promise.all([
       Job.aggregate([
         { $match: query },
         {
@@ -179,16 +180,50 @@ exports.getJobs = async (req, res) => {
                 ],
                 default: 4
               }
+            },
+            // Create a key for deduplication (lowercase company + title)
+            dedupeKey: {
+              $concat: [
+                { $toLower: { $ifNull: ['$company', ''] } },
+                '_',
+                { $toLower: { $ifNull: ['$title', ''] } }
+              ]
             }
           }
         },
         { $sort: { sourcePriority: 1, postedAt: -1 } },
+        // Group by dedupeKey to remove duplicates, keep the first (best priority, most recent)
+        {
+          $group: {
+            _id: '$dedupeKey',
+            doc: { $first: '$$ROOT' }
+          }
+        },
+        { $replaceRoot: { newRoot: '$doc' } },
+        { $sort: { sourcePriority: 1, postedAt: -1 } },
         { $skip: skip },
         { $limit: limitNum },
-        { $project: { sourcePriority: 0 } }
+        { $project: { sourcePriority: 0, dedupeKey: 0 } }
       ]),
-      Job.countDocuments(query)
+      // For total count, also deduplicate
+      Job.aggregate([
+        { $match: query },
+        {
+          $group: {
+            _id: {
+              $concat: [
+                { $toLower: { $ifNull: ['$company', ''] } },
+                '_',
+                { $toLower: { $ifNull: ['$title', ''] } }
+              ]
+            }
+          }
+        },
+        { $count: 'total' }
+      ])
     ]);
+
+    const totalJobs = totalCount[0]?.total || 0;
 
     res.status(200).json({
       jobs,
