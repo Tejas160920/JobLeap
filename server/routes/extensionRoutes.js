@@ -5,7 +5,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { verifyToken } = require('../middleware/auth');
+const { verifyToken } = require('../middleware/authMiddleware');
 const User = require('../models/User');
 const Application = require('../models/Application');
 const Groq = require('groq-sdk');
