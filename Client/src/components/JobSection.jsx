@@ -39,13 +39,14 @@ const JobSection = ({ filters, showAll, onBackToHome, onFiltersChange, triggerAl
     visaSponsorship: ''
   });
 
-  // Sync local filters when props change
+  // Sync local filters when props change and reset page
   useEffect(() => {
     setLocalFilters({
       jobType: filters.jobType || '',
       visaSponsorship: filters.visaSponsorship || '',
       location: filters.location || ''
     });
+    setCurrentPage(1); // Reset to first page when filters change
   }, [filters]);
 
   // Generate alert name from filters
@@ -140,30 +141,30 @@ const JobSection = ({ filters, showAll, onBackToHome, onFiltersChange, triggerAl
     const fetchJobs = async () => {
       setIsLoading(true);
       try {
-        // Build query string with ALL filter params
+        // Build query string with ALL filter params including pagination
         const params = new URLSearchParams();
         if (filters.title) params.append('title', filters.title);
         if (filters.location) params.append('location', filters.location);
         if (filters.jobType) params.append('jobType', filters.jobType);
         if (filters.visaSponsorship) params.append('visaSponsorship', filters.visaSponsorship);
+        params.append('page', currentPage);
+        params.append('limit', JOBS_PER_PAGE);
 
-        // Fetch from real API (local DB + GitHub repos + APIs)
+        // Fetch from real API (MongoDB)
         const response = await fetch(`${API_BASE_URL}/jobs?${params.toString()}`);
         const data = await response.json();
 
-        // Handle both old format (array) and new format (object with jobs array)
-        let jobsData = Array.isArray(data) ? data : (data.jobs || []);
+        // Handle response with jobs array and pagination info
+        const jobsData = data.jobs || [];
+        const total = data.totalJobs || jobsData.length;
 
-        // Sort jobs based on selected criteria
-        if (sortBy === "recent") {
-          jobsData.sort((a, b) => new Date(b.postedAt) - new Date(a.postedAt));
-        } else if (sortBy === "title") {
+        // Sort jobs based on selected criteria (already sorted by backend, but can re-sort if needed)
+        if (sortBy === "title") {
           jobsData.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
         }
 
         setJobs(jobsData);
-        setTotalJobs(jobsData.length);
-        setCurrentPage(1);
+        setTotalJobs(total);
         setSelectedJob(jobsData[0] || null);
       } catch (error) {
         console.error("Error fetching jobs:", error);
@@ -175,13 +176,12 @@ const JobSection = ({ filters, showAll, onBackToHome, onFiltersChange, triggerAl
     };
 
     fetchJobs();
-  }, [filters, sortBy]);
+  }, [filters, sortBy, currentPage]);
 
-  // Calculate pagination
-  const totalPages = Math.ceil(jobs.length / JOBS_PER_PAGE);
-  const startIndex = (currentPage - 1) * JOBS_PER_PAGE;
-  const endIndex = startIndex + JOBS_PER_PAGE;
-  const currentJobs = jobs.slice(startIndex, endIndex);
+  // Calculate pagination (server-side now)
+  const totalPages = Math.ceil(totalJobs / JOBS_PER_PAGE);
+  // Jobs are already paginated from backend, so use them directly
+  const currentJobs = jobs;
 
   const goToNextPage = () => {
     if (currentPage < totalPages) {
