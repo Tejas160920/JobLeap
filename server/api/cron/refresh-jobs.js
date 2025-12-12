@@ -272,10 +272,16 @@ module.exports = async (req, res) => {
     });
 
     // Upsert jobs into MongoDB (bulk operation for speed)
+    // Always update postedAt from source data, don't preserve old dates
     const bulkOps = jobsWithVisa.map(job => ({
       updateOne: {
         filter: { externalId: job.externalId },
-        update: { $set: job },
+        update: {
+          $set: {
+            ...job,
+            postedAt: job.postedAt // Ensure postedAt is always updated from source
+          }
+        },
         upsert: true
       }
     }));

@@ -119,7 +119,12 @@ exports.getJobs = async (req, res) => {
     const { title, location, source, visaSponsorship, jobType, page = 1, limit = 20 } = req.query;
 
     // Build MongoDB query
-    const query = { status: 'active' };
+    // Only show jobs that were seen in the last 24 hours (fresh from latest refresh)
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const query = {
+      status: 'active',
+      lastSeenAt: { $gte: oneDayAgo }
+    };
 
     // Title search (searches title, company, and tags)
     if (title) {
