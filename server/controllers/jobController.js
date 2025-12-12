@@ -163,13 +163,30 @@ exports.getJobs = async (req, res) => {
     const skip = (pageNum - 1) * limitNum;
 
     // Execute query with pagination
-    // Sort by most recent postedAt first
+    // Prioritize GitHub sources (quality tech jobs) over RemoteOK, then sort by date
     const [jobs, totalJobs] = await Promise.all([
-      Job.find(query)
-        .sort({ postedAt: -1 })
-        .skip(skip)
-        .limit(limitNum)
-        .lean(),
+      Job.aggregate([
+        { $match: query },
+        {
+          $addFields: {
+            sourcePriority: {
+              $switch: {
+                branches: [
+                  { case: { $eq: ['$source', 'simplify'] }, then: 1 },
+                  { case: { $eq: ['$source', 'speedyapply'] }, then: 1 },
+                  { case: { $eq: ['$source', 'local'] }, then: 2 },
+                  { case: { $eq: ['$source', 'remoteok'] }, then: 3 }
+                ],
+                default: 4
+              }
+            }
+          }
+        },
+        { $sort: { sourcePriority: 1, postedAt: -1 } },
+        { $skip: skip },
+        { $limit: limitNum },
+        { $project: { sourcePriority: 0 } }
+      ]),
       Job.countDocuments(query)
     ]);
 
