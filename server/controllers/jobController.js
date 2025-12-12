@@ -163,67 +163,33 @@ exports.getJobs = async (req, res) => {
     const skip = (pageNum - 1) * limitNum;
 
     // Execute query with pagination
-    // Prioritize GitHub sources (quality tech jobs) over RemoteOK, then sort by date
-    // Also deduplicate by company+title combination
-    const [jobs, totalCount] = await Promise.all([
-      Job.aggregate([
-        { $match: query },
-        {
-          $addFields: {
-            sourcePriority: {
-              $switch: {
-                branches: [
-                  { case: { $eq: ['$source', 'simplify'] }, then: 1 },
-                  { case: { $eq: ['$source', 'speedyapply'] }, then: 1 },
-                  { case: { $eq: ['$source', 'local'] }, then: 2 },
-                  { case: { $eq: ['$source', 'remoteok'] }, then: 3 }
-                ],
-                default: 4
-              }
-            },
-            // Create a key for deduplication (lowercase company + title)
-            dedupeKey: {
-              $concat: [
-                { $toLower: { $ifNull: ['$company', ''] } },
-                '_',
-                { $toLower: { $ifNull: ['$title', ''] } }
-              ]
-            }
-          }
-        },
-        { $sort: { sourcePriority: 1, postedAt: -1 } },
-        // Group by dedupeKey to remove duplicates, keep the first (best priority, most recent)
-        {
-          $group: {
-            _id: '$dedupeKey',
-            doc: { $first: '$$ROOT' }
-          }
-        },
-        { $replaceRoot: { newRoot: '$doc' } },
-        { $sort: { sourcePriority: 1, postedAt: -1 } },
-        { $skip: skip },
-        { $limit: limitNum },
-        { $project: { sourcePriority: 0, dedupeKey: 0 } }
-      ]),
-      // For total count, also deduplicate
-      Job.aggregate([
-        { $match: query },
-        {
-          $group: {
-            _id: {
-              $concat: [
-                { $toLower: { $ifNull: ['$company', ''] } },
-                '_',
-                { $toLower: { $ifNull: ['$title', ''] } }
-              ]
-            }
-          }
-        },
-        { $count: 'total' }
-      ])
-    ]);
+    // Simple and fast: exclude remoteok first, then add remoteok at end if needed
+    const githubQuery = { ...query, source: { $in: ['simplify', 'speedyapply', 'local'] } };
+    const remoteokQuery = { ...query, source: 'remoteok' };
 
-    const totalJobs = totalCount[0]?.total || 0;
+    // Get GitHub/quality jobs first
+    const githubJobs = await Job.find(githubQuery)
+      .sort({ postedAt: -1 })
+      .skip(skip)
+      .limit(limitNum)
+      .lean();
+
+    let jobs = githubJobs;
+
+    // If we don't have enough GitHub jobs, fill with RemoteOK
+    if (githubJobs.length < limitNum) {
+      const remaining = limitNum - githubJobs.length;
+      const remoteokSkip = Math.max(0, skip - await Job.countDocuments(githubQuery));
+      const remoteokJobs = await Job.find(remoteokQuery)
+        .sort({ postedAt: -1 })
+        .skip(remoteokSkip)
+        .limit(remaining)
+        .lean();
+      jobs = [...githubJobs, ...remoteokJobs];
+    }
+
+    // Get total count
+    const totalJobs = await Job.countDocuments(query);
 
     res.status(200).json({
       jobs,
