@@ -163,30 +163,13 @@ exports.getJobs = async (req, res) => {
     const skip = (pageNum - 1) * limitNum;
 
     // Execute query with pagination
-    // Sort: SpeedyApply first, then Simplify, then others - most recent within each
+    // Sort by most recent postedAt first
     const [jobs, totalJobs] = await Promise.all([
-      Job.aggregate([
-        { $match: query },
-        {
-          $addFields: {
-            sourcePriority: {
-              $switch: {
-                branches: [
-                  { case: { $eq: ['$source', 'speedyapply'] }, then: 1 },
-                  { case: { $eq: ['$source', 'simplify'] }, then: 2 },
-                  { case: { $eq: ['$source', 'local'] }, then: 3 },
-                  { case: { $eq: ['$source', 'remoteok'] }, then: 4 }
-                ],
-                default: 5
-              }
-            }
-          }
-        },
-        { $sort: { sourcePriority: 1, postedAt: -1 } },
-        { $skip: skip },
-        { $limit: limitNum },
-        { $project: { sourcePriority: 0 } }
-      ]),
+      Job.find(query)
+        .sort({ postedAt: -1 })
+        .skip(skip)
+        .limit(limitNum)
+        .lean(),
       Job.countDocuments(query)
     ]);
 
