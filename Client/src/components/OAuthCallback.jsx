@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FaSpinner, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
+import { syncTokenWithExtension } from '../utils/extensionBridge';
 
 const OAuthCallback = () => {
   const navigate = useNavigate();
@@ -28,6 +29,11 @@ const OAuthCallback = () => {
         localStorage.setItem('userRole', userData.role);
         localStorage.setItem('userEmail', userData.email);
         localStorage.setItem('profileCompleted', userData.profileCompleted);
+
+        // Sync token to Chrome extension (if installed)
+        syncTokenWithExtension(token).catch(() => {
+          // Extension not installed - that's okay
+        });
 
         // Check if new OAuth user needs role selection
         if (userData.needsRoleSelection) {

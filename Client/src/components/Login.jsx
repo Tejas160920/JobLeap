@@ -3,6 +3,7 @@ import { FaGoogle, FaEye, FaEyeSlash, FaEnvelope, FaLock, FaBriefcase } from "re
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { API_BASE_URL } from "../config/api";
 import { isValidEmail } from "../utils/validation";
+import { syncTokenWithExtension } from "../utils/extensionBridge";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -84,6 +85,11 @@ const Login = () => {
         localStorage.setItem("userRole", data.user.role);
         localStorage.setItem("userEmail", data.user.email);
         localStorage.setItem("profileCompleted", data.user.profileCompleted);
+
+        // Sync token to Chrome extension (if installed)
+        syncTokenWithExtension(data.token).catch(() => {
+          // Extension not installed - that's okay
+        });
 
         window.dispatchEvent(new Event('authChange'));
 

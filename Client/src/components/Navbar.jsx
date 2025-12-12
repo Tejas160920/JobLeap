@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FaBars, FaTimes, FaBriefcase, FaUser, FaSignOutAlt, FaEdit, FaCog, FaFileAlt, FaChartBar, FaBell } from "react-icons/fa";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import NotificationBell from "./NotificationBell";
+import { logoutFromExtension } from "../utils/extensionBridge";
 
 const Navbar = () => {
   const location = useLocation();
@@ -64,6 +65,12 @@ const Navbar = () => {
     localStorage.removeItem("userEmail");
     localStorage.removeItem("profileCompleted");
     window.dispatchEvent(new Event('authChange'));
+
+    // Clear extension data (if installed)
+    logoutFromExtension().catch(() => {
+      // Extension not installed - that's okay
+    });
+
     navigate("/");
     setIsUserMenuOpen(false);
   };

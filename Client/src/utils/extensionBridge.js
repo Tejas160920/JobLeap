@@ -1,126 +1,170 @@
 /**
  * Extension Bridge Utility
  * Handles communication between JobLeap website and Chrome extension
+ * Uses window.postMessage to communicate with extension's content script
  */
 
-// Extension ID - you'll need to update this with your actual extension ID from Chrome
-const EXTENSION_ID = 'YOUR_EXTENSION_ID_HERE'; // Update after publishing extension
+// Generate unique request IDs for tracking responses
+let requestCounter = 0;
+const generateRequestId = () => `req_${++requestCounter}_${Date.now()}`;
+
+// Store pending request callbacks
+const pendingRequests = new Map();
+
+// Listen for responses from extension
+if (typeof window !== 'undefined') {
+  window.addEventListener('message', (event) => {
+    // Only accept messages from same origin
+    if (event.source !== window) return;
+
+    const message = event.data;
+    if (!message || !message.type || !message.type.startsWith('JOBLEAP_')) return;
+
+    // Handle response messages
+    if (message.requestId && pendingRequests.has(message.requestId)) {
+      const { resolve } = pendingRequests.get(message.requestId);
+      pendingRequests.delete(message.requestId);
+      resolve(message);
+    }
+  });
+}
+
+/**
+ * Send a message to the extension and wait for response
+ */
+const sendMessage = (type, payload = {}, timeout = 3000) => {
+  return new Promise((resolve) => {
+    const requestId = generateRequestId();
+
+    // Set up timeout
+    const timeoutId = setTimeout(() => {
+      if (pendingRequests.has(requestId)) {
+        pendingRequests.delete(requestId);
+        resolve({ success: false, error: 'Timeout' });
+      }
+    }, timeout);
+
+    // Store the pending request
+    pendingRequests.set(requestId, {
+      resolve: (response) => {
+        clearTimeout(timeoutId);
+        resolve(response);
+      }
+    });
+
+    // Send message to extension
+    window.postMessage({ type, ...payload, requestId }, '*');
+  });
+};
 
 /**
  * Check if the JobLeap extension is installed
  */
 export const isExtensionInstalled = async () => {
-  return new Promise((resolve) => {
-    // Try to send a message to the extension
-    if (typeof chrome !== 'undefined' && chrome.runtime) {
-      try {
-        chrome.runtime.sendMessage(EXTENSION_ID, { type: 'PING' }, (response) => {
-          if (chrome.runtime.lastError) {
-            resolve(false);
-          } else {
-            resolve(response?.success || false);
-          }
-        });
-      } catch {
-        resolve(false);
-      }
-    } else {
-      resolve(false);
-    }
-  });
+  // Check for global variable set by extension
+  if (typeof window !== 'undefined' && window.__JOBLEAP_EXTENSION_INSTALLED__) {
+    return true;
+  }
+
+  // Try to ping the extension
+  const response = await sendMessage('JOBLEAP_PING');
+  return response?.success || false;
+};
+
+/**
+ * Get extension version
+ */
+export const getExtensionVersion = () => {
+  if (typeof window !== 'undefined') {
+    return window.__JOBLEAP_EXTENSION_VERSION__ || null;
+  }
+  return null;
 };
 
 /**
  * Send auth token to extension for syncing
  */
 export const syncTokenWithExtension = async (token) => {
-  if (typeof chrome !== 'undefined' && chrome.runtime) {
-    return new Promise((resolve) => {
-      try {
-        chrome.runtime.sendMessage(EXTENSION_ID, { type: 'LOGIN', payload: { token } }, (response) => {
-          if (chrome.runtime.lastError) {
-            console.warn('Extension not available:', chrome.runtime.lastError.message);
-            resolve(false);
-          } else {
-            resolve(response?.success || false);
-          }
-        });
-      } catch (error) {
-        console.warn('Failed to sync token with extension:', error);
-        resolve(false);
-      }
-    });
-  }
-  return false;
+  if (!token) return false;
+
+  const response = await sendMessage('JOBLEAP_SYNC_TOKEN', { token });
+  return response?.success || false;
 };
 
 /**
  * Sync profile data to extension
  */
 export const syncProfileWithExtension = async (profile) => {
-  if (typeof chrome !== 'undefined' && chrome.runtime) {
-    return new Promise((resolve) => {
-      try {
-        chrome.runtime.sendMessage(EXTENSION_ID, { type: 'SAVE_PROFILE', payload: profile }, (response) => {
-          if (chrome.runtime.lastError) {
-            console.warn('Extension not available:', chrome.runtime.lastError.message);
-            resolve(false);
-          } else {
-            resolve(response?.success || false);
-          }
-        });
-      } catch (error) {
-        console.warn('Failed to sync profile with extension:', error);
-        resolve(false);
-      }
-    });
-  }
-  return false;
+  if (!profile) return false;
+
+  const response = await sendMessage('JOBLEAP_SYNC_PROFILE', { profile });
+  return response?.success || false;
 };
 
 /**
  * Request profile from extension
  */
 export const getProfileFromExtension = async () => {
-  if (typeof chrome !== 'undefined' && chrome.runtime) {
-    return new Promise((resolve) => {
-      try {
-        chrome.runtime.sendMessage(EXTENSION_ID, { type: 'GET_PROFILE' }, (response) => {
-          if (chrome.runtime.lastError) {
-            console.warn('Extension not available:', chrome.runtime.lastError.message);
-            resolve(null);
-          } else if (response?.success && response.data) {
-            resolve(response.data);
-          } else {
-            resolve(null);
-          }
-        });
-      } catch (error) {
-        console.warn('Failed to get profile from extension:', error);
-        resolve(null);
-      }
-    });
+  const response = await sendMessage('JOBLEAP_GET_PROFILE');
+  if (response?.success && response.profile) {
+    return response.profile;
   }
   return null;
 };
 
 /**
- * Open the extension side panel (if supported)
+ * Check authentication status in extension
  */
-export const openExtensionSidePanel = () => {
-  if (typeof chrome !== 'undefined' && chrome.runtime) {
-    try {
-      chrome.runtime.sendMessage(EXTENSION_ID, { type: 'OPEN_SIDEPANEL' });
-    } catch {
-      console.warn('Failed to open extension side panel');
+export const getExtensionAuthStatus = async () => {
+  const response = await sendMessage('JOBLEAP_GET_AUTH_STATUS');
+  return response?.authenticated || false;
+};
+
+/**
+ * Logout from extension (clear stored token and profile)
+ */
+export const logoutFromExtension = async () => {
+  const response = await sendMessage('JOBLEAP_LOGOUT');
+  return response?.success || false;
+};
+
+/**
+ * Wait for extension to be ready (useful on page load)
+ */
+export const waitForExtension = (timeout = 2000) => {
+  return new Promise((resolve) => {
+    // If already installed, resolve immediately
+    if (typeof window !== 'undefined' && window.__JOBLEAP_EXTENSION_INSTALLED__) {
+      resolve(true);
+      return;
     }
-  }
+
+    // Listen for installation message
+    const handler = (event) => {
+      if (event.data?.type === 'JOBLEAP_EXTENSION_INSTALLED') {
+        window.removeEventListener('message', handler);
+        clearTimeout(timeoutId);
+        resolve(true);
+      }
+    };
+
+    window.addEventListener('message', handler);
+
+    // Set timeout
+    const timeoutId = setTimeout(() => {
+      window.removeEventListener('message', handler);
+      resolve(false);
+    }, timeout);
+  });
 };
 
 export default {
   isExtensionInstalled,
+  getExtensionVersion,
   syncTokenWithExtension,
   syncProfileWithExtension,
   getProfileFromExtension,
-  openExtensionSidePanel,
+  getExtensionAuthStatus,
+  logoutFromExtension,
+  waitForExtension,
 };

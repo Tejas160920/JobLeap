@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { syncProfileWithExtension } from "../utils/extensionBridge";
 import {
   FaUser,
   FaGraduationCap,
@@ -480,6 +481,11 @@ const AutoFillProfile = () => {
         // Update profileCompleted in localStorage
         localStorage.setItem("profileCompleted", "true");
         window.dispatchEvent(new Event("authChange"));
+
+        // Sync profile to Chrome extension (if installed)
+        syncProfileWithExtension(autofillProfile).catch(() => {
+          // Extension not installed - that's okay
+        });
       }
     } catch (error) {
       console.error("Error saving profile:", error);

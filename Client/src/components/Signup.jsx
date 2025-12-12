@@ -3,6 +3,7 @@ import { FaGoogle, FaApple, FaEye, FaEyeSlash, FaEnvelope, FaLock, FaBriefcase, 
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { API_BASE_URL } from "../config/api";
 import { isValidEmail, isValidPassword } from "../utils/validation";
+import { syncTokenWithExtension } from "../utils/extensionBridge";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -150,6 +151,11 @@ const Signup = () => {
         localStorage.setItem("userRole", data.user.role);
         localStorage.setItem("userEmail", data.user.email);
         localStorage.setItem("profileCompleted", data.user.profileCompleted);
+
+        // Sync token to Chrome extension (if installed)
+        syncTokenWithExtension(data.token).catch(() => {
+          // Extension not installed - that's okay
+        });
 
         // Dispatch event to update Navbar
         window.dispatchEvent(new Event('authChange'));
