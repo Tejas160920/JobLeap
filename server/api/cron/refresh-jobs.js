@@ -298,22 +298,29 @@ module.exports = async (req, res) => {
       }
     }
 
-    // Mark old jobs as expired (not seen in the last 2 hours)
+    // Mark old jobs as expired (not seen in the last 10 minutes)
     // This ensures only freshly refreshed jobs remain active
-    const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
+    const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
     const expiredResult = await Job.updateMany(
       {
         source: { $ne: 'local' },
-        lastSeenAt: { $lt: twoHoursAgo },
+        lastSeenAt: { $lt: tenMinutesAgo },
         status: 'active'
       },
       { $set: { status: 'expired' } }
     );
 
+    // Also delete very old expired jobs (not seen in 30 days) to clean up database
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const deleteResult = await Job.deleteMany({
+      source: { $ne: 'local' },
+      lastSeenAt: { $lt: thirtyDaysAgo }
+    });
+
     const duration = Date.now() - startTime;
 
     console.log(`[RefreshJobs] Completed in ${duration}ms`);
-    console.log(`[RefreshJobs] New: ${result.upsertedCount}, Updated: ${result.modifiedCount}, Expired: ${expiredResult.modifiedCount}`);
+    console.log(`[RefreshJobs] New: ${result.upsertedCount}, Updated: ${result.modifiedCount}, Expired: ${expiredResult.modifiedCount}, Deleted: ${deleteResult.deletedCount || 0}`);
 
     res.status(200).json({
       success: true,
@@ -323,6 +330,7 @@ module.exports = async (req, res) => {
         new: result.upsertedCount,
         updated: result.modifiedCount,
         expired: expiredResult.modifiedCount,
+        deleted: deleteResult.deletedCount || 0,
         duration: `${duration}ms`,
         sources: {
           simplifyInternships: simplifyInternships.length,
