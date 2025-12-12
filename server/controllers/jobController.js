@@ -1,13 +1,6 @@
 const Job = require("../models/job");
 const connectDB = require("../config/db");
 const h1bSponsors = require("../data/h1bSponsors");
-const { fetchAllJobs, getCacheStats, clearCache } = require("../services/jobAggregator");
-
-// Cache for JoinRise API (kept for backwards compatibility)
-let jobCache = {
-  joinrise: { jobs: [], lastFetch: 0 }
-};
-const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
 
 // US State abbreviations mapping
 const stateAbbreviations = {
@@ -31,36 +24,31 @@ const stateFullNames = Object.fromEntries(
   Object.entries(stateAbbreviations).map(([name, abbr]) => [abbr, name])
 );
 
-// Helper function to get location search terms (handles state abbreviations)
-const getLocationSearchTerms = (location) => {
+// Helper function to get location regex patterns
+const getLocationRegex = (location) => {
   const locationLower = location.toLowerCase().trim();
-  const terms = [locationLower];
+  const patterns = [locationLower];
 
-  // Check if it's a state abbreviation
+  // Add state abbreviation/full name
   if (stateFullNames[locationLower]) {
-    terms.push(stateFullNames[locationLower]);
+    patterns.push(stateFullNames[locationLower]);
   }
-
-  // Check if it's a full state name
   if (stateAbbreviations[locationLower]) {
-    terms.push(stateAbbreviations[locationLower]);
+    patterns.push(stateAbbreviations[locationLower]);
   }
 
-  // Handle common variations
+  // Common variations
   if (locationLower === 'remote') {
-    terms.push('work from home', 'wfh', 'anywhere');
+    patterns.push('work from home', 'wfh', 'anywhere', 'remote');
   }
-  if (locationLower === 'nyc') {
-    terms.push('new york', 'ny');
+  if (locationLower === 'nyc' || locationLower === 'new york') {
+    patterns.push('nyc', 'new york', 'ny');
   }
   if (locationLower === 'sf' || locationLower === 'san francisco') {
-    terms.push('sf', 'san francisco', 'bay area');
-  }
-  if (locationLower === 'la' || locationLower === 'los angeles') {
-    terms.push('la', 'los angeles');
+    patterns.push('sf', 'san francisco', 'bay area');
   }
 
-  return terms;
+  return patterns.join('|');
 };
 
 // Helper function to check if a company sponsors H1B visas
@@ -69,14 +57,11 @@ const checkVisaSponsorship = (companyName) => {
 
   const companyLower = companyName.toLowerCase().trim();
 
-  // Check against H1B sponsors database
   const sponsor = h1bSponsors.find(s => {
     const sponsorLower = s.name.toLowerCase();
-    // Check various matching patterns
     return sponsorLower.includes(companyLower) ||
            companyLower.includes(sponsorLower) ||
            sponsorLower.split(' ')[0] === companyLower.split(' ')[0] ||
-           // Handle common company name variations
            companyLower.includes(sponsorLower.replace(/,?\s*(inc|llc|corp|ltd|co)\.?$/i, '').trim()) ||
            sponsorLower.includes(companyLower.replace(/,?\s*(inc|llc|corp|ltd|co)\.?$/i, '').trim());
   });
@@ -96,142 +81,15 @@ const checkVisaSponsorship = (companyName) => {
   return { sponsors: false, sponsorData: null };
 };
 
-// Fetch jobs from JoinRise API (free, no auth required)
-const fetchJoinRiseJobs = async () => {
-  const now = Date.now();
-
-  // Return cached jobs if still valid
-  if (jobCache.joinrise.jobs.length > 0 && (now - jobCache.joinrise.lastFetch) < CACHE_DURATION) {
-    return jobCache.joinrise.jobs;
-  }
-
-  try {
-    const response = await fetch('https://api.joinrise.io/api/v1/jobs/public?limit=50&sort=desc&sortedBy=createdAt', {
-      headers: {
-        'Accept': 'application/json',
-        'User-Agent': 'JobLeap/1.0'
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error(`JoinRise API request failed: ${response.status}`);
-    }
-
-    const data = await response.json();
-    const jobsArray = data.result?.jobs || data.data || data.jobs || data || [];
-
-    const jobs = (Array.isArray(jobsArray) ? jobsArray : []).map(job => {
-      // Extract company name from owner object or direct field
-      const companyName = job.owner?.companyName || job.company || job.companyName || 'Unknown Company';
-
-      // Extract salary from descriptionBreakdown if available
-      let salary = '';
-      if (job.descriptionBreakdown?.salaryRangeMinYearly && job.descriptionBreakdown?.salaryRangeMaxYearly) {
-        salary = `$${job.descriptionBreakdown.salaryRangeMinYearly.toLocaleString()} - $${job.descriptionBreakdown.salaryRangeMaxYearly.toLocaleString()}`;
-      } else if (job.salary) {
-        salary = job.salary;
-      }
-
-      return {
-        _id: `joinrise_${job._id || job.id || Math.random().toString(36).substr(2, 9)}`,
-        title: job.title || job.jobTitle || 'Untitled Position',
-        company: companyName,
-        location: job.locationAddress || job.location || 'Remote',
-        salary: salary,
-        jobType: job.type || job.jobType || job.descriptionBreakdown?.employmentType || 'Full-time',
-        description: job.description || job.jobDescription || '',
-        tags: job.skills_suggest || job.descriptionBreakdown?.keywords || job.skills || job.tags || [],
-        logo: job.owner?.photo || job.logo || '',
-        url: job.url || job.applyUrl || '',
-        postedAt: job.createdAt ? new Date(job.createdAt) : new Date(),
-        source: 'joinrise'
-      };
-    });
-
-    // Update cache
-    jobCache.joinrise = { jobs, lastFetch: now };
-    console.log(`Fetched ${jobs.length} jobs from JoinRise`);
-    return jobs;
-  } catch (error) {
-    console.error('Error fetching from JoinRise:', error.message);
-    return jobCache.joinrise.jobs;
-  }
-};
-
-// Fetch jobs from Adzuna API (requires API key)
-const fetchAdzunaJobs = async (searchQuery = '') => {
-  const now = Date.now();
-  const appId = process.env.ADZUNA_APP_ID;
-  const appKey = process.env.ADZUNA_APP_KEY;
-
-  // Skip if no API credentials
-  if (!appId || !appKey) {
-    console.log('Adzuna API credentials not configured, skipping...');
-    return [];
-  }
-
-  // Return cached jobs if still valid
-  if (jobCache.adzuna.jobs.length > 0 && (now - jobCache.adzuna.lastFetch) < CACHE_DURATION) {
-    return jobCache.adzuna.jobs;
-  }
-
-  try {
-    // Search in US market, can be changed to other countries (gb, de, etc.)
-    const country = 'us';
-    const url = `https://api.adzuna.com/v1/api/jobs/${country}/search/1?app_id=${appId}&app_key=${appKey}&results_per_page=50&content-type=application/json`;
-
-    const response = await fetch(url, {
-      headers: {
-        'Accept': 'application/json',
-        'User-Agent': 'JobLeap/1.0'
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error(`Adzuna API request failed: ${response.status}`);
-    }
-
-    const data = await response.json();
-    const results = data.results || [];
-
-    const jobs = results.map(job => ({
-      _id: `adzuna_${job.id}`,
-      title: job.title || 'Untitled Position',
-      company: job.company?.display_name || 'Unknown Company',
-      location: job.location?.display_name || job.location?.area?.[0] || 'Remote',
-      salary: job.salary_min && job.salary_max
-        ? `$${Math.round(job.salary_min).toLocaleString()} - $${Math.round(job.salary_max).toLocaleString()}`
-        : job.salary_is_predicted === 1
-          ? `~$${Math.round(job.salary_min || job.salary_max || 0).toLocaleString()} (estimated)`
-          : '',
-      jobType: job.contract_type || job.contract_time || 'Full-time',
-      description: job.description || '',
-      tags: job.category?.tag ? [job.category.label] : [],
-      logo: '',
-      url: job.redirect_url || '',
-      postedAt: job.created ? new Date(job.created) : new Date(),
-      source: 'adzuna'
-    }));
-
-    // Update cache
-    jobCache.adzuna = { jobs, lastFetch: now };
-    console.log(`Fetched ${jobs.length} jobs from Adzuna`);
-    return jobs;
-  } catch (error) {
-    console.error('Error fetching from Adzuna:', error.message);
-    return jobCache.adzuna.jobs;
-  }
-};
-
-// Create a new job
+// Create a new job (user-posted)
 exports.createJob = async (req, res) => {
   try {
-    // Ensure DB is connected (important for serverless)
     await connectDB();
 
     const jobData = {
       ...req.body,
       postedBy: req.user.id,
+      source: 'local',
       status: 'active'
     };
 
@@ -253,140 +111,77 @@ exports.createJob = async (req, res) => {
   }
 };
 
-// Get all jobs with optional filtering by title and location
+// Get all jobs with optional filtering (FAST - queries MongoDB)
 exports.getJobs = async (req, res) => {
   try {
-    // Ensure DB is connected (important for serverless)
     await connectDB();
 
-    const { title, location, source, visaSponsorship, jobType } = req.query;
+    const { title, location, source, visaSponsorship, jobType, page = 1, limit = 20 } = req.query;
 
-    // Fetch from all sources in parallel
-    const [dbJobs, aggregatedJobs] = await Promise.all([
-      // Database jobs (user-posted)
-      (async () => {
-        const filter = {};
-        if (title) {
-          filter.title = { $regex: title, $options: "i" };
-        }
-        if (location) {
-          filter.location = { $regex: location, $options: "i" };
-        }
-        const jobs = await Job.find(filter).sort({ postedAt: -1 });
-        return jobs.map(job => ({ ...job.toObject(), source: 'local' }));
-      })(),
-      // Aggregated jobs from GitHub repos & APIs (cached for 6 hours)
-      fetchAllJobs()
+    // Build MongoDB query
+    const query = { status: 'active' };
+
+    // Title search (searches title, company, and tags)
+    if (title) {
+      const titleRegex = { $regex: title, $options: 'i' };
+      query.$or = [
+        { title: titleRegex },
+        { company: titleRegex },
+        { tags: titleRegex },
+        { description: titleRegex }
+      ];
+    }
+
+    // Location filter
+    if (location) {
+      const locationPattern = getLocationRegex(location);
+      query.location = { $regex: locationPattern, $options: 'i' };
+    }
+
+    // Source filter
+    if (source && source !== 'all') {
+      if (source === 'github') {
+        query.source = { $in: ['simplify', 'speedyapply'] };
+      } else {
+        query.source = source;
+      }
+    }
+
+    // Job type filter
+    if (jobType) {
+      query.jobType = { $regex: jobType, $options: 'i' };
+    }
+
+    // Visa sponsorship filter
+    if (visaSponsorship === 'sponsors') {
+      query.sponsorsVisa = true;
+    }
+
+    // Pagination
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 20;
+    const skip = (pageNum - 1) * limitNum;
+
+    // Execute query with pagination
+    const [jobs, totalJobs] = await Promise.all([
+      Job.find(query)
+        .sort({ postedAt: -1 })
+        .skip(skip)
+        .limit(limitNum)
+        .lean(),
+      Job.countDocuments(query)
     ]);
 
-    // Filter external jobs based on search criteria
-    const filterExternalJobs = (jobs) => {
-      let filtered = jobs;
-
-      if (title) {
-        const titleLower = title.toLowerCase();
-        filtered = filtered.filter(job =>
-          job.title?.toLowerCase().includes(titleLower) ||
-          job.company?.toLowerCase().includes(titleLower) ||
-          (job.tags && job.tags.some(tag => tag?.toLowerCase().includes(titleLower)))
-        );
-      }
-
-      if (location) {
-        const searchTerms = getLocationSearchTerms(location);
-        filtered = filtered.filter(job => {
-          const jobLocation = job.location?.toLowerCase() || '';
-          // Check if any search term matches the job location
-          return searchTerms.some(term => jobLocation.includes(term));
-        });
-      }
-
-      if (jobType) {
-        const typeLower = jobType.toLowerCase();
-        filtered = filtered.filter(job =>
-          job.jobType?.toLowerCase().includes(typeLower)
-        );
-      }
-
-      return filtered;
-    };
-
-    const filteredAggregated = filterExternalJobs(aggregatedJobs);
-
-    // Combine all jobs
-    let allJobs = [...dbJobs, ...filteredAggregated];
-
-    // Filter by source if specified
-    if (source === 'local') {
-      allJobs = dbJobs;
-    } else if (source === 'github') {
-      allJobs = filteredAggregated.filter(j =>
-        j.source?.includes('simplify') || j.source?.includes('speedyapply')
-      );
-    } else if (source === 'remoteok') {
-      allJobs = filteredAggregated.filter(j => j.source === 'remoteok');
-    }
-
-    // Remove duplicates by _id (in case of overlap between sources)
-    const seenIds = new Set();
-    allJobs = allJobs.filter(job => {
-      const id = job._id?.toString();
-      if (seenIds.has(id)) return false;
-      seenIds.add(id);
-      return true;
-    });
-
-    // Add visa sponsorship data to all jobs
-    allJobs = allJobs.map(job => {
-      const visaInfo = checkVisaSponsorship(job.company);
-
-      // Also check if job has sponsorship info from source
-      let sponsorsVisa = visaInfo.sponsors;
-      if (job.sponsorship === 'Offers Sponsorship') {
-        sponsorsVisa = true;
-      } else if (job.sponsorship === 'U.S. Citizenship Required' || job.sponsorship === 'Does Not Offer Sponsorship') {
-        sponsorsVisa = false;
-      }
-
-      return {
-        ...job,
-        sponsorsVisa,
-        sponsorData: visaInfo.sponsorData
-      };
-    });
-
-    // Filter by visa sponsorship if specified
-    if (visaSponsorship === 'sponsors') {
-      allJobs = allJobs.filter(job => job.sponsorsVisa === true);
-    }
-
-    // Sort by posted date (newest first)
-    allJobs.sort((a, b) => new Date(b.postedAt) - new Date(a.postedAt));
-
-    // Return all jobs (frontend handles pagination)
     res.status(200).json({
-      jobs: allJobs,
-      totalJobs: allJobs.length
+      jobs,
+      totalJobs,
+      page: pageNum,
+      totalPages: Math.ceil(totalJobs / limitNum),
+      hasMore: skip + jobs.length < totalJobs
     });
   } catch (err) {
     console.error("Error fetching jobs:", err.message, err.stack);
     res.status(500).json({ error: "Failed to fetch jobs" });
-  }
-};
-
-// Get remote jobs only (from external APIs)
-exports.getRemoteJobs = async (req, res) => {
-  try {
-    const [joinriseJobs, adzunaJobs] = await Promise.all([
-      fetchJoinRiseJobs(),
-      fetchAdzunaJobs()
-    ]);
-    const allJobs = [...joinriseJobs, ...adzunaJobs];
-    allJobs.sort((a, b) => new Date(b.postedAt) - new Date(a.postedAt));
-    res.status(200).json(allJobs);
-  } catch (err) {
-    console.error("Error fetching remote jobs:", err);
-    res.status(500).json({ error: "Failed to fetch remote jobs" });
   }
 };
 
@@ -396,7 +191,12 @@ exports.getJobById = async (req, res) => {
     await connectDB();
 
     const { id } = req.params;
-    const job = await Job.findById(id);
+
+    // Try to find by MongoDB _id or externalId
+    let job = await Job.findById(id).catch(() => null);
+    if (!job) {
+      job = await Job.findOne({ externalId: id });
+    }
 
     if (!job) {
       return res.status(404).json({
@@ -407,7 +207,7 @@ exports.getJobById = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      job: { ...job.toObject(), source: 'local' }
+      job
     });
   } catch (err) {
     console.error("Error fetching job:", err);
@@ -428,7 +228,7 @@ exports.getMyJobs = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      jobs: jobs.map(job => ({ ...job.toObject(), source: 'local' }))
+      jobs
     });
   } catch (err) {
     console.error("Error fetching user jobs:", err);
@@ -456,14 +256,13 @@ exports.updateJob = async (req, res) => {
     }
 
     // Check if user is the owner of the job
-    if (job.postedBy.toString() !== req.user.id) {
+    if (job.postedBy?.toString() !== req.user.id) {
       return res.status(403).json({
         success: false,
         message: "You are not authorized to edit this job"
       });
     }
 
-    // Update the job
     const updatedJob = await Job.findByIdAndUpdate(
       id,
       { ...req.body },
@@ -501,7 +300,7 @@ exports.deleteJob = async (req, res) => {
     }
 
     // Check if user is the owner of the job
-    if (job.postedBy.toString() !== req.user.id) {
+    if (job.postedBy?.toString() !== req.user.id) {
       return res.status(403).json({
         success: false,
         message: "You are not authorized to delete this job"
@@ -524,13 +323,30 @@ exports.deleteJob = async (req, res) => {
   }
 };
 
-// Get job aggregation stats
+// Get job stats
 exports.getJobStats = async (req, res) => {
   try {
-    const stats = getCacheStats();
+    await connectDB();
+
+    const [totalJobs, bySource, recentCount] = await Promise.all([
+      Job.countDocuments({ status: 'active' }),
+      Job.aggregate([
+        { $match: { status: 'active' } },
+        { $group: { _id: '$source', count: { $sum: 1 } } }
+      ]),
+      Job.countDocuments({
+        status: 'active',
+        postedAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }
+      })
+    ]);
+
     res.status(200).json({
       success: true,
-      stats
+      stats: {
+        totalJobs,
+        recentJobs24h: recentCount,
+        bySource: bySource.reduce((acc, s) => ({ ...acc, [s._id]: s.count }), {})
+      }
     });
   } catch (err) {
     console.error("Error getting job stats:", err);
@@ -541,17 +357,13 @@ exports.getJobStats = async (req, res) => {
   }
 };
 
-// Refresh job cache (force fetch from all sources)
+// Refresh job cache (triggers the cron manually)
 exports.refreshJobCache = async (req, res) => {
   try {
-    clearCache();
-    const jobs = await fetchAllJobs(true);
-    const stats = getCacheStats();
-
+    // Just redirect to the cron endpoint
     res.status(200).json({
       success: true,
-      message: `Successfully refreshed cache with ${jobs.length} jobs`,
-      stats
+      message: "Use /api/cron/refresh-jobs to refresh job database"
     });
   } catch (err) {
     console.error("Error refreshing job cache:", err);

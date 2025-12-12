@@ -7,6 +7,10 @@
       "destination": "/api/cron/job-alerts"
     },
     {
+      "source": "/api/cron/refresh-jobs",
+      "destination": "/api/cron/refresh-jobs"
+    },
+    {
       "source": "/(.*)",
       "destination": "/api/index.js"
     }
@@ -16,6 +20,9 @@
       "maxDuration": 60
     },
     "api/cron/job-alerts.js": {
+      "maxDuration": 300
+    },
+    "api/cron/refresh-jobs.js": {
       "maxDuration": 300
     }
   }
