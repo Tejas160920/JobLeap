@@ -609,3 +609,118 @@ exports.deleteAccount = async (req, res) => {
     });
   }
 };
+
+// Get autofill profile (for Chrome extension)
+exports.getAutofillProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const user = await User.findById(userId).select('autofillProfile email');
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    // Transform to extension-compatible format
+    const profile = user.autofillProfile || {};
+    const extensionProfile = {
+      personal: {
+        firstName: profile.firstName || '',
+        lastName: profile.lastName || '',
+        email: user.email || '',
+        phone: profile.personal?.phone || '',
+        linkedIn: profile.links?.linkedin || '',
+        github: profile.links?.github || '',
+        portfolio: profile.links?.portfolio || '',
+        address: {
+          city: profile.personal?.location?.split(',')[0]?.trim() || '',
+          state: profile.personal?.location?.split(',')[1]?.trim() || '',
+          country: 'United States',
+        },
+        dateOfBirth: profile.personal?.dateOfBirth || '',
+      },
+      experience: (profile.experience || []).map(exp => ({
+        title: exp.position || '',
+        company: exp.company || '',
+        location: exp.location || '',
+        startDate: exp.startDate || '',
+        endDate: exp.endDate || '',
+        current: exp.current || false,
+      })),
+      education: (profile.education || []).map(edu => ({
+        school: edu.school || '',
+        degree: edu.degree || '',
+        field: edu.major || '',
+        gpa: edu.gpa || '',
+        startDate: edu.startDate || '',
+        endDate: edu.endDate || '',
+      })),
+      skills: profile.skills || [],
+      preferences: {
+        authorizedToWork: profile.workAuthorization?.authorizedUS === 'yes',
+        requiresSponsorship: profile.workAuthorization?.requireSponsorship === 'yes',
+        authorizedUS: profile.workAuthorization?.authorizedUS || '',
+        authorizedCanada: profile.workAuthorization?.authorizedCanada || '',
+        authorizedUK: profile.workAuthorization?.authorizedUK || '',
+      },
+      eeo: profile.eeo || {},
+      lookingForFirstJob: profile.lookingForFirstJob || false,
+    };
+
+    res.status(200).json({
+      success: true,
+      profile: extensionProfile,
+      raw: profile // Also send raw for debugging
+    });
+  } catch (err) {
+    console.error("Get autofill profile error:", err.message);
+    res.status(500).json({
+      success: false,
+      message: "Failed to get autofill profile",
+      error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
+    });
+  }
+};
+
+// Update autofill profile (from website or Chrome extension)
+exports.updateAutofillProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const profileData = req.body;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    // Update autofill profile
+    user.autofillProfile = {
+      ...user.autofillProfile,
+      ...profileData
+    };
+
+    // Mark profile as completed
+    user.profileCompleted = true;
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Autofill profile updated successfully",
+      profile: user.autofillProfile
+    });
+  } catch (err) {
+    console.error("Update autofill profile error:", err.message);
+    res.status(500).json({
+      success: false,
+      message: "Failed to update autofill profile",
+      error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
+    });
+  }
+};

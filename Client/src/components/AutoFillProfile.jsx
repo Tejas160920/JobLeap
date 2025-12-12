@@ -21,6 +21,8 @@ import {
   FaSpinner,
   FaExclamationCircle,
   FaLightbulb,
+  FaPuzzlePiece,
+  FaSync,
 } from "react-icons/fa";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
@@ -366,61 +368,83 @@ const AutoFillProfile = () => {
 
     setIsSaving(true);
     try {
-      // Convert form data to profile format
-      const profile = {
-        personal: {
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: "", // Will be filled from user account
-          phone: formData.phone,
-          linkedIn: formData.linkedIn,
-          github: formData.github,
-          portfolio: formData.portfolio,
-          address: {
-            city: formData.currentLocation.split(",")[0]?.trim() || "",
-            state: formData.currentLocation.split(",")[1]?.trim() || "",
-            country: "United States",
-          },
-          dateOfBirth: formData.dateOfBirth,
-        },
-        education: formData.education.filter((e) => e.schoolName),
+      // Convert form data to autofill profile format
+      const autofillProfile = {
+        // Basics
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        resumeFile: formData.resumeFile || "",
+        // Education
+        education: formData.education
+          .filter((e) => e.schoolName)
+          .map((e) => ({
+            school: e.schoolName,
+            degree: e.degree,
+            major: e.major,
+            gpa: e.gpa,
+            startDate: e.startDate,
+            endDate: e.endDate,
+          })),
+        // Experience
+        lookingForFirstJob: formData.noExperience,
         experience: formData.noExperience
           ? []
-          : formData.experience.filter((e) => e.positionTitle),
-        skills: formData.skills,
-        preferences: {
-          authorizedToWork: formData.authorizedUS,
-          requiresSponsorship: formData.requiresSponsorship,
+          : formData.experience
+              .filter((e) => e.positionTitle)
+              .map((e) => ({
+                position: e.positionTitle,
+                company: e.companyName,
+                location: e.location,
+                startDate: e.startDate,
+                endDate: e.endDate,
+                current: e.currentlyWorking,
+              })),
+        // Work Authorization
+        workAuthorization: {
+          authorizedUS: formData.authorizedUS,
           authorizedCanada: formData.authorizedCanada,
           authorizedUK: formData.authorizedUK,
+          requireSponsorship: formData.requiresSponsorship,
         },
+        // EEO
         eeo: {
-          ethnicity: formData.ethnicity,
-          hasDisability: formData.hasDisability,
-          isVeteran: formData.isVeteran,
-          isLGBTQ: formData.isLGBTQ,
           gender: formData.gender,
+          ethnicity: formData.ethnicity,
+          veteranStatus: formData.isVeteran,
+          disabilityStatus: formData.hasDisability,
         },
+        // Skills
+        skills: formData.skills,
+        // Personal
+        personal: {
+          location: formData.currentLocation,
+          phone: formData.phone,
+          dateOfBirth: formData.dateOfBirth,
+        },
+        // Links
         links: {
-          linkedIn: formData.linkedIn,
+          linkedin: formData.linkedIn,
           github: formData.github,
           portfolio: formData.portfolio,
-          other: formData.otherWebsite,
         },
       };
 
-      const response = await fetch(`${API_URL}/api/extension/profile`, {
+      const response = await fetch(`${API_URL}/api/auth/autofill-profile`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ profile }),
+        body: JSON.stringify(autofillProfile),
       });
 
       if (response.ok) {
         setSaveMessage("Progress saved!");
         setTimeout(() => setSaveMessage(""), 2000);
+
+        // Update profileCompleted in localStorage
+        localStorage.setItem("profileCompleted", "true");
+        window.dispatchEvent(new Event("authChange"));
       }
     } catch (error) {
       console.error("Error saving profile:", error);
@@ -762,6 +786,38 @@ const AutoFillProfile = () => {
                 >
                   Edit <FaArrowRight className="w-3 h-3 ml-1" />
                 </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Chrome Extension CTA */}
+          <div className="mt-8 bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-xl p-6">
+            <div className="flex items-start space-x-4">
+              <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                <FaPuzzlePiece className="text-indigo-600 text-xl" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                  Get the JobLeap Chrome Extension
+                </h3>
+                <p className="text-gray-600 text-sm mb-4">
+                  Install our Chrome extension to autofill job applications on Workday, Greenhouse, Lever, and more. Your profile data syncs automatically.
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <a
+                    href="https://chrome.google.com/webstore/detail/jobleap-autofill"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
+                  >
+                    <FaPuzzlePiece className="mr-2" />
+                    Install Extension
+                  </a>
+                  <span className="inline-flex items-center px-4 py-2 bg-green-100 text-green-700 rounded-lg text-sm">
+                    <FaSync className="mr-2" />
+                    Profile auto-syncs with extension
+                  </span>
+                </div>
               </div>
             </div>
           </div>

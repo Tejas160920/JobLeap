@@ -46,6 +46,60 @@ const userSchema = new mongoose.Schema({
     experience: { type: String, trim: true },
     education: { type: String, trim: true }
   },
+  // AutoFill Profile for Chrome Extension
+  autofillProfile: {
+    // Basics
+    firstName: String,
+    lastName: String,
+    resumeFile: String,
+    // Education
+    education: [{
+      school: String,
+      degree: String,
+      major: String,
+      gpa: String,
+      startDate: String,
+      endDate: String
+    }],
+    // Experience
+    lookingForFirstJob: { type: Boolean, default: false },
+    experience: [{
+      position: String,
+      company: String,
+      location: String,
+      startDate: String,
+      endDate: String,
+      current: { type: Boolean, default: false }
+    }],
+    // Work Authorization
+    workAuthorization: {
+      authorizedUS: String,
+      authorizedCanada: String,
+      authorizedUK: String,
+      requireSponsorship: String
+    },
+    // EEO
+    eeo: {
+      gender: String,
+      ethnicity: String,
+      veteranStatus: String,
+      disabilityStatus: String
+    },
+    // Skills
+    skills: [String],
+    // Personal
+    personal: {
+      location: String,
+      phone: String,
+      dateOfBirth: String
+    },
+    // Links
+    links: {
+      linkedin: String,
+      github: String,
+      portfolio: String
+    }
+  },
   profileCompleted: {
     type: Boolean,
     default: false

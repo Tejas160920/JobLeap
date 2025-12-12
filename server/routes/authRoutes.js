@@ -14,7 +14,9 @@ const {
   verifyEmail,
   getSettings,
   updateSettings,
-  deleteAccount
+  deleteAccount,
+  getAutofillProfile,
+  updateAutofillProfile
 } = require("../controllers/authController");
 const { verifyToken } = require("../middleware/authMiddleware");
 const { validateSignup, validateLogin, validateProfileUpdate } = require("../middleware/validation");
@@ -38,6 +40,10 @@ router.post("/verify-email", verifyEmail);
 router.get("/settings", verifyToken, getSettings);
 router.put("/settings", verifyToken, updateSettings);
 router.delete("/account", verifyToken, deleteAccount);
+
+// Autofill Profile routes (for Chrome extension)
+router.get("/autofill-profile", verifyToken, getAutofillProfile);
+router.put("/autofill-profile", verifyToken, updateAutofillProfile);
 
 // Google OAuth routes (only if configured)
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
