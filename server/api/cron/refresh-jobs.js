@@ -229,6 +229,7 @@ const fetchRemoteOK = async () => {
   }
 };
 
+// v2 - Sort by date before slicing to get most recent jobs
 module.exports = async (req, res) => {
   const startTime = Date.now();
 
