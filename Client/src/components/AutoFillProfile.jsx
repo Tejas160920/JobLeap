@@ -491,7 +491,7 @@ const AutoFillProfile = () => {
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <h3 className="text-lg font-semibold text-gray-900 flex items-center mb-3">
-                    <FaUser className="w-5 h-5 mr-2 text-indigo-600" />
+                    <FaUser className="w-5 h-5 mr-2 text-[#0d6d6e]" />
                     Basic Information
                   </h3>
                   <div className="grid grid-cols-2 gap-4 text-sm">
@@ -509,7 +509,7 @@ const AutoFillProfile = () => {
                 </div>
                 <button
                   onClick={() => editSection(0)}
-                  className="text-indigo-600 hover:text-indigo-700 text-sm font-medium flex items-center"
+                  className="text-[#0d6d6e] hover:text-[#095555] text-sm font-medium flex items-center"
                 >
                   Edit <FaArrowRight className="w-3 h-3 ml-1" />
                 </button>
@@ -521,7 +521,7 @@ const AutoFillProfile = () => {
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <h3 className="text-lg font-semibold text-gray-900 flex items-center mb-3">
-                    <FaGraduationCap className="w-5 h-5 mr-2 text-indigo-600" />
+                    <FaGraduationCap className="w-5 h-5 mr-2 text-[#0d6d6e]" />
                     Education
                   </h3>
                   {formData.education.filter(e => e.schoolName).length > 0 ? (
@@ -547,7 +547,7 @@ const AutoFillProfile = () => {
                 </div>
                 <button
                   onClick={() => editSection(1)}
-                  className="text-indigo-600 hover:text-indigo-700 text-sm font-medium flex items-center"
+                  className="text-[#0d6d6e] hover:text-[#095555] text-sm font-medium flex items-center"
                 >
                   Edit <FaArrowRight className="w-3 h-3 ml-1" />
                 </button>
@@ -559,7 +559,7 @@ const AutoFillProfile = () => {
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <h3 className="text-lg font-semibold text-gray-900 flex items-center mb-3">
-                    <FaBriefcase className="w-5 h-5 mr-2 text-indigo-600" />
+                    <FaBriefcase className="w-5 h-5 mr-2 text-[#0d6d6e]" />
                     Work Experience
                   </h3>
                   {formData.noExperience ? (
@@ -586,7 +586,7 @@ const AutoFillProfile = () => {
                 </div>
                 <button
                   onClick={() => editSection(2)}
-                  className="text-indigo-600 hover:text-indigo-700 text-sm font-medium flex items-center"
+                  className="text-[#0d6d6e] hover:text-[#095555] text-sm font-medium flex items-center"
                 >
                   Edit <FaArrowRight className="w-3 h-3 ml-1" />
                 </button>
@@ -598,7 +598,7 @@ const AutoFillProfile = () => {
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <h3 className="text-lg font-semibold text-gray-900 flex items-center mb-3">
-                    <FaPassport className="w-5 h-5 mr-2 text-indigo-600" />
+                    <FaPassport className="w-5 h-5 mr-2 text-[#0d6d6e]" />
                     Work Authorization
                   </h3>
                   <div className="grid grid-cols-2 gap-3 text-sm">
@@ -626,7 +626,7 @@ const AutoFillProfile = () => {
                 </div>
                 <button
                   onClick={() => editSection(3)}
-                  className="text-indigo-600 hover:text-indigo-700 text-sm font-medium flex items-center"
+                  className="text-[#0d6d6e] hover:text-[#095555] text-sm font-medium flex items-center"
                 >
                   Edit <FaArrowRight className="w-3 h-3 ml-1" />
                 </button>
@@ -638,7 +638,7 @@ const AutoFillProfile = () => {
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <h3 className="text-lg font-semibold text-gray-900 flex items-center mb-3">
-                    <FaUsers className="w-5 h-5 mr-2 text-indigo-600" />
+                    <FaUsers className="w-5 h-5 mr-2 text-[#0d6d6e]" />
                     Equal Employment Opportunity
                   </h3>
                   <div className="grid grid-cols-2 gap-3 text-sm">
@@ -664,7 +664,7 @@ const AutoFillProfile = () => {
                 </div>
                 <button
                   onClick={() => editSection(4)}
-                  className="text-indigo-600 hover:text-indigo-700 text-sm font-medium flex items-center"
+                  className="text-[#0d6d6e] hover:text-[#095555] text-sm font-medium flex items-center"
                 >
                   Edit <FaArrowRight className="w-3 h-3 ml-1" />
                 </button>
@@ -676,13 +676,13 @@ const AutoFillProfile = () => {
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <h3 className="text-lg font-semibold text-gray-900 flex items-center mb-3">
-                    <FaTools className="w-5 h-5 mr-2 text-indigo-600" />
+                    <FaTools className="w-5 h-5 mr-2 text-[#0d6d6e]" />
                     Skills
                   </h3>
                   {formData.skills.length > 0 ? (
                     <div className="flex flex-wrap gap-2">
                       {formData.skills.map((skill, i) => (
-                        <span key={i} className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm">
+                        <span key={i} className="px-3 py-1 bg-[#e6f3f3] text-[#095555] rounded-full text-sm">
                           {skill}
                         </span>
                       ))}
@@ -693,7 +693,7 @@ const AutoFillProfile = () => {
                 </div>
                 <button
                   onClick={() => editSection(5)}
-                  className="text-indigo-600 hover:text-indigo-700 text-sm font-medium flex items-center"
+                  className="text-[#0d6d6e] hover:text-[#095555] text-sm font-medium flex items-center"
                 >
                   Edit <FaArrowRight className="w-3 h-3 ml-1" />
                 </button>
@@ -705,7 +705,7 @@ const AutoFillProfile = () => {
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <h3 className="text-lg font-semibold text-gray-900 flex items-center mb-3">
-                    <FaMapMarkerAlt className="w-5 h-5 mr-2 text-indigo-600" />
+                    <FaMapMarkerAlt className="w-5 h-5 mr-2 text-[#0d6d6e]" />
                     Personal Information
                   </h3>
                   <div className="grid grid-cols-2 gap-3 text-sm">
@@ -727,7 +727,7 @@ const AutoFillProfile = () => {
                 </div>
                 <button
                   onClick={() => editSection(6)}
-                  className="text-indigo-600 hover:text-indigo-700 text-sm font-medium flex items-center"
+                  className="text-[#0d6d6e] hover:text-[#095555] text-sm font-medium flex items-center"
                 >
                   Edit <FaArrowRight className="w-3 h-3 ml-1" />
                 </button>
@@ -739,14 +739,14 @@ const AutoFillProfile = () => {
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <h3 className="text-lg font-semibold text-gray-900 flex items-center mb-3">
-                    <FaLink className="w-5 h-5 mr-2 text-indigo-600" />
+                    <FaLink className="w-5 h-5 mr-2 text-[#0d6d6e]" />
                     Links
                   </h3>
                   <div className="space-y-2 text-sm">
                     {formData.linkedIn && (
                       <div className="flex items-center">
                         <FaLinkedin className="w-4 h-4 mr-2 text-blue-600" />
-                        <a href={formData.linkedIn} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline truncate">
+                        <a href={formData.linkedIn} target="_blank" rel="noopener noreferrer" className="text-[#0d6d6e] hover:underline truncate">
                           {formData.linkedIn}
                         </a>
                       </div>
@@ -754,7 +754,7 @@ const AutoFillProfile = () => {
                     {formData.github && (
                       <div className="flex items-center">
                         <FaGithub className="w-4 h-4 mr-2" />
-                        <a href={formData.github} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline truncate">
+                        <a href={formData.github} target="_blank" rel="noopener noreferrer" className="text-[#0d6d6e] hover:underline truncate">
                           {formData.github}
                         </a>
                       </div>
@@ -762,7 +762,7 @@ const AutoFillProfile = () => {
                     {formData.portfolio && (
                       <div className="flex items-center">
                         <FaGlobe className="w-4 h-4 mr-2 text-green-600" />
-                        <a href={formData.portfolio} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline truncate">
+                        <a href={formData.portfolio} target="_blank" rel="noopener noreferrer" className="text-[#0d6d6e] hover:underline truncate">
                           {formData.portfolio}
                         </a>
                       </div>
@@ -770,7 +770,7 @@ const AutoFillProfile = () => {
                     {formData.otherWebsite && (
                       <div className="flex items-center">
                         <FaGlobe className="w-4 h-4 mr-2 text-gray-500" />
-                        <a href={formData.otherWebsite} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline truncate">
+                        <a href={formData.otherWebsite} target="_blank" rel="noopener noreferrer" className="text-[#0d6d6e] hover:underline truncate">
                           {formData.otherWebsite}
                         </a>
                       </div>
@@ -782,7 +782,7 @@ const AutoFillProfile = () => {
                 </div>
                 <button
                   onClick={() => editSection(7)}
-                  className="text-indigo-600 hover:text-indigo-700 text-sm font-medium flex items-center"
+                  className="text-[#0d6d6e] hover:text-[#095555] text-sm font-medium flex items-center"
                 >
                   Edit <FaArrowRight className="w-3 h-3 ml-1" />
                 </button>
@@ -791,10 +791,10 @@ const AutoFillProfile = () => {
           </div>
 
           {/* Chrome Extension CTA */}
-          <div className="mt-8 bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-xl p-6">
+          <div className="mt-8 bg-gradient-to-r from-[#e6f3f3] to-[#f0f9f9] border border-[#0d6d6e]/30 rounded-xl p-6">
             <div className="flex items-start space-x-4">
-              <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                <FaPuzzlePiece className="text-indigo-600 text-xl" />
+              <div className="w-12 h-12 bg-[#e6f3f3] rounded-xl flex items-center justify-center flex-shrink-0">
+                <FaPuzzlePiece className="text-[#0d6d6e] text-xl" />
               </div>
               <div className="flex-1">
                 <h3 className="text-lg font-semibold text-gray-900 mb-1">
@@ -808,7 +808,7 @@ const AutoFillProfile = () => {
                     href="https://chrome.google.com/webstore/detail/jobleap-autofill"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
+                    className="inline-flex items-center px-4 py-2 bg-[#0d6d6e] text-white rounded-lg text-sm font-medium hover:bg-[#095555] transition-colors"
                   >
                     <FaPuzzlePiece className="mr-2" />
                     Install Extension
@@ -826,7 +826,7 @@ const AutoFillProfile = () => {
           <div className="mt-8 flex justify-center gap-4">
             <button
               onClick={() => navigate("/")}
-              className="px-8 py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-all shadow-md"
+              className="px-8 py-3 bg-[#0d6d6e] text-white rounded-lg font-medium hover:bg-[#095555] transition-all shadow-md"
             >
               Start Applying to Jobs
             </button>
@@ -842,7 +842,7 @@ const AutoFillProfile = () => {
       {/* Progress bar */}
       <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
         <div
-          className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
+          className="bg-[#0d6d6e] h-2 rounded-full transition-all duration-300"
           style={{ width: `${((currentStep + 1) / STEPS.length) * 100}%` }}
         />
       </div>
@@ -860,7 +860,7 @@ const AutoFillProfile = () => {
               onClick={() => goToStep(index)}
               className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-all ${
                 isActive
-                  ? "bg-indigo-600 text-white shadow-lg"
+                  ? "bg-[#0d6d6e] text-white shadow-lg"
                   : isCompleted
                   ? "bg-green-100 text-green-700 hover:bg-green-200"
                   : "bg-gray-100 text-gray-500 hover:bg-gray-200"
@@ -880,7 +880,7 @@ const AutoFillProfile = () => {
 
       {/* Current step indicator */}
       <div className="text-center mt-4">
-        <span className="text-lg font-semibold text-indigo-600">
+        <span className="text-lg font-semibold text-[#0d6d6e]">
           Step {currentStep + 1} of {STEPS.length}: {STEPS[currentStep].label}
         </span>
       </div>
@@ -889,9 +889,9 @@ const AutoFillProfile = () => {
 
   // Render tip box
   const renderTip = (message) => (
-    <div className="flex items-start bg-indigo-50 border border-indigo-100 rounded-lg p-4 mb-6">
-      <FaLightbulb className="w-5 h-5 text-indigo-500 mt-0.5 mr-3 flex-shrink-0" />
-      <p className="text-sm text-indigo-700">{message}</p>
+    <div className="flex items-start bg-[#f0f9f9] border border-[#cce7e7] rounded-lg p-4 mb-6">
+      <FaLightbulb className="w-5 h-5 text-[#0d6d6e] mt-0.5 mr-3 flex-shrink-0" />
+      <p className="text-sm text-[#095555]">{message}</p>
     </div>
   );
 
@@ -906,7 +906,7 @@ const AutoFillProfile = () => {
         value={formData[field] || ""}
         onChange={(e) => handleChange(field, e.target.value)}
         placeholder={placeholder}
-        className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
+        className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] ${
           errors[field] ? "border-red-500" : "border-gray-300"
         }`}
       />
@@ -928,7 +928,7 @@ const AutoFillProfile = () => {
       <select
         value={formData[field] || ""}
         onChange={(e) => handleChange(field, e.target.value)}
-        className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
+        className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#0d6d6e] focus:border-[#0d6d6e] ${
           errors[field] ? "border-red-500" : "border-gray-300"
         }`}
       >
@@ -953,7 +953,7 @@ const AutoFillProfile = () => {
           onClick={() => handleChange(field, true)}
           className={`px-6 py-2 rounded-lg border-2 font-medium transition-all ${
             formData[field] === true
-              ? "border-indigo-600 bg-indigo-50 text-indigo-700"
+              ? "border-[#0d6d6e] bg-[#f0f9f9] text-[#095555]"
               : "border-gray-300 text-gray-600 hover:border-gray-400"
           }`}
         >
@@ -964,7 +964,7 @@ const AutoFillProfile = () => {
           onClick={() => handleChange(field, false)}
           className={`px-6 py-2 rounded-lg border-2 font-medium transition-all ${
             formData[field] === false
-              ? "border-indigo-600 bg-indigo-50 text-indigo-700"
+              ? "border-[#0d6d6e] bg-[#f0f9f9] text-[#095555]"
               : "border-gray-300 text-gray-600 hover:border-gray-400"
           }`}
         >
@@ -988,7 +988,7 @@ const AutoFillProfile = () => {
               (option === "Yes" && formData[field] === true) ||
               (option === "No" && formData[field] === false) ||
               (option === "Decline to state" && formData[field] === null)
-                ? "border-indigo-600 bg-indigo-50 text-indigo-700"
+                ? "border-[#0d6d6e] bg-[#f0f9f9] text-[#095555]"
                 : "border-gray-300 text-gray-600 hover:border-gray-400"
             }`}
           >
@@ -1026,8 +1026,8 @@ const AutoFillProfile = () => {
         <div
           className={`border-2 border-dashed rounded-lg p-8 text-center transition-all ${
             formData.resumeFileName
-              ? "border-indigo-300 bg-indigo-50"
-              : "border-gray-300 hover:border-indigo-400"
+              ? "border-[#0d6d6e] bg-[#f0f9f9]"
+              : "border-gray-300 hover:border-[#0d6d6e]"
           }`}
         >
           <input
@@ -1040,10 +1040,10 @@ const AutoFillProfile = () => {
           <label htmlFor="resume-upload" className="cursor-pointer">
             <FaUpload className="w-8 h-8 mx-auto text-gray-400 mb-3" />
             {formData.resumeFileName ? (
-              <p className="text-indigo-600 font-medium">{formData.resumeFileName}</p>
+              <p className="text-[#0d6d6e] font-medium">{formData.resumeFileName}</p>
             ) : (
               <>
-                <p className="text-indigo-600 font-medium">Upload a file</p>
+                <p className="text-[#0d6d6e] font-medium">Upload a file</p>
                 <p className="text-xs text-gray-500 mt-1">PDF, DOC, DOCX up to 5 MB</p>
               </>
             )}
@@ -1097,7 +1097,7 @@ const AutoFillProfile = () => {
                 handleArrayChange("education", index, "schoolName", e.target.value)
               }
               placeholder="University of..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0d6d6e]"
             />
           </div>
 
@@ -1113,7 +1113,7 @@ const AutoFillProfile = () => {
                   handleArrayChange("education", index, "major", e.target.value)
                 }
                 placeholder="Computer Science"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0d6d6e]"
               />
             </div>
             <div>
@@ -1125,7 +1125,7 @@ const AutoFillProfile = () => {
                 onChange={(e) =>
                   handleArrayChange("education", index, "degreeType", e.target.value)
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0d6d6e]"
               >
                 <option value="">Select...</option>
                 {DEGREE_TYPES.map((type) => (
@@ -1146,7 +1146,7 @@ const AutoFillProfile = () => {
                   handleArrayChange("education", index, "gpa", e.target.value)
                 }
                 placeholder="3.8"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0d6d6e]"
               />
             </div>
           </div>
@@ -1161,7 +1161,7 @@ const AutoFillProfile = () => {
                 onChange={(e) =>
                   handleArrayChange("education", index, "startMonth", e.target.value)
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0d6d6e]"
               >
                 <option value="">Month</option>
                 {Array.from({ length: 12 }, (_, i) => (
@@ -1180,7 +1180,7 @@ const AutoFillProfile = () => {
                 onChange={(e) =>
                   handleArrayChange("education", index, "startYear", e.target.value)
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0d6d6e]"
               >
                 <option value="">Year</option>
                 {Array.from({ length: 30 }, (_, i) => {
@@ -1202,7 +1202,7 @@ const AutoFillProfile = () => {
                 onChange={(e) =>
                   handleArrayChange("education", index, "endMonth", e.target.value)
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0d6d6e]"
               >
                 <option value="">Month</option>
                 {Array.from({ length: 12 }, (_, i) => (
@@ -1221,7 +1221,7 @@ const AutoFillProfile = () => {
                 onChange={(e) =>
                   handleArrayChange("education", index, "endYear", e.target.value)
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0d6d6e]"
               >
                 <option value="">Year</option>
                 {Array.from({ length: 35 }, (_, i) => {
@@ -1252,7 +1252,7 @@ const AutoFillProfile = () => {
             endYear: "",
           })
         }
-        className="flex items-center text-indigo-600 hover:text-indigo-700 font-medium"
+        className="flex items-center text-[#0d6d6e] hover:text-[#095555] font-medium"
       >
         <FaPlus className="w-4 h-4 mr-2" />
         Add Education
@@ -1278,7 +1278,7 @@ const AutoFillProfile = () => {
             type="checkbox"
             checked={formData.noExperience}
             onChange={(e) => handleChange("noExperience", e.target.checked)}
-            className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500"
+            className="w-4 h-4 text-[#0d6d6e] rounded focus:ring-[#0d6d6e]"
           />
           <span className="ml-2 text-gray-700">
             I'm looking for my first job (no prior experience)
@@ -1317,7 +1317,7 @@ const AutoFillProfile = () => {
                     handleArrayChange("experience", index, "positionTitle", e.target.value)
                   }
                   placeholder="Software Engineer"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0d6d6e]"
                 />
               </div>
 
@@ -1333,7 +1333,7 @@ const AutoFillProfile = () => {
                       handleArrayChange("experience", index, "company", e.target.value)
                     }
                     placeholder="Company name"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0d6d6e]"
                   />
                 </div>
                 <div>
@@ -1347,7 +1347,7 @@ const AutoFillProfile = () => {
                       handleArrayChange("experience", index, "location", e.target.value)
                     }
                     placeholder="City, State"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0d6d6e]"
                   />
                 </div>
               </div>
@@ -1361,7 +1361,7 @@ const AutoFillProfile = () => {
                   onChange={(e) =>
                     handleArrayChange("experience", index, "experienceType", e.target.value)
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0d6d6e]"
                 >
                   <option value="">Select type...</option>
                   {EXPERIENCE_TYPES.map((type) => (
@@ -1382,7 +1382,7 @@ const AutoFillProfile = () => {
                     onChange={(e) =>
                       handleArrayChange("experience", index, "startMonth", e.target.value)
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0d6d6e]"
                   >
                     <option value="">Month</option>
                     {Array.from({ length: 12 }, (_, i) => (
@@ -1401,7 +1401,7 @@ const AutoFillProfile = () => {
                     onChange={(e) =>
                       handleArrayChange("experience", index, "startYear", e.target.value)
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0d6d6e]"
                   >
                     <option value="">Year</option>
                     {Array.from({ length: 30 }, (_, i) => {
@@ -1424,7 +1424,7 @@ const AutoFillProfile = () => {
                       handleArrayChange("experience", index, "endMonth", e.target.value)
                     }
                     disabled={exp.currentlyWorking}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-100"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0d6d6e] disabled:bg-gray-100"
                   >
                     <option value="">Month</option>
                     {Array.from({ length: 12 }, (_, i) => (
@@ -1444,7 +1444,7 @@ const AutoFillProfile = () => {
                       handleArrayChange("experience", index, "endYear", e.target.value)
                     }
                     disabled={exp.currentlyWorking}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-100"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0d6d6e] disabled:bg-gray-100"
                   >
                     <option value="">Year</option>
                     {Array.from({ length: 30 }, (_, i) => {
@@ -1467,7 +1467,7 @@ const AutoFillProfile = () => {
                     onChange={(e) =>
                       handleArrayChange("experience", index, "currentlyWorking", e.target.checked)
                     }
-                    className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500"
+                    className="w-4 h-4 text-[#0d6d6e] rounded focus:ring-[#0d6d6e]"
                   />
                   <span className="ml-2 text-gray-700">I currently work here</span>
                 </label>
@@ -1484,7 +1484,7 @@ const AutoFillProfile = () => {
                   }
                   placeholder="A couple sentences about your role..."
                   rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0d6d6e]"
                 />
               </div>
             </div>
@@ -1506,7 +1506,7 @@ const AutoFillProfile = () => {
                 description: "",
               })
             }
-            className="flex items-center text-indigo-600 hover:text-indigo-700 font-medium"
+            className="flex items-center text-[#0d6d6e] hover:text-[#095555] font-medium"
           >
             <FaPlus className="w-4 h-4 mr-2" />
             Add Experience
@@ -1577,7 +1577,7 @@ const AutoFillProfile = () => {
               className={`px-3 py-1.5 rounded-full border-2 text-sm font-medium transition-all ${
                 formData.ethnicity.includes(option) ||
                 (option === "Decline to state" && formData.declineEthnicity)
-                  ? "border-indigo-600 bg-indigo-50 text-indigo-700"
+                  ? "border-[#0d6d6e] bg-[#f0f9f9] text-[#095555]"
                   : "border-gray-300 text-gray-600 hover:border-gray-400"
               }`}
             >
@@ -1603,7 +1603,7 @@ const AutoFillProfile = () => {
               onClick={() => handleChange("gender", option)}
               className={`px-4 py-2 rounded-lg border-2 font-medium text-sm transition-all ${
                 formData.gender === option
-                  ? "border-indigo-600 bg-indigo-50 text-indigo-700"
+                  ? "border-[#0d6d6e] bg-[#f0f9f9] text-[#095555]"
                   : "border-gray-300 text-gray-600 hover:border-gray-400"
               }`}
             >
@@ -1619,7 +1619,7 @@ const AutoFillProfile = () => {
           href="https://www.eeoc.gov/"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-indigo-600 hover:underline"
+          className="text-[#0d6d6e] hover:underline"
         >
           U.S. EEOC
         </a>
@@ -1687,13 +1687,13 @@ const AutoFillProfile = () => {
               onChange={(e) => setSkillSearch(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Search or type a custom skill..."
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0d6d6e]"
             />
             {isCustomSkill && (
               <button
                 type="button"
                 onClick={addCustomSkill}
-                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all flex items-center"
+                className="px-4 py-2 bg-[#0d6d6e] text-white rounded-lg hover:bg-[#095555] transition-all flex items-center"
               >
                 <FaPlus className="w-4 h-4 mr-1" />
                 Add
@@ -1701,7 +1701,7 @@ const AutoFillProfile = () => {
             )}
           </div>
           {isCustomSkill && (
-            <p className="text-sm text-indigo-600 mt-1">
+            <p className="text-sm text-[#0d6d6e] mt-1">
               Press Enter or click Add to add "{skillSearch}" as a custom skill
             </p>
           )}
@@ -1719,7 +1719,7 @@ const AutoFillProfile = () => {
                     toggleSkill(skill);
                     setSkillSearch("");
                   }}
-                  className="px-3 py-1.5 rounded-full border border-gray-300 text-sm text-gray-600 hover:border-indigo-400 hover:text-indigo-600 transition-all"
+                  className="px-3 py-1.5 rounded-full border border-gray-300 text-sm text-gray-600 hover:border-[#0d6d6e] hover:text-[#0d6d6e] transition-all"
                 >
                   {skill}
                 </button>
@@ -1737,13 +1737,13 @@ const AutoFillProfile = () => {
               {formData.skills.map((skill) => (
                 <span
                   key={skill}
-                  className="inline-flex items-center px-3 py-1.5 rounded-full bg-indigo-100 text-indigo-700 text-sm"
+                  className="inline-flex items-center px-3 py-1.5 rounded-full bg-[#e6f3f3] text-[#095555] text-sm"
                 >
                   {skill}
                   <button
                     type="button"
                     onClick={() => toggleSkill(skill)}
-                    className="ml-2 text-indigo-500 hover:text-indigo-700"
+                    className="ml-2 text-[#0d6d6e] hover:text-[#095555]"
                   >
                     &times;
                   </button>
@@ -1783,7 +1783,7 @@ const AutoFillProfile = () => {
           <select
             value={formData.phoneCountryCode}
             onChange={(e) => handleChange("phoneCountryCode", e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-indigo-500 bg-gray-50"
+            className="px-3 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-[#0d6d6e] bg-gray-50"
           >
             <option value="+1">+1 (US)</option>
             <option value="+44">+44 (UK)</option>
@@ -1796,7 +1796,7 @@ const AutoFillProfile = () => {
             value={formData.phone}
             onChange={(e) => handleChange("phone", e.target.value)}
             placeholder="(555) 123-4567"
-            className={`flex-1 px-4 py-2 border border-l-0 border-gray-300 rounded-r-lg focus:ring-2 focus:ring-indigo-500 ${
+            className={`flex-1 px-4 py-2 border border-l-0 border-gray-300 rounded-r-lg focus:ring-2 focus:ring-[#0d6d6e] ${
               errors.phone ? "border-red-500" : ""
             }`}
           />
@@ -1844,7 +1844,7 @@ const AutoFillProfile = () => {
                 )
               }
               placeholder="yourprofile"
-              className={`flex-1 px-4 py-2 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-indigo-500 ${
+              className={`flex-1 px-4 py-2 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-[#0d6d6e] ${
                 errors.linkedIn ? "border-red-500" : ""
               }`}
             />
@@ -1873,7 +1873,7 @@ const AutoFillProfile = () => {
                 )
               }
               placeholder="yourusername"
-              className={`flex-1 px-4 py-2 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-indigo-500 ${
+              className={`flex-1 px-4 py-2 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-[#0d6d6e] ${
                 errors.github ? "border-red-500" : ""
               }`}
             />
@@ -1902,7 +1902,7 @@ const AutoFillProfile = () => {
                 )
               }
               placeholder="yourportfolio.com"
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-indigo-500"
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-[#0d6d6e]"
             />
           </div>
         </div>
@@ -1926,7 +1926,7 @@ const AutoFillProfile = () => {
                 )
               }
               placeholder="..."
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-indigo-500"
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-[#0d6d6e]"
             />
           </div>
         </div>
@@ -2018,7 +2018,7 @@ const AutoFillProfile = () => {
                     type="button"
                     onClick={nextStep}
                     disabled={isSaving}
-                    className="flex items-center px-8 py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-all disabled:opacity-50 shadow-md"
+                    className="flex items-center px-8 py-3 bg-[#0d6d6e] text-white rounded-lg font-medium hover:bg-[#095555] transition-all disabled:opacity-50 shadow-md"
                   >
                     {isSaving ? (
                       <FaSpinner className="w-4 h-4 mr-2 animate-spin" />
