@@ -67,9 +67,11 @@ const userSchema = new mongoose.Schema({
       position: String,
       company: String,
       location: String,
+      experienceType: String,
       startDate: String,
       endDate: String,
-      current: { type: Boolean, default: false }
+      current: { type: Boolean, default: false },
+      description: String
     }],
     // Work Authorization
     workAuthorization: {
@@ -97,7 +99,8 @@ const userSchema = new mongoose.Schema({
     links: {
       linkedin: String,
       github: String,
-      portfolio: String
+      portfolio: String,
+      other: String
     }
   },
   profileCompleted: {

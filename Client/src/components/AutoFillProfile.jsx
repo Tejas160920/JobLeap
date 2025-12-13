@@ -202,11 +202,25 @@ const AutoFillProfile = () => {
             setProfileExists(true);
 
             // Map backend profile to form data
+            // Parse phone - might be stored with country code like "+1 1234567890"
+            const phoneRaw = raw.personal?.phone || "";
+            let phoneCountryCode = "+1";
+            let phoneNumber = phoneRaw;
+            if (phoneRaw.startsWith("+")) {
+              const phoneParts = phoneRaw.split(" ");
+              if (phoneParts.length >= 2) {
+                phoneCountryCode = phoneParts[0];
+                phoneNumber = phoneParts.slice(1).join(" ");
+              }
+            }
+
             setFormData((prev) => ({
               ...prev,
               firstName: raw.firstName || "",
               lastName: raw.lastName || "",
-              phone: raw.personal?.phone || "",
+              resumeFileName: raw.resumeFile || "",
+              phone: phoneNumber,
+              phoneCountryCode: phoneCountryCode,
               dateOfBirth: raw.personal?.dateOfBirth || "",
               currentLocation: raw.personal?.location || "",
               linkedIn: raw.links?.linkedin || "",
@@ -229,23 +243,28 @@ const AutoFillProfile = () => {
               experience: raw.experience?.length
                 ? raw.experience.map((exp) => ({
                     positionTitle: exp.position || "",
-                    companyName: exp.company || "",
+                    company: exp.company || "",
                     location: exp.location || "",
+                    experienceType: exp.experienceType || "",
                     startMonth: exp.startDate?.split("-")[1] || "",
                     startYear: exp.startDate?.split("-")[0] || "",
                     endMonth: exp.endDate?.split("-")[1] || "",
                     endYear: exp.endDate?.split("-")[0] || "",
                     currentlyWorking: exp.current || false,
+                    description: exp.description || "",
                   }))
                 : prev.experience,
-              authorizedUS: raw.workAuthorization?.authorizedUS || null,
-              authorizedCanada: raw.workAuthorization?.authorizedCanada || null,
-              authorizedUK: raw.workAuthorization?.authorizedUK || null,
-              requiresSponsorship: raw.workAuthorization?.requireSponsorship || null,
+              // Convert "yes"/"no" strings back to booleans for form state
+              authorizedUS: raw.workAuthorization?.authorizedUS === "yes" ? true : raw.workAuthorization?.authorizedUS === "no" ? false : null,
+              authorizedCanada: raw.workAuthorization?.authorizedCanada === "yes" ? true : raw.workAuthorization?.authorizedCanada === "no" ? false : null,
+              authorizedUK: raw.workAuthorization?.authorizedUK === "yes" ? true : raw.workAuthorization?.authorizedUK === "no" ? false : null,
+              requiresSponsorship: raw.workAuthorization?.requireSponsorship === "yes" ? true : raw.workAuthorization?.requireSponsorship === "no" ? false : null,
               gender: raw.eeo?.gender || "",
-              ethnicity: raw.eeo?.ethnicity ? [raw.eeo.ethnicity] : [],
-              isVeteran: raw.eeo?.veteranStatus || null,
-              hasDisability: raw.eeo?.disabilityStatus || null,
+              ethnicity: raw.eeo?.ethnicity && raw.eeo.ethnicity !== "Decline to state" ? raw.eeo.ethnicity.split(", ") : [],
+              declineEthnicity: raw.eeo?.ethnicity === "Decline to state",
+              isVeteran: raw.eeo?.veteranStatus === "yes" ? true : raw.eeo?.veteranStatus === "no" ? false : null,
+              hasDisability: raw.eeo?.disabilityStatus === "yes" ? true : raw.eeo?.disabilityStatus === "no" ? false : null,
+              otherWebsite: raw.links?.other || "",
             }));
 
             // Show the completed profile view
@@ -404,22 +423,28 @@ const AutoFillProfile = () => {
 
     setIsSaving(true);
     try {
+      // Helper function to format date from month and year
+      const formatDate = (month, year) => {
+        if (!year) return "";
+        return month ? `${year}-${String(month).padStart(2, '0')}` : year;
+      };
+
       // Convert form data to autofill profile format
       const autofillProfile = {
         // Basics
         firstName: formData.firstName,
         lastName: formData.lastName,
-        resumeFile: formData.resumeFile || "",
+        resumeFile: formData.resumeFileName || "",
         // Education
         education: formData.education
           .filter((e) => e.schoolName)
           .map((e) => ({
             school: e.schoolName,
-            degree: e.degree,
+            degree: e.degreeType,
             major: e.major,
             gpa: e.gpa,
-            startDate: e.startDate,
-            endDate: e.endDate,
+            startDate: formatDate(e.startMonth, e.startYear),
+            endDate: formatDate(e.endMonth, e.endYear),
           })),
         // Experience
         lookingForFirstJob: formData.noExperience,
@@ -429,32 +454,34 @@ const AutoFillProfile = () => {
               .filter((e) => e.positionTitle)
               .map((e) => ({
                 position: e.positionTitle,
-                company: e.companyName,
+                company: e.company,
                 location: e.location,
-                startDate: e.startDate,
-                endDate: e.endDate,
+                experienceType: e.experienceType,
+                startDate: formatDate(e.startMonth, e.startYear),
+                endDate: e.currentlyWorking ? "" : formatDate(e.endMonth, e.endYear),
                 current: e.currentlyWorking,
+                description: e.description,
               })),
-        // Work Authorization
+        // Work Authorization - convert booleans to "yes"/"no" strings for MongoDB
         workAuthorization: {
-          authorizedUS: formData.authorizedUS,
-          authorizedCanada: formData.authorizedCanada,
-          authorizedUK: formData.authorizedUK,
-          requireSponsorship: formData.requiresSponsorship,
+          authorizedUS: formData.authorizedUS === true ? "yes" : formData.authorizedUS === false ? "no" : "",
+          authorizedCanada: formData.authorizedCanada === true ? "yes" : formData.authorizedCanada === false ? "no" : "",
+          authorizedUK: formData.authorizedUK === true ? "yes" : formData.authorizedUK === false ? "no" : "",
+          requireSponsorship: formData.requiresSponsorship === true ? "yes" : formData.requiresSponsorship === false ? "no" : "",
         },
-        // EEO
+        // EEO - convert booleans to strings
         eeo: {
           gender: formData.gender,
-          ethnicity: formData.ethnicity,
-          veteranStatus: formData.isVeteran,
-          disabilityStatus: formData.hasDisability,
+          ethnicity: formData.ethnicity.length > 0 ? formData.ethnicity.join(", ") : (formData.declineEthnicity ? "Decline to state" : ""),
+          veteranStatus: formData.isVeteran === true ? "yes" : formData.isVeteran === false ? "no" : "",
+          disabilityStatus: formData.hasDisability === true ? "yes" : formData.hasDisability === false ? "no" : "",
         },
         // Skills
         skills: formData.skills,
         // Personal
         personal: {
           location: formData.currentLocation,
-          phone: formData.phone,
+          phone: formData.phone ? `${formData.phoneCountryCode} ${formData.phone}` : "",
           dateOfBirth: formData.dateOfBirth,
         },
         // Links
@@ -462,6 +489,7 @@ const AutoFillProfile = () => {
           linkedin: formData.linkedIn,
           github: formData.github,
           portfolio: formData.portfolio,
+          other: formData.otherWebsite,
         },
       };
 

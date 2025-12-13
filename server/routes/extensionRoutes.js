@@ -17,10 +17,11 @@ const Groq = require('groq-sdk');
 /**
  * GET /api/extension/profile
  * Get user profile optimized for extension autofill
+ * Uses the autofillProfile from User model
  */
 router.get('/profile', verifyToken, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('-password');
+    const user = await User.findById(req.user.id).select('email autofillProfile');
 
     if (!user) {
       return res.status(404).json({
@@ -29,30 +30,55 @@ router.get('/profile', verifyToken, async (req, res) => {
       });
     }
 
-    // Transform to extension profile format
+    const ap = user.autofillProfile || {};
+
+    // Transform autofillProfile to extension-compatible format
     const profile = {
       personal: {
-        firstName: user.firstName || '',
-        lastName: user.lastName || '',
+        firstName: ap.firstName || '',
+        lastName: ap.lastName || '',
         email: user.email || '',
-        phone: user.phone || '',
-        linkedIn: user.linkedIn || '',
-        github: user.github || '',
-        portfolio: user.website || '',
+        phone: ap.personal?.phone || '',
+        linkedIn: ap.links?.linkedin || '',
+        github: ap.links?.github || '',
+        portfolio: ap.links?.portfolio || '',
         address: {
-          city: user.location?.split(',')[0]?.trim() || '',
-          state: user.location?.split(',')[1]?.trim() || '',
+          city: ap.personal?.location?.split(',')[0]?.trim() || '',
+          state: ap.personal?.location?.split(',')[1]?.trim() || '',
           country: 'United States',
         },
+        dateOfBirth: ap.personal?.dateOfBirth || '',
       },
-      experience: user.experience || [],
-      education: user.education || [],
-      skills: user.skills || [],
+      experience: (ap.experience || []).map(exp => ({
+        title: exp.position || '',
+        company: exp.company || '',
+        location: exp.location || '',
+        startDate: exp.startDate || '',
+        endDate: exp.endDate || '',
+        current: exp.current || false,
+        description: exp.description || '',
+      })),
+      education: (ap.education || []).map(edu => ({
+        school: edu.school || '',
+        degree: edu.degree || '',
+        field: edu.major || '',
+        gpa: edu.gpa || '',
+        startDate: edu.startDate || '',
+        endDate: edu.endDate || '',
+      })),
+      skills: ap.skills || [],
       preferences: {
-        authorizedToWork: true,
-        requiresSponsorship: false,
+        authorizedToWork: ap.workAuthorization?.authorizedUS === 'yes',
+        requiresSponsorship: ap.workAuthorization?.requireSponsorship === 'yes',
+        authorizedUS: ap.workAuthorization?.authorizedUS || '',
+        authorizedCanada: ap.workAuthorization?.authorizedCanada || '',
+        authorizedUK: ap.workAuthorization?.authorizedUK || '',
       },
-      savedAnswers: user.savedAnswers || {},
+      eeo: ap.eeo || {},
+      lookingForFirstJob: ap.lookingForFirstJob || false,
+      files: {
+        resumeName: ap.resumeFile || '',
+      },
     };
 
     res.json({
@@ -71,6 +97,7 @@ router.get('/profile', verifyToken, async (req, res) => {
 /**
  * PUT /api/extension/profile
  * Update user profile from extension
+ * Syncs data to the autofillProfile structure
  */
 router.put('/profile', verifyToken, async (req, res) => {
   try {
@@ -83,36 +110,64 @@ router.put('/profile', verifyToken, async (req, res) => {
       });
     }
 
-    // Map extension profile to user model
-    const updates = {
-      firstName: profile.personal?.firstName,
-      lastName: profile.personal?.lastName,
-      phone: profile.personal?.phone,
-      linkedIn: profile.personal?.linkedIn,
-      github: profile.personal?.github,
-      website: profile.personal?.portfolio,
-      location: [
-        profile.personal?.address?.city,
-        profile.personal?.address?.state,
-      ]
-        .filter(Boolean)
-        .join(', '),
-      skills: profile.skills,
-      experience: profile.experience,
-      education: profile.education,
-      savedAnswers: profile.savedAnswers,
+    // Get the user first to merge with existing autofillProfile
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found',
+      });
+    }
+
+    // Map extension profile to autofillProfile structure
+    const autofillProfile = {
+      ...user.autofillProfile,
+      firstName: profile.personal?.firstName || user.autofillProfile?.firstName || '',
+      lastName: profile.personal?.lastName || user.autofillProfile?.lastName || '',
+      personal: {
+        ...user.autofillProfile?.personal,
+        phone: profile.personal?.phone || user.autofillProfile?.personal?.phone || '',
+        location: [
+          profile.personal?.address?.city,
+          profile.personal?.address?.state,
+        ].filter(Boolean).join(', ') || user.autofillProfile?.personal?.location || '',
+        dateOfBirth: profile.personal?.dateOfBirth || user.autofillProfile?.personal?.dateOfBirth || '',
+      },
+      links: {
+        ...user.autofillProfile?.links,
+        linkedin: profile.personal?.linkedIn || user.autofillProfile?.links?.linkedin || '',
+        github: profile.personal?.github || user.autofillProfile?.links?.github || '',
+        portfolio: profile.personal?.portfolio || user.autofillProfile?.links?.portfolio || '',
+      },
+      skills: profile.skills || user.autofillProfile?.skills || [],
+      experience: (profile.experience || []).map(exp => ({
+        position: exp.title || '',
+        company: exp.company || '',
+        location: exp.location || '',
+        startDate: exp.startDate || '',
+        endDate: exp.endDate || '',
+        current: exp.current || false,
+        description: exp.description || '',
+      })),
+      education: (profile.education || []).map(edu => ({
+        school: edu.school || '',
+        degree: edu.degree || '',
+        major: edu.field || '',
+        gpa: edu.gpa || '',
+        startDate: edu.startDate || '',
+        endDate: edu.endDate || '',
+      })),
+      workAuthorization: {
+        ...user.autofillProfile?.workAuthorization,
+        authorizedUS: profile.preferences?.authorizedToWork ? 'yes' : user.autofillProfile?.workAuthorization?.authorizedUS || '',
+        requireSponsorship: profile.preferences?.requiresSponsorship ? 'yes' : user.autofillProfile?.workAuthorization?.requireSponsorship || '',
+      },
     };
 
-    // Remove undefined values
-    Object.keys(updates).forEach((key) => {
-      if (updates[key] === undefined) {
-        delete updates[key];
-      }
-    });
-
-    const user = await User.findByIdAndUpdate(req.user.id, updates, {
-      new: true,
-    }).select('-password');
+    // Update the user
+    user.autofillProfile = autofillProfile;
+    user.profileCompleted = true;
+    await user.save();
 
     res.json({
       success: true,
