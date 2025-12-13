@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
+import { syncTokenWithExtension, isExtensionInstalled } from './utils/extensionBridge';
 import JobSection from './components/JobSection';
 import Login from './components/Login';
 import JobForm from './components/JobForm';
@@ -43,11 +44,36 @@ function AppContent() {
     // Show signup modal for new users
     const hasSeenWelcome = localStorage.getItem("hasSeenWelcome");
     const token = localStorage.getItem("token");
-    
+
     if (!hasSeenWelcome && !token) {
       setTimeout(() => setShowSignupModal(true), 1000); // Show after 1 second
     }
   }, []);
+
+  // Auto-sync token with extension when user is logged in
+  useEffect(() => {
+    const syncExtension = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      try {
+        // Wait a bit for extension to initialize
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        const extensionInstalled = await isExtensionInstalled();
+        if (extensionInstalled) {
+          console.log('[JobLeap] Extension detected, syncing token...');
+          const synced = await syncTokenWithExtension(token);
+          console.log('[JobLeap] Token sync result:', synced);
+        }
+      } catch (error) {
+        // Extension not installed or sync failed - that's okay
+        console.log('[JobLeap] Extension sync skipped:', error);
+      }
+    };
+
+    syncExtension();
+  }, [location.pathname]); // Re-sync on navigation
 
   // Handle navigation with filters
   useEffect(() => {
