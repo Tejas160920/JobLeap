@@ -30,54 +30,62 @@ router.get('/profile', verifyToken, async (req, res) => {
       });
     }
 
+    // Helper to sanitize values - convert "null", null, undefined to empty string
+    const sanitize = (val) => {
+      if (val === null || val === undefined || val === 'null' || val === 'undefined') {
+        return '';
+      }
+      return String(val);
+    };
+
     const ap = user.autofillProfile || {};
 
     // Transform autofillProfile to extension-compatible format
     const profile = {
       personal: {
-        firstName: ap.firstName || '',
-        lastName: ap.lastName || '',
-        email: user.email || '',
-        phone: ap.personal?.phone || '',
-        linkedIn: ap.links?.linkedin || '',
-        github: ap.links?.github || '',
-        portfolio: ap.links?.portfolio || '',
+        firstName: sanitize(ap.firstName),
+        lastName: sanitize(ap.lastName),
+        email: sanitize(user.email),
+        phone: sanitize(ap.personal?.phone),
+        linkedIn: sanitize(ap.links?.linkedin),
+        github: sanitize(ap.links?.github),
+        portfolio: sanitize(ap.links?.portfolio),
         address: {
-          city: ap.personal?.location?.split(',')[0]?.trim() || '',
-          state: ap.personal?.location?.split(',')[1]?.trim() || '',
+          city: sanitize(ap.personal?.location?.split(',')[0]?.trim()),
+          state: sanitize(ap.personal?.location?.split(',')[1]?.trim()),
           country: 'United States',
         },
-        dateOfBirth: ap.personal?.dateOfBirth || '',
+        dateOfBirth: sanitize(ap.personal?.dateOfBirth),
       },
       experience: (ap.experience || []).map(exp => ({
-        title: exp.position || '',
-        company: exp.company || '',
-        location: exp.location || '',
-        startDate: exp.startDate || '',
-        endDate: exp.endDate || '',
+        title: sanitize(exp.position),
+        company: sanitize(exp.company),
+        location: sanitize(exp.location),
+        startDate: sanitize(exp.startDate),
+        endDate: sanitize(exp.endDate),
         current: exp.current || false,
-        description: exp.description || '',
+        description: sanitize(exp.description),
       })),
       education: (ap.education || []).map(edu => ({
-        school: edu.school || '',
-        degree: edu.degree || '',
-        field: edu.major || '',
-        gpa: edu.gpa || '',
-        startDate: edu.startDate || '',
-        endDate: edu.endDate || '',
+        school: sanitize(edu.school),
+        degree: sanitize(edu.degree),
+        field: sanitize(edu.major),
+        gpa: sanitize(edu.gpa),
+        startDate: sanitize(edu.startDate),
+        endDate: sanitize(edu.endDate),
       })),
       skills: ap.skills || [],
       preferences: {
         authorizedToWork: ap.workAuthorization?.authorizedUS === 'yes',
         requiresSponsorship: ap.workAuthorization?.requireSponsorship === 'yes',
-        authorizedUS: ap.workAuthorization?.authorizedUS || '',
-        authorizedCanada: ap.workAuthorization?.authorizedCanada || '',
-        authorizedUK: ap.workAuthorization?.authorizedUK || '',
+        authorizedUS: sanitize(ap.workAuthorization?.authorizedUS),
+        authorizedCanada: sanitize(ap.workAuthorization?.authorizedCanada),
+        authorizedUK: sanitize(ap.workAuthorization?.authorizedUK),
       },
       eeo: ap.eeo || {},
       lookingForFirstJob: ap.lookingForFirstJob || false,
       files: {
-        resumeName: ap.resumeFile || '',
+        resumeName: sanitize(ap.resumeFile),
       },
     };
 

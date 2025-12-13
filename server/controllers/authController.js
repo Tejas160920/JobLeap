@@ -623,23 +623,31 @@ exports.getAutofillProfile = async (req, res) => {
       });
     }
 
+    // Helper to sanitize values - convert "null", null, undefined to empty string
+    const sanitize = (val) => {
+      if (val === null || val === undefined || val === 'null' || val === 'undefined') {
+        return '';
+      }
+      return String(val);
+    };
+
     // Transform to extension-compatible format
     const profile = user.autofillProfile || {};
     const extensionProfile = {
       personal: {
-        firstName: profile.firstName || '',
-        lastName: profile.lastName || '',
-        email: user.email || '',
-        phone: profile.personal?.phone || '',
-        linkedIn: profile.links?.linkedin || '',
-        github: profile.links?.github || '',
-        portfolio: profile.links?.portfolio || '',
+        firstName: sanitize(profile.firstName),
+        lastName: sanitize(profile.lastName),
+        email: sanitize(user.email),
+        phone: sanitize(profile.personal?.phone),
+        linkedIn: sanitize(profile.links?.linkedin),
+        github: sanitize(profile.links?.github),
+        portfolio: sanitize(profile.links?.portfolio),
         address: {
-          city: profile.personal?.location?.split(',')[0]?.trim() || '',
-          state: profile.personal?.location?.split(',')[1]?.trim() || '',
+          city: sanitize(profile.personal?.location?.split(',')[0]?.trim()),
+          state: sanitize(profile.personal?.location?.split(',')[1]?.trim()),
           country: 'United States',
         },
-        dateOfBirth: profile.personal?.dateOfBirth || '',
+        dateOfBirth: sanitize(profile.personal?.dateOfBirth),
       },
       experience: (profile.experience || []).map(exp => ({
         title: exp.position || '',
