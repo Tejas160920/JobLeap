@@ -623,6 +623,10 @@ exports.getAutofillProfile = async (req, res) => {
       });
     }
 
+    // Debug: Log raw data from database
+    console.log('[DEBUG] Raw autofillProfile from DB:', JSON.stringify(user.autofillProfile, null, 2));
+    console.log('[DEBUG] User email:', user.email);
+
     // Helper to sanitize values - convert "null", null, undefined to empty string
     const sanitize = (val) => {
       if (val === null || val === undefined || val === 'null' || val === 'undefined') {
@@ -680,7 +684,15 @@ exports.getAutofillProfile = async (req, res) => {
     res.status(200).json({
       success: true,
       profile: extensionProfile,
-      raw: profile // Also send raw for debugging
+      raw: profile, // Also send raw for debugging
+      debug: {
+        hasFirstName: !!profile.firstName,
+        hasLastName: !!profile.lastName,
+        hasLinks: !!profile.links,
+        linksContent: profile.links,
+        personalContent: profile.personal,
+        userEmail: user.email
+      }
     });
   } catch (err) {
     console.error("Get autofill profile error:", err.message);
