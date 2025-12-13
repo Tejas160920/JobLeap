@@ -15,6 +15,7 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [touched, setTouched] = useState({});
+  const [isFromExtension, setIsFromExtension] = useState(false);
 
   useEffect(() => {
     const oauthError = searchParams.get('error');
@@ -26,6 +27,11 @@ const Login = () => {
       } else if (oauthError === 'oauth_failed') {
         setError('Social authentication failed. Please try again.');
       }
+    }
+
+    // Check if coming from extension
+    if (searchParams.get('from') === 'extension') {
+      setIsFromExtension(true);
     }
   }, [searchParams]);
 
@@ -87,9 +93,16 @@ const Login = () => {
         localStorage.setItem("profileCompleted", data.user.profileCompleted);
 
         // Sync token to Chrome extension (if installed)
-        syncTokenWithExtension(data.token).catch(() => {
+        try {
+          const synced = await syncTokenWithExtension(data.token);
+          if (synced && isFromExtension) {
+            // Show success message and close after delay
+            setError('');
+            alert('Successfully connected to JobLeap Extension! You can now close this tab and use the extension.');
+          }
+        } catch {
           // Extension not installed - that's okay
-        });
+        }
 
         window.dispatchEvent(new Event('authChange'));
 
@@ -119,6 +132,23 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
+        {/* Extension Connection Banner */}
+        {isFromExtension && (
+          <div className="mb-4 p-4 bg-[#0d6d6e]/10 border border-[#0d6d6e]/30 rounded-lg">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-[#0d6d6e] rounded-lg flex items-center justify-center flex-shrink-0">
+                <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M12 5v14M5 12h14"/>
+                </svg>
+              </div>
+              <div>
+                <p className="font-medium text-[#0d6d6e]">Connect Extension</p>
+                <p className="text-sm text-gray-600">Sign in to connect your JobLeap browser extension</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
           {/* Header */}
           <div className="text-center mb-8">
