@@ -212,113 +212,132 @@ const AutoFillProfile = () => {
 
         clearTimeout(timeoutId);
 
-        if (response.ok) {
-          const data = await response.json();
-          const raw = data.raw; // Raw autofillProfile data from server
+        const data = await response.json();
 
-          if (raw && raw.firstName) {
-            // Profile exists - load it into form data
-            setProfileExists(true);
+        if (!response.ok) {
+          console.error("[AutoFillProfile] API error:", response.status, data);
+          return;
+        }
 
-            // Map backend profile to form data
-            // Parse phone - might be stored with country code like "+1 1234567890"
-            const phoneRaw = raw.personal?.phone || "";
-            let phoneCountryCode = "+1";
-            let phoneNumber = phoneRaw;
-            if (phoneRaw.startsWith("+")) {
-              const phoneParts = phoneRaw.split(" ");
-              if (phoneParts.length >= 2) {
-                phoneCountryCode = phoneParts[0];
-                phoneNumber = phoneParts.slice(1).join(" ");
-              }
+        const raw = data.raw; // Raw autofillProfile data from server
+
+        console.log("[AutoFillProfile] Loaded profile data:", raw);
+        console.log("[AutoFillProfile] Debug info:", data.debug);
+
+        // Check if profile has any meaningful data (not just an empty object)
+        const hasProfileData = raw && (
+          raw.firstName ||
+          raw.lastName ||
+          raw.education?.length > 0 ||
+          raw.experience?.length > 0 ||
+          raw.skills?.length > 0 ||
+          raw.links?.linkedin ||
+          raw.personal?.phone
+        );
+
+        if (hasProfileData) {
+          // Profile exists - load it into form data
+          setProfileExists(true);
+
+          // Map backend profile to form data
+          // Parse phone - might be stored with country code like "+1 1234567890"
+          const phoneRaw = raw.personal?.phone || "";
+          let phoneCountryCode = "+1";
+          let phoneNumber = phoneRaw;
+          if (phoneRaw.startsWith("+")) {
+            const phoneParts = phoneRaw.split(" ");
+            if (phoneParts.length >= 2) {
+              phoneCountryCode = phoneParts[0];
+              phoneNumber = phoneParts.slice(1).join(" ");
             }
-
-            setFormData((prev) => ({
-              ...prev,
-              // Basics
-              firstName: raw.firstName || "",
-              lastName: raw.lastName || "",
-              preferredName: raw.preferredName || "",
-              pronouns: raw.pronouns || "",
-              namePronunciation: raw.namePronunciation || "",
-              email: raw.personal?.email || "",
-              resumeFileName: raw.resumeFile || "",
-              // Personal
-              phone: phoneNumber,
-              phoneCountryCode: raw.personal?.phoneCountryCode || phoneCountryCode,
-              dateOfBirth: raw.personal?.dateOfBirth || "",
-              currentLocation: raw.personal?.address?.city && raw.personal?.address?.state
-                ? `${raw.personal.address.city}, ${raw.personal.address.state}`
-                : "",
-              currentCompany: raw.personal?.currentCompany || "",
-              street: raw.personal?.address?.street || "",
-              city: raw.personal?.address?.city || "",
-              state: raw.personal?.address?.state || "",
-              zipCode: raw.personal?.address?.zipCode || "",
-              country: raw.personal?.address?.country || "",
-              // Links
-              linkedIn: raw.links?.linkedin || "",
-              github: raw.links?.github || "",
-              portfolio: raw.links?.portfolio || "",
-              twitter: raw.links?.twitter || "",
-              otherWebsite: raw.links?.other || "",
-              // Skills
-              skills: raw.skills || [],
-              // Education
-              education: raw.education?.length
-                ? raw.education.map((edu) => ({
-                    schoolName: edu.school || "",
-                    degreeType: edu.degree || "",
-                    major: edu.major || "",
-                    gpa: edu.gpa || "",
-                    startMonth: edu.startDate?.split("-")[1] || "",
-                    startYear: edu.startDate?.split("-")[0] || "",
-                    endMonth: edu.endDate?.split("-")[1] || "",
-                    endYear: edu.endDate?.split("-")[0] || "",
-                  }))
-                : prev.education,
-              // Experience
-              noExperience: raw.lookingForFirstJob || false,
-              experience: raw.experience?.length
-                ? raw.experience.map((exp) => ({
-                    positionTitle: exp.position || "",
-                    company: exp.company || "",
-                    location: exp.location || "",
-                    experienceType: exp.experienceType || "",
-                    startMonth: exp.startDate?.split("-")[1] || "",
-                    startYear: exp.startDate?.split("-")[0] || "",
-                    endMonth: exp.endDate?.split("-")[1] || "",
-                    endYear: exp.endDate?.split("-")[0] || "",
-                    currentlyWorking: exp.current || false,
-                    description: exp.description || "",
-                  }))
-                : prev.experience,
-              // Work Authorization - Convert "yes"/"no" strings back to booleans
-              authorizedUS: raw.workAuthorization?.authorizedUS === "yes" ? true : raw.workAuthorization?.authorizedUS === "no" ? false : null,
-              authorizedCanada: raw.workAuthorization?.authorizedCanada === "yes" ? true : raw.workAuthorization?.authorizedCanada === "no" ? false : null,
-              authorizedUK: raw.workAuthorization?.authorizedUK === "yes" ? true : raw.workAuthorization?.authorizedUK === "no" ? false : null,
-              authorizedEU: raw.workAuthorization?.authorizedEU === "yes" ? true : raw.workAuthorization?.authorizedEU === "no" ? false : null,
-              requiresSponsorship: raw.workAuthorization?.requireSponsorship === "yes" ? true : raw.workAuthorization?.requireSponsorship === "no" ? false : null,
-              // EEO
-              gender: raw.eeo?.gender || "",
-              hispanicLatino: raw.eeo?.hispanicLatino === "yes" ? true : raw.eeo?.hispanicLatino === "no" ? false : null,
-              ethnicity: raw.eeo?.ethnicity && raw.eeo.ethnicity !== "Decline to state" ? raw.eeo.ethnicity.split(", ") : [],
-              declineEthnicity: raw.eeo?.ethnicity === "Decline to state",
-              isVeteran: raw.eeo?.veteranStatus === "yes" ? true : raw.eeo?.veteranStatus === "no" ? false : null,
-              hasDisability: raw.eeo?.disabilityStatus === "yes" ? true : raw.eeo?.disabilityStatus === "no" ? false : null,
-              isLGBTQ: raw.eeo?.lgbtq === "yes" ? true : raw.eeo?.lgbtq === "no" ? false : null,
-              // Common Answers
-              howDidYouHear: raw.commonAnswers?.howDidYouHear || "",
-              willingToRelocate: raw.commonAnswers?.willingToRelocate === "yes" ? true : raw.commonAnswers?.willingToRelocate === "no" ? false : null,
-              earliestStartDate: raw.commonAnswers?.earliestStartDate || "",
-            }));
-
-            // Show the completed profile view
-            setIsCompleted(true);
           }
+
+          setFormData((prev) => ({
+            ...prev,
+            // Basics
+            firstName: raw.firstName || "",
+            lastName: raw.lastName || "",
+            preferredName: raw.preferredName || "",
+            pronouns: raw.pronouns || "",
+            namePronunciation: raw.namePronunciation || "",
+            email: raw.personal?.email || "",
+            resumeFileName: raw.resumeFile || "",
+            // Personal
+            phone: phoneNumber,
+            phoneCountryCode: raw.personal?.phoneCountryCode || phoneCountryCode,
+            dateOfBirth: raw.personal?.dateOfBirth || "",
+            currentLocation: raw.personal?.address?.city && raw.personal?.address?.state
+              ? `${raw.personal.address.city}, ${raw.personal.address.state}`
+              : "",
+            currentCompany: raw.personal?.currentCompany || "",
+            street: raw.personal?.address?.street || "",
+            city: raw.personal?.address?.city || "",
+            state: raw.personal?.address?.state || "",
+            zipCode: raw.personal?.address?.zipCode || "",
+            country: raw.personal?.address?.country || "",
+            // Links
+            linkedIn: raw.links?.linkedin || "",
+            github: raw.links?.github || "",
+            portfolio: raw.links?.portfolio || "",
+            twitter: raw.links?.twitter || "",
+            otherWebsite: raw.links?.other || "",
+            // Skills
+            skills: raw.skills || [],
+            // Education
+            education: raw.education?.length
+              ? raw.education.map((edu) => ({
+                  schoolName: edu.school || "",
+                  degreeType: edu.degree || "",
+                  major: edu.major || "",
+                  gpa: edu.gpa || "",
+                  startMonth: edu.startDate?.split("-")[1] || "",
+                  startYear: edu.startDate?.split("-")[0] || "",
+                  endMonth: edu.endDate?.split("-")[1] || "",
+                  endYear: edu.endDate?.split("-")[0] || "",
+                }))
+              : prev.education,
+            // Experience
+            noExperience: raw.lookingForFirstJob || false,
+            experience: raw.experience?.length
+              ? raw.experience.map((exp) => ({
+                  positionTitle: exp.position || "",
+                  company: exp.company || "",
+                  location: exp.location || "",
+                  experienceType: exp.experienceType || "",
+                  startMonth: exp.startDate?.split("-")[1] || "",
+                  startYear: exp.startDate?.split("-")[0] || "",
+                  endMonth: exp.endDate?.split("-")[1] || "",
+                  endYear: exp.endDate?.split("-")[0] || "",
+                  currentlyWorking: exp.current || false,
+                  description: exp.description || "",
+                }))
+              : prev.experience,
+            // Work Authorization - Convert "yes"/"no" strings back to booleans
+            authorizedUS: raw.workAuthorization?.authorizedUS === "yes" ? true : raw.workAuthorization?.authorizedUS === "no" ? false : null,
+            authorizedCanada: raw.workAuthorization?.authorizedCanada === "yes" ? true : raw.workAuthorization?.authorizedCanada === "no" ? false : null,
+            authorizedUK: raw.workAuthorization?.authorizedUK === "yes" ? true : raw.workAuthorization?.authorizedUK === "no" ? false : null,
+            authorizedEU: raw.workAuthorization?.authorizedEU === "yes" ? true : raw.workAuthorization?.authorizedEU === "no" ? false : null,
+            requiresSponsorship: raw.workAuthorization?.requireSponsorship === "yes" ? true : raw.workAuthorization?.requireSponsorship === "no" ? false : null,
+            // EEO
+            gender: raw.eeo?.gender || "",
+            hispanicLatino: raw.eeo?.hispanicLatino === "yes" ? true : raw.eeo?.hispanicLatino === "no" ? false : null,
+            ethnicity: raw.eeo?.ethnicity && raw.eeo.ethnicity !== "Decline to state" ? raw.eeo.ethnicity.split(", ") : [],
+            declineEthnicity: raw.eeo?.ethnicity === "Decline to state",
+            isVeteran: raw.eeo?.veteranStatus === "yes" ? true : raw.eeo?.veteranStatus === "no" ? false : null,
+            hasDisability: raw.eeo?.disabilityStatus === "yes" ? true : raw.eeo?.disabilityStatus === "no" ? false : null,
+            isLGBTQ: raw.eeo?.lgbtq === "yes" ? true : raw.eeo?.lgbtq === "no" ? false : null,
+            // Common Answers
+            howDidYouHear: raw.commonAnswers?.howDidYouHear || "",
+            willingToRelocate: raw.commonAnswers?.willingToRelocate === "yes" ? true : raw.commonAnswers?.willingToRelocate === "no" ? false : null,
+            earliestStartDate: raw.commonAnswers?.earliestStartDate || "",
+          }));
+
+          // Show the completed profile view
+          setIsCompleted(true);
         }
       } catch (error) {
-        console.log("Could not load existing profile:", error.message);
+        console.error("[AutoFillProfile] Error loading profile:", error);
+        // Don't redirect on error - just show empty form
       } finally {
         setIsLoading(false);
       }
