@@ -114,7 +114,7 @@ const Hero = ({ onSearch, onViewAllJobs, showCompactMode, onCompanyClick }) => {
                   <button
                     type="button"
                     onClick={getCurrentLocation}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[#0d6d6e] transition-colors"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[#0d6d6e] transition-colors cursor-pointer"
                     title="Use current location"
                   >
                     <FaLocationArrow />
@@ -125,7 +125,7 @@ const Hero = ({ onSearch, onViewAllJobs, showCompactMode, onCompanyClick }) => {
                   <button
                     type="button"
                     onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
-                    className="px-4 py-3.5 bg-gray-50 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors flex items-center border border-gray-200"
+                    className="px-4 py-3.5 bg-gray-50 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors flex items-center border border-gray-200 cursor-pointer"
                   >
                     <FaFilter className="mr-2" />
                     Filters
@@ -220,7 +220,7 @@ const Hero = ({ onSearch, onViewAllJobs, showCompactMode, onCompanyClick }) => {
                           setTitle(title.toLowerCase().includes('senior') ? '' : 'Senior');
                         }
                       }}
-                      className={`px-4 py-2 bg-white border rounded-lg text-sm transition-colors flex items-center space-x-2 ${
+                      className={`px-4 py-2 bg-white border rounded-lg text-sm transition-colors flex items-center space-x-2 cursor-pointer ${
                         isActive
                           ? 'border-[#0d6d6e] text-[#0d6d6e] bg-[#e6f3f3]'
                           : 'border-gray-200 text-gray-600 hover:border-[#0d6d6e] hover:text-[#0d6d6e]'
@@ -240,18 +240,33 @@ const Hero = ({ onSearch, onViewAllJobs, showCompactMode, onCompanyClick }) => {
             <div className="mt-6">
               <p className="text-gray-500 mb-3 text-sm">Popular searches:</p>
               <div className="flex flex-wrap justify-center gap-2">
-                {popularSearches.map((search, index) => (
-                  <button
-                    key={index}
-                    onClick={() => {
-                      setTitle(search);
-                      onSearch({ title: search, location, jobType, salaryRange, visaSponsorship });
-                    }}
-                    className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-100 hover:border-gray-300 transition-colors"
-                  >
-                    {search}
-                  </button>
-                ))}
+                {popularSearches.map((search, index) => {
+                  const isSelected = title === search;
+                  return (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        if (isSelected) {
+                          // Deselect - clear the filter
+                          setTitle("");
+                          onSearch({ title: "", location, jobType, salaryRange, visaSponsorship });
+                        } else {
+                          // Select this search
+                          setTitle(search);
+                          onSearch({ title: search, location, jobType, salaryRange, visaSponsorship });
+                        }
+                      }}
+                      className={`px-4 py-2 rounded-lg text-sm cursor-pointer transition-colors ${
+                        isSelected
+                          ? "bg-[#0d6d6e] text-white border border-[#0d6d6e]"
+                          : "bg-gray-50 border border-gray-200 text-gray-600 hover:bg-gray-100 hover:border-gray-300"
+                      }`}
+                    >
+                      {search}
+                      {isSelected && <span className="ml-2">×</span>}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -290,14 +305,14 @@ const Hero = ({ onSearch, onViewAllJobs, showCompactMode, onCompanyClick }) => {
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                   <button
                     onClick={onViewAllJobs}
-                    className="bg-white text-[#0d6d6e] px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors flex items-center justify-center"
+                    className="bg-white text-[#0d6d6e] px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors flex items-center justify-center cursor-pointer"
                   >
                     <FaBriefcase className="mr-2" />
                     Browse All Jobs
                   </button>
                   <button
                     onClick={() => window.location.href = '/resume-builder'}
-                    className="border-2 border-white text-white px-6 py-3 rounded-lg font-medium hover:bg-white/10 transition-colors"
+                    className="border-2 border-white text-white px-6 py-3 rounded-lg font-medium hover:bg-white/10 transition-colors cursor-pointer"
                   >
                     Build Resume
                   </button>
