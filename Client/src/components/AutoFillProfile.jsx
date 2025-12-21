@@ -187,9 +187,6 @@ const AutoFillProfile = () => {
     howDidYouHear: "",
     willingToRelocate: null,
     earliestStartDate: "",
-    salaryExpectation: "",
-    previouslyApplied: null,
-    previouslyEmployed: null,
   });
 
   // Load existing profile data on mount
@@ -314,9 +311,6 @@ const AutoFillProfile = () => {
               howDidYouHear: raw.commonAnswers?.howDidYouHear || "",
               willingToRelocate: raw.commonAnswers?.willingToRelocate === "yes" ? true : raw.commonAnswers?.willingToRelocate === "no" ? false : null,
               earliestStartDate: raw.commonAnswers?.earliestStartDate || "",
-              salaryExpectation: raw.commonAnswers?.salaryExpectation || "",
-              previouslyApplied: raw.commonAnswers?.previouslyApplied === "Yes" ? true : raw.commonAnswers?.previouslyApplied === "No" ? false : null,
-              previouslyEmployed: raw.commonAnswers?.previouslyEmployed === "Yes" ? true : raw.commonAnswers?.previouslyEmployed === "No" ? false : null,
             }));
 
             // Show the completed profile view
@@ -564,9 +558,6 @@ const AutoFillProfile = () => {
           howDidYouHear: formData.howDidYouHear,
           willingToRelocate: formData.willingToRelocate === true ? "yes" : formData.willingToRelocate === false ? "no" : "",
           earliestStartDate: formData.earliestStartDate,
-          salaryExpectation: formData.salaryExpectation,
-          previouslyApplied: formData.previouslyApplied === true ? "Yes" : formData.previouslyApplied === false ? "No" : "",
-          previouslyEmployed: formData.previouslyEmployed === true ? "Yes" : formData.previouslyEmployed === false ? "No" : "",
         },
       };
 
@@ -2172,12 +2163,6 @@ const AutoFillProfile = () => {
       {renderYesNo("Are you willing to relocate?", "willingToRelocate")}
 
       {renderInput("Earliest Start Date", "earliestStartDate", "date")}
-
-      {renderInput("Salary Expectation", "salaryExpectation", "text", "e.g., $80,000 - $100,000 or Negotiable")}
-
-      {renderYesNo("Have you previously applied to this company?", "previouslyApplied", "Default answer for 'Have you applied before?' questions")}
-
-      {renderYesNo("Have you been previously employed by this company?", "previouslyEmployed", "Default answer for 'Were you employed here before?' questions")}
     </div>
   );
 

@@ -129,9 +129,6 @@ router.get('/profile', verifyToken, async (req, res) => {
         howDidYouHear: sanitize(ap.commonAnswers?.howDidYouHear),
         willingToRelocate: sanitize(ap.commonAnswers?.willingToRelocate),
         earliestStartDate: sanitize(ap.commonAnswers?.earliestStartDate),
-        salaryExpectation: sanitize(ap.commonAnswers?.salaryExpectation),
-        previouslyApplied: sanitize(ap.commonAnswers?.previouslyApplied),
-        previouslyEmployed: sanitize(ap.commonAnswers?.previouslyEmployed),
       },
       // Other
       lookingForFirstJob: ap.lookingForFirstJob || false,
