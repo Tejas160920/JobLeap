@@ -327,6 +327,23 @@ const AutoFillProfile = () => {
     loadProfile();
   }, [navigate]);
 
+  // Validation helpers
+  const isValidEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const isValidPhone = (phone) => {
+    // Remove all non-digits
+    const digitsOnly = phone.replace(/\D/g, '');
+    // Should have 10-15 digits (international numbers can be longer)
+    return digitsOnly.length >= 10 && digitsOnly.length <= 15;
+  };
+
+  const isValidZipCode = (zip) => {
+    // US: 5 digits or 5+4 format, Canada: A1A 1A1, others: allow alphanumeric
+    return /^[A-Za-z0-9\s\-]{3,10}$/.test(zip);
+  };
+
   // Validation function
   const validateStep = (step) => {
     const newErrors = {};
@@ -335,9 +352,16 @@ const AutoFillProfile = () => {
       case 0: // Basics
         if (!formData.firstName.trim()) {
           newErrors.firstName = "First name is required";
+        } else if (formData.firstName.trim().length < 2) {
+          newErrors.firstName = "First name must be at least 2 characters";
         }
         if (!formData.lastName.trim()) {
           newErrors.lastName = "Last name is required";
+        } else if (formData.lastName.trim().length < 2) {
+          newErrors.lastName = "Last name must be at least 2 characters";
+        }
+        if (formData.email && !isValidEmail(formData.email)) {
+          newErrors.email = "Please enter a valid email address";
         }
         break;
 
@@ -345,6 +369,9 @@ const AutoFillProfile = () => {
         formData.education.forEach((edu, index) => {
           if (edu.schoolName && !edu.degreeType) {
             newErrors[`education_${index}_degreeType`] = "Degree type is required";
+          }
+          if (edu.gpa && (isNaN(parseFloat(edu.gpa)) || parseFloat(edu.gpa) < 0 || parseFloat(edu.gpa) > 4.0)) {
+            newErrors[`education_${index}_gpa`] = "GPA must be between 0 and 4.0";
           }
         });
         break;
@@ -360,8 +387,13 @@ const AutoFillProfile = () => {
         break;
 
       case 6: // Personal
-        if (formData.phone && !/^[\d\s\-()]+$/.test(formData.phone)) {
-          newErrors.phone = "Please enter a valid phone number";
+        if (formData.phone) {
+          if (!isValidPhone(formData.phone)) {
+            newErrors.phone = "Please enter a valid phone number (10-15 digits)";
+          }
+        }
+        if (formData.zipCode && !isValidZipCode(formData.zipCode)) {
+          newErrors.zipCode = "Please enter a valid postal/zip code";
         }
         break;
 
@@ -371,6 +403,9 @@ const AutoFillProfile = () => {
         }
         if (formData.github && !formData.github.includes("github.com")) {
           newErrors.github = "Please enter a valid GitHub URL";
+        }
+        if (formData.twitter && !formData.twitter.match(/twitter\.com|x\.com/i)) {
+          newErrors.twitter = "Please enter a valid Twitter/X URL";
         }
         break;
     }
@@ -929,6 +964,40 @@ const AutoFillProfile = () => {
                 </div>
                 <button
                   onClick={() => editSection(7)}
+                  className="text-[#0d6d6e] hover:text-[#095555] text-sm font-medium flex items-center"
+                >
+                  Edit <FaArrowRight className="w-3 h-3 ml-1" />
+                </button>
+              </div>
+            </div>
+
+            {/* Section: Common Questions */}
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-gray-900 flex items-center mb-3">
+                    <FaLightbulb className="w-5 h-5 mr-2 text-[#0d6d6e]" />
+                    Common Application Questions
+                  </h3>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <span className="text-gray-500">How did you hear:</span>
+                      <p className="font-medium text-gray-900">{formData.howDidYouHear || 'Not set'}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">Willing to relocate:</span>
+                      <p className="font-medium text-gray-900">
+                        {formData.willingToRelocate === true ? 'Yes' : formData.willingToRelocate === false ? 'No' : 'Not set'}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">Earliest start date:</span>
+                      <p className="font-medium text-gray-900">{formData.earliestStartDate || 'Not set'}</p>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => editSection(8)}
                   className="text-[#0d6d6e] hover:text-[#095555] text-sm font-medium flex items-center"
                 >
                   Edit <FaArrowRight className="w-3 h-3 ml-1" />
