@@ -51,6 +51,9 @@ const userSchema = new mongoose.Schema({
     // Basics
     firstName: String,
     lastName: String,
+    preferredName: String,
+    pronouns: String,
+    namePronunciation: String,
     resumeFile: String,
     // Education
     education: [{
@@ -78,29 +81,52 @@ const userSchema = new mongoose.Schema({
       authorizedUS: String,
       authorizedCanada: String,
       authorizedUK: String,
+      authorizedEU: String,
       requireSponsorship: String
     },
-    // EEO
+    // EEO (Equal Employment Opportunity)
     eeo: {
       gender: String,
+      hispanicLatino: String,
       ethnicity: String,
       veteranStatus: String,
-      disabilityStatus: String
+      disabilityStatus: String,
+      lgbtq: String
     },
     // Skills
     skills: [String],
     // Personal
     personal: {
-      location: String,
+      email: String,
       phone: String,
-      dateOfBirth: String
+      phoneCountryCode: String,
+      dateOfBirth: String,
+      currentCompany: String,
+      // Address fields
+      address: {
+        street: String,
+        city: String,
+        state: String,
+        zipCode: String,
+        country: String
+      }
     },
     // Links
     links: {
       linkedin: String,
       github: String,
       portfolio: String,
+      twitter: String,
       other: String
+    },
+    // Common Application Questions (default answers)
+    commonAnswers: {
+      howDidYouHear: String,
+      willingToRelocate: String,
+      earliestStartDate: String,
+      salaryExpectation: String,
+      previouslyApplied: { type: String, default: 'No' },
+      previouslyEmployed: { type: String, default: 'No' }
     }
   },
   profileCompleted: {

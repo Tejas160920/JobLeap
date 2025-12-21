@@ -38,6 +38,7 @@ const STEPS = [
   { id: "skills", label: "Skills", icon: FaTools },
   { id: "personal", label: "Personal", icon: FaMapMarkerAlt },
   { id: "links", label: "Links", icon: FaLink },
+  { id: "common", label: "Common Questions", icon: FaLightbulb },
 ];
 
 // Common skills list for autocomplete
@@ -106,6 +107,10 @@ const AutoFillProfile = () => {
     // Basics
     firstName: "",
     lastName: "",
+    preferredName: "",
+    pronouns: "",
+    namePronunciation: "",
+    email: "",
     resumeFile: null,
     resumeFileName: "",
 
@@ -144,10 +149,12 @@ const AutoFillProfile = () => {
     authorizedUS: null,
     authorizedCanada: null,
     authorizedUK: null,
+    authorizedEU: null,
     requiresSponsorship: null,
 
     // EEO
     ethnicity: [],
+    hispanicLatino: null,
     declineEthnicity: false,
     hasDisability: null,
     isVeteran: null,
@@ -158,7 +165,13 @@ const AutoFillProfile = () => {
     skills: [],
 
     // Personal
+    currentCompany: "",
     currentLocation: "",
+    street: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    country: "",
     dateOfBirth: "",
     phone: "",
     phoneCountryCode: "+1",
@@ -167,7 +180,16 @@ const AutoFillProfile = () => {
     linkedIn: "",
     github: "",
     portfolio: "",
+    twitter: "",
     otherWebsite: "",
+
+    // Common Application Questions
+    howDidYouHear: "",
+    willingToRelocate: null,
+    earliestStartDate: "",
+    salaryExpectation: "",
+    previouslyApplied: null,
+    previouslyEmployed: null,
   });
 
   // Load existing profile data on mount
@@ -216,17 +238,36 @@ const AutoFillProfile = () => {
 
             setFormData((prev) => ({
               ...prev,
+              // Basics
               firstName: raw.firstName || "",
               lastName: raw.lastName || "",
+              preferredName: raw.preferredName || "",
+              pronouns: raw.pronouns || "",
+              namePronunciation: raw.namePronunciation || "",
+              email: raw.personal?.email || "",
               resumeFileName: raw.resumeFile || "",
+              // Personal
               phone: phoneNumber,
-              phoneCountryCode: phoneCountryCode,
+              phoneCountryCode: raw.personal?.phoneCountryCode || phoneCountryCode,
               dateOfBirth: raw.personal?.dateOfBirth || "",
-              currentLocation: raw.personal?.location || "",
+              currentLocation: raw.personal?.address?.city && raw.personal?.address?.state
+                ? `${raw.personal.address.city}, ${raw.personal.address.state}`
+                : "",
+              currentCompany: raw.personal?.currentCompany || "",
+              street: raw.personal?.address?.street || "",
+              city: raw.personal?.address?.city || "",
+              state: raw.personal?.address?.state || "",
+              zipCode: raw.personal?.address?.zipCode || "",
+              country: raw.personal?.address?.country || "",
+              // Links
               linkedIn: raw.links?.linkedin || "",
               github: raw.links?.github || "",
               portfolio: raw.links?.portfolio || "",
+              twitter: raw.links?.twitter || "",
+              otherWebsite: raw.links?.other || "",
+              // Skills
               skills: raw.skills || [],
+              // Education
               education: raw.education?.length
                 ? raw.education.map((edu) => ({
                     schoolName: edu.school || "",
@@ -239,6 +280,7 @@ const AutoFillProfile = () => {
                     endYear: edu.endDate?.split("-")[0] || "",
                   }))
                 : prev.education,
+              // Experience
               noExperience: raw.lookingForFirstJob || false,
               experience: raw.experience?.length
                 ? raw.experience.map((exp) => ({
@@ -254,17 +296,27 @@ const AutoFillProfile = () => {
                     description: exp.description || "",
                   }))
                 : prev.experience,
-              // Convert "yes"/"no" strings back to booleans for form state
+              // Work Authorization - Convert "yes"/"no" strings back to booleans
               authorizedUS: raw.workAuthorization?.authorizedUS === "yes" ? true : raw.workAuthorization?.authorizedUS === "no" ? false : null,
               authorizedCanada: raw.workAuthorization?.authorizedCanada === "yes" ? true : raw.workAuthorization?.authorizedCanada === "no" ? false : null,
               authorizedUK: raw.workAuthorization?.authorizedUK === "yes" ? true : raw.workAuthorization?.authorizedUK === "no" ? false : null,
+              authorizedEU: raw.workAuthorization?.authorizedEU === "yes" ? true : raw.workAuthorization?.authorizedEU === "no" ? false : null,
               requiresSponsorship: raw.workAuthorization?.requireSponsorship === "yes" ? true : raw.workAuthorization?.requireSponsorship === "no" ? false : null,
+              // EEO
               gender: raw.eeo?.gender || "",
+              hispanicLatino: raw.eeo?.hispanicLatino === "yes" ? true : raw.eeo?.hispanicLatino === "no" ? false : null,
               ethnicity: raw.eeo?.ethnicity && raw.eeo.ethnicity !== "Decline to state" ? raw.eeo.ethnicity.split(", ") : [],
               declineEthnicity: raw.eeo?.ethnicity === "Decline to state",
               isVeteran: raw.eeo?.veteranStatus === "yes" ? true : raw.eeo?.veteranStatus === "no" ? false : null,
               hasDisability: raw.eeo?.disabilityStatus === "yes" ? true : raw.eeo?.disabilityStatus === "no" ? false : null,
-              otherWebsite: raw.links?.other || "",
+              isLGBTQ: raw.eeo?.lgbtq === "yes" ? true : raw.eeo?.lgbtq === "no" ? false : null,
+              // Common Answers
+              howDidYouHear: raw.commonAnswers?.howDidYouHear || "",
+              willingToRelocate: raw.commonAnswers?.willingToRelocate === "yes" ? true : raw.commonAnswers?.willingToRelocate === "no" ? false : null,
+              earliestStartDate: raw.commonAnswers?.earliestStartDate || "",
+              salaryExpectation: raw.commonAnswers?.salaryExpectation || "",
+              previouslyApplied: raw.commonAnswers?.previouslyApplied === "Yes" ? true : raw.commonAnswers?.previouslyApplied === "No" ? false : null,
+              previouslyEmployed: raw.commonAnswers?.previouslyEmployed === "Yes" ? true : raw.commonAnswers?.previouslyEmployed === "No" ? false : null,
             }));
 
             // Show the completed profile view
@@ -434,6 +486,9 @@ const AutoFillProfile = () => {
         // Basics
         firstName: formData.firstName,
         lastName: formData.lastName,
+        preferredName: formData.preferredName,
+        pronouns: formData.pronouns,
+        namePronunciation: formData.namePronunciation,
         resumeFile: formData.resumeFileName || "",
         // Education
         education: formData.education
@@ -467,29 +522,51 @@ const AutoFillProfile = () => {
           authorizedUS: formData.authorizedUS === true ? "yes" : formData.authorizedUS === false ? "no" : "",
           authorizedCanada: formData.authorizedCanada === true ? "yes" : formData.authorizedCanada === false ? "no" : "",
           authorizedUK: formData.authorizedUK === true ? "yes" : formData.authorizedUK === false ? "no" : "",
+          authorizedEU: formData.authorizedEU === true ? "yes" : formData.authorizedEU === false ? "no" : "",
           requireSponsorship: formData.requiresSponsorship === true ? "yes" : formData.requiresSponsorship === false ? "no" : "",
         },
         // EEO - convert booleans to strings
         eeo: {
           gender: formData.gender,
+          hispanicLatino: formData.hispanicLatino === true ? "yes" : formData.hispanicLatino === false ? "no" : "",
           ethnicity: formData.ethnicity.length > 0 ? formData.ethnicity.join(", ") : (formData.declineEthnicity ? "Decline to state" : ""),
           veteranStatus: formData.isVeteran === true ? "yes" : formData.isVeteran === false ? "no" : "",
           disabilityStatus: formData.hasDisability === true ? "yes" : formData.hasDisability === false ? "no" : "",
+          lgbtq: formData.isLGBTQ === true ? "yes" : formData.isLGBTQ === false ? "no" : "",
         },
         // Skills
         skills: formData.skills,
         // Personal
         personal: {
-          location: formData.currentLocation,
+          email: formData.email,
           phone: formData.phone ? `${formData.phoneCountryCode} ${formData.phone}` : "",
+          phoneCountryCode: formData.phoneCountryCode,
           dateOfBirth: formData.dateOfBirth,
+          currentCompany: formData.currentCompany,
+          address: {
+            street: formData.street,
+            city: formData.city,
+            state: formData.state,
+            zipCode: formData.zipCode,
+            country: formData.country,
+          },
         },
         // Links
         links: {
           linkedin: formData.linkedIn,
           github: formData.github,
           portfolio: formData.portfolio,
+          twitter: formData.twitter,
           other: formData.otherWebsite,
+        },
+        // Common Application Answers
+        commonAnswers: {
+          howDidYouHear: formData.howDidYouHear,
+          willingToRelocate: formData.willingToRelocate === true ? "yes" : formData.willingToRelocate === false ? "no" : "",
+          earliestStartDate: formData.earliestStartDate,
+          salaryExpectation: formData.salaryExpectation,
+          previouslyApplied: formData.previouslyApplied === true ? "Yes" : formData.previouslyApplied === false ? "No" : "",
+          previouslyEmployed: formData.previouslyEmployed === true ? "Yes" : formData.previouslyEmployed === false ? "No" : "",
         },
       };
 
@@ -1078,6 +1155,9 @@ const AutoFillProfile = () => {
     </div>
   );
 
+  // Pronouns options
+  const PRONOUNS_OPTIONS = ["He/Him", "She/Her", "They/Them", "Other", "Prefer not to say"];
+
   // Step 1: Basics
   const renderBasicsStep = () => (
     <div>
@@ -1093,6 +1173,16 @@ const AutoFillProfile = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {renderInput("First Name", "firstName", "text", "John", true)}
         {renderInput("Last Name", "lastName", "text", "Doe", true)}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        {renderInput("Preferred Name", "preferredName", "text", "Johnny")}
+        {renderSelect("Pronouns", "pronouns", PRONOUNS_OPTIONS, "Select pronouns...")}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        {renderInput("Name Pronunciation", "namePronunciation", "text", "e.g., JON-ee")}
+        {renderInput("Email", "email", "email", "john.doe@email.com")}
       </div>
 
       <div className="mt-6">
@@ -1610,6 +1700,7 @@ const AutoFillProfile = () => {
       {renderYesNo("Are you authorized to work in the US?", "authorizedUS")}
       {renderYesNo("Are you authorized to work in Canada?", "authorizedCanada")}
       {renderYesNo("Are you authorized to work in the United Kingdom?", "authorizedUK")}
+      {renderYesNo("Are you authorized to work in the European Union?", "authorizedEU")}
       {renderYesNo(
         "Will you now or in the future require sponsorship for employment visa status?",
         "requiresSponsorship"
@@ -1631,13 +1722,15 @@ const AutoFillProfile = () => {
         "Answering these questions is completely voluntary and will never hurt your chances of landing a job!"
       )}
 
+      {renderYesNoDecline("Are you Hispanic or Latino?", "hispanicLatino")}
+
       <div className="mb-6">
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          What is your ethnicity?
+          What is your race/ethnicity?
         </label>
-        <p className="text-xs text-gray-500 mb-2">Select all that apply</p>
+        <p className="text-xs text-gray-500 mb-2">Select all that apply (regardless of Hispanic/Latino origin)</p>
         <div className="flex flex-wrap gap-2 mb-2">
-          {ETHNICITY_OPTIONS.map((option) => (
+          {ETHNICITY_OPTIONS.filter(opt => opt !== "Hispanic or Latino").map((option) => (
             <button
               key={option}
               type="button"
@@ -1666,10 +1759,6 @@ const AutoFillProfile = () => {
         </div>
       </div>
 
-      {renderYesNoDecline("Do you have a disability?", "hasDisability")}
-      {renderYesNoDecline("Are you a veteran?", "isVeteran")}
-      {renderYesNoDecline("Do you identify as LGBTQ+?", "isLGBTQ")}
-
       <div className="mb-6">
         <label className="block text-sm font-medium text-gray-700 mb-2">
           What is your gender?
@@ -1691,6 +1780,10 @@ const AutoFillProfile = () => {
           ))}
         </div>
       </div>
+
+      {renderYesNoDecline("Do you have a disability?", "hasDisability")}
+      {renderYesNoDecline("Are you a veteran?", "isVeteran")}
+      {renderYesNoDecline("Do you identify as LGBTQ+?", "isLGBTQ")}
 
       <p className="text-xs text-gray-500 mt-4">
         By continuing you agree to the definitions set by the{" "}
@@ -1835,6 +1928,12 @@ const AutoFillProfile = () => {
     );
   };
 
+  // Country options
+  const COUNTRY_OPTIONS = [
+    "United States", "Canada", "United Kingdom", "Australia", "Germany",
+    "France", "India", "China", "Japan", "Singapore", "Other"
+  ];
+
   // Step 7: Personal
   const renderPersonalStep = () => (
     <div>
@@ -1842,17 +1941,10 @@ const AutoFillProfile = () => {
       <p className="text-gray-600 mb-6">This information helps complete your profile.</p>
 
       {renderTip(
-        "Your birthday is only used to verify that you are 18+ and will never be shared with anyone!"
+        "Address information helps autofill location fields on job applications."
       )}
 
-      {renderInput(
-        "Where are you currently located?",
-        "currentLocation",
-        "text",
-        "City, State"
-      )}
-
-      {renderInput("What's your date of birth?", "dateOfBirth", "date")}
+      {renderInput("Current Company", "currentCompany", "text", "Where do you currently work?")}
 
       <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1883,6 +1975,24 @@ const AutoFillProfile = () => {
         {errors.phone && (
           <p className="mt-1 text-sm text-red-500">{errors.phone}</p>
         )}
+      </div>
+
+      {renderInput("What's your date of birth?", "dateOfBirth", "date")}
+
+      <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+        <h3 className="text-sm font-semibold text-gray-700 mb-3">Address Information</h3>
+
+        {renderInput("Street Address", "street", "text", "123 Main St, Apt 4B")}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {renderInput("City", "city", "text", "San Francisco")}
+          {renderInput("State / Province", "state", "text", "California")}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {renderInput("ZIP / Postal Code", "zipCode", "text", "94102")}
+          {renderSelect("Country", "country", COUNTRY_OPTIONS, "Select country...")}
+        </div>
       </div>
     </div>
   );
@@ -1988,6 +2098,32 @@ const AutoFillProfile = () => {
 
         <div>
           <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
+            <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+            X (Twitter)
+          </label>
+          <div className="flex">
+            <span className="px-3 py-2 bg-gray-100 border border-r-0 border-gray-300 rounded-l-lg text-gray-500 text-sm">
+              https://x.com/
+            </span>
+            <input
+              type="text"
+              value={formData.twitter.replace(/.*(?:twitter|x)\.com\//i, "")}
+              onChange={(e) =>
+                handleChange(
+                  "twitter",
+                  e.target.value ? `https://x.com/${e.target.value}` : ""
+                )
+              }
+              placeholder="yourusername"
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-[#0d6d6e]"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
             <FaGlobe className="w-4 h-4 mr-2 text-gray-500" />
             Other website
           </label>
@@ -2013,6 +2149,38 @@ const AutoFillProfile = () => {
     </div>
   );
 
+  // How did you hear options
+  const HOW_DID_YOU_HEAR_OPTIONS = [
+    "LinkedIn", "Indeed", "Company Website", "Glassdoor", "Friend/Referral",
+    "Job Fair", "University/College", "Recruiter", "Google Search", "Other"
+  ];
+
+  // Step 9: Common Application Questions
+  const renderCommonQuestionsStep = () => (
+    <div>
+      <h2 className="text-2xl font-bold text-gray-900 mb-2">Common Application Questions</h2>
+      <p className="text-gray-600 mb-6">
+        These questions appear on almost every job application. Save time by setting default answers.
+      </p>
+
+      {renderTip(
+        "Setting these defaults will speed up your applications significantly!"
+      )}
+
+      {renderSelect("How did you hear about us?", "howDidYouHear", HOW_DID_YOU_HEAR_OPTIONS, "Select an option...")}
+
+      {renderYesNo("Are you willing to relocate?", "willingToRelocate")}
+
+      {renderInput("Earliest Start Date", "earliestStartDate", "date")}
+
+      {renderInput("Salary Expectation", "salaryExpectation", "text", "e.g., $80,000 - $100,000 or Negotiable")}
+
+      {renderYesNo("Have you previously applied to this company?", "previouslyApplied", "Default answer for 'Have you applied before?' questions")}
+
+      {renderYesNo("Have you been previously employed by this company?", "previouslyEmployed", "Default answer for 'Were you employed here before?' questions")}
+    </div>
+  );
+
   // Render current step content
   const renderStepContent = () => {
     switch (currentStep) {
@@ -2032,6 +2200,8 @@ const AutoFillProfile = () => {
         return renderPersonalStep();
       case 7:
         return renderLinksStep();
+      case 8:
+        return renderCommonQuestionsStep();
       default:
         return null;
     }

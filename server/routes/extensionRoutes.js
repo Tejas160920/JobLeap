@@ -42,30 +42,52 @@ router.get('/profile', verifyToken, async (req, res) => {
 
     // Transform autofillProfile to extension-compatible format
     const profile = {
+      // Basics
+      firstName: sanitize(ap.firstName),
+      lastName: sanitize(ap.lastName),
+      preferredName: sanitize(ap.preferredName),
+      pronouns: sanitize(ap.pronouns),
+      namePronunciation: sanitize(ap.namePronunciation),
+      // Personal (for backwards compatibility and structured access)
       personal: {
         firstName: sanitize(ap.firstName),
         lastName: sanitize(ap.lastName),
-        email: sanitize(user.email),
+        email: sanitize(ap.personal?.email || user.email),
         phone: sanitize(ap.personal?.phone),
+        phoneCountryCode: sanitize(ap.personal?.phoneCountryCode || '+1'),
+        currentCompany: sanitize(ap.personal?.currentCompany),
         linkedIn: sanitize(ap.links?.linkedin),
         github: sanitize(ap.links?.github),
         portfolio: sanitize(ap.links?.portfolio),
         address: {
-          city: sanitize(ap.personal?.location?.split(',')[0]?.trim()),
-          state: sanitize(ap.personal?.location?.split(',')[1]?.trim()),
-          country: 'United States',
+          street: sanitize(ap.personal?.address?.street),
+          city: sanitize(ap.personal?.address?.city),
+          state: sanitize(ap.personal?.address?.state),
+          zipCode: sanitize(ap.personal?.address?.zipCode),
+          country: sanitize(ap.personal?.address?.country || 'United States'),
         },
         dateOfBirth: sanitize(ap.personal?.dateOfBirth),
       },
+      // Links
+      links: {
+        linkedin: sanitize(ap.links?.linkedin),
+        github: sanitize(ap.links?.github),
+        portfolio: sanitize(ap.links?.portfolio),
+        twitter: sanitize(ap.links?.twitter),
+        other: sanitize(ap.links?.other),
+      },
+      // Experience
       experience: (ap.experience || []).map(exp => ({
         title: sanitize(exp.position),
         company: sanitize(exp.company),
         location: sanitize(exp.location),
+        experienceType: sanitize(exp.experienceType),
         startDate: sanitize(exp.startDate),
         endDate: sanitize(exp.endDate),
         current: exp.current || false,
         description: sanitize(exp.description),
       })),
+      // Education
       education: (ap.education || []).map(edu => ({
         school: sanitize(edu.school),
         degree: sanitize(edu.degree),
@@ -74,15 +96,44 @@ router.get('/profile', verifyToken, async (req, res) => {
         startDate: sanitize(edu.startDate),
         endDate: sanitize(edu.endDate),
       })),
+      // Skills
       skills: ap.skills || [],
+      // Work Authorization
+      workAuthorization: {
+        authorizedUS: sanitize(ap.workAuthorization?.authorizedUS),
+        authorizedCanada: sanitize(ap.workAuthorization?.authorizedCanada),
+        authorizedUK: sanitize(ap.workAuthorization?.authorizedUK),
+        authorizedEU: sanitize(ap.workAuthorization?.authorizedEU),
+        requireSponsorship: sanitize(ap.workAuthorization?.requireSponsorship),
+      },
+      // Legacy preferences field for backwards compatibility
       preferences: {
         authorizedToWork: ap.workAuthorization?.authorizedUS === 'yes',
         requiresSponsorship: ap.workAuthorization?.requireSponsorship === 'yes',
         authorizedUS: sanitize(ap.workAuthorization?.authorizedUS),
         authorizedCanada: sanitize(ap.workAuthorization?.authorizedCanada),
         authorizedUK: sanitize(ap.workAuthorization?.authorizedUK),
+        authorizedEU: sanitize(ap.workAuthorization?.authorizedEU),
       },
-      eeo: ap.eeo || {},
+      // EEO
+      eeo: {
+        gender: sanitize(ap.eeo?.gender),
+        hispanicLatino: sanitize(ap.eeo?.hispanicLatino),
+        ethnicity: sanitize(ap.eeo?.ethnicity),
+        veteranStatus: sanitize(ap.eeo?.veteranStatus),
+        disabilityStatus: sanitize(ap.eeo?.disabilityStatus),
+        lgbtq: sanitize(ap.eeo?.lgbtq),
+      },
+      // Common Application Answers
+      commonAnswers: {
+        howDidYouHear: sanitize(ap.commonAnswers?.howDidYouHear),
+        willingToRelocate: sanitize(ap.commonAnswers?.willingToRelocate),
+        earliestStartDate: sanitize(ap.commonAnswers?.earliestStartDate),
+        salaryExpectation: sanitize(ap.commonAnswers?.salaryExpectation),
+        previouslyApplied: sanitize(ap.commonAnswers?.previouslyApplied),
+        previouslyEmployed: sanitize(ap.commonAnswers?.previouslyEmployed),
+      },
+      // Other
       lookingForFirstJob: ap.lookingForFirstJob || false,
       files: {
         resumeName: sanitize(ap.resumeFile),
