@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import { syncTokenWithExtension, isExtensionInstalled } from './utils/extensionBridge';
+import { trackPageView } from './utils/analytics';
 import JobSection from './components/JobSection';
 import Login from './components/Login';
 import JobForm from './components/JobForm';
@@ -74,6 +75,11 @@ function AppContent() {
 
     syncExtension();
   }, [location.pathname]); // Re-sync on navigation
+
+  // Track page views for Google Analytics
+  useEffect(() => {
+    trackPageView(location.pathname + location.search);
+  }, [location]);
 
   // Handle navigation with filters
   useEffect(() => {
