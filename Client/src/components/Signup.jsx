@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import SEO from "./SEO";
 import { FaGoogle, FaApple, FaEye, FaEyeSlash, FaEnvelope, FaLock, FaBriefcase, FaUser, FaCheck, FaTimes } from "react-icons/fa";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { API_BASE_URL } from "../config/api";

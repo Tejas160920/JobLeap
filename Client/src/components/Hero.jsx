@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import SEO from "./SEO";
 import {
   FaSearch,
   FaMapMarkerAlt,
@@ -70,6 +71,8 @@ const Hero = ({ onSearch, onViewAllJobs, showCompactMode, onCompanyClick }) => {
   };
 
   return (
+    <>
+      <SEO />
     <section className="relative bg-white">
       <div className={`max-w-7xl mx-auto px-6 ${showCompactMode ? 'pt-20 pb-8 lg:pt-24 lg:pb-10' : 'pt-24 pb-16 lg:pt-28 lg:pb-20'}`}>
         <div className="text-center">
@@ -200,6 +203,8 @@ const Hero = ({ onSearch, onViewAllJobs, showCompactMode, onCompanyClick }) => {
                     (filter.value === 'senior' && title.toLowerCase().includes('senior'));
 
                   return (
+    <>
+      <SEO />
                     <button
                       key={index}
                       onClick={() => {
@@ -243,6 +248,8 @@ const Hero = ({ onSearch, onViewAllJobs, showCompactMode, onCompanyClick }) => {
                 {popularSearches.map((search, index) => {
                   const isSelected = title === search;
                   return (
+    <>
+      <SEO />
                     <button
                       key={index}
                       onClick={() => {

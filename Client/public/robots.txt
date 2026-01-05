@@ -1,0 +1,22 @@
+# JobLeap Robots.txt
+# https://www.jobleap.work
+
+User-agent: *
+Allow: /
+
+# Disallow private/auth pages from being indexed
+Disallow: /complete-profile
+Disallow: /my-applications
+Disallow: /my-jobs
+Disallow: /edit-job/
+Disallow: /settings
+Disallow: /notifications
+Disallow: /job-alerts
+Disallow: /auth/callback
+Disallow: /select-role
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /verify-email
+
+# Sitemap location
+Sitemap: https://www.jobleap.work/sitemap.xml
